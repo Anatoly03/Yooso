@@ -15,11 +15,12 @@
 
 <script setup lang="ts">
 import { NIcon, NLayout, NLayoutSider } from 'naive-ui';
-import { FlowerOutline, HomeOutline } from '@vicons/ionicons5';
+import { FlowerOutline, HomeOutline, LeafOutline } from '@vicons/ionicons5';
 import { h, ref } from 'vue';
 import ViewSidebar from './ViewSidebar.vue';
 import ViewHomeGeneral from './ViewHomeGeneral.vue';
 import ViewHomeEntities from './ViewHomeEntities.vue';
+import ViewHomeComponents from './ViewHomeComponents.vue';
 
 // State of left sidebar
 const collapsed = ref(true);
@@ -29,6 +30,7 @@ defineOptions({
     routes: [
         { path: '/', component: ViewHomeGeneral, name: 'Home', icon: () => h(HomeOutline) },
         { path: '/entities', component: ViewHomeEntities, name: 'Entities', icon: () => h(FlowerOutline) },
+        { path: '/components', component: ViewHomeComponents, name: 'Components', icon: () => h(LeafOutline) }
     ],
 });
 </script>
