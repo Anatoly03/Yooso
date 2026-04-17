@@ -8,7 +8,7 @@ import NotFound from './NotFound.vue';
 
 defineOptions({
     routes: [
-        { path: "/", component: ViewHome },
+        { path: "/", component: ViewHome, children: ViewHome.routes },
         { path: "/:pathMatch(.*)*", component: NotFound },
     ],
 });
