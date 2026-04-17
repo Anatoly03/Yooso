@@ -1,0 +1,9 @@
+# Rust
+target
+
+# Node.js
+dist
+node_modules
+
+# Local
+local
