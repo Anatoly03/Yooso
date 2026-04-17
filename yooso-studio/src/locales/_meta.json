@@ -1,0 +1,15 @@
+[
+    {
+        "value": "en",
+        "label": "English (United Kingdom)"
+    },
+    {
+        "value": "jp",
+        "label": "日本語（日本）"
+    },
+    {
+        "value": "zh",
+        "label": "中文（中国）",
+        "disabled": true
+    }
+]

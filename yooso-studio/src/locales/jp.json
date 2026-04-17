@@ -1,0 +1,12 @@
+{
+    "hello": "こんにちは、世界！",
+    "app": {
+        "menu": {
+            "home": "ホーム",
+            "entities": "エンティティ",
+            "components": "コンポーネント",
+            "settings": "設定",
+            "about": "について"
+        }
+    }
+}

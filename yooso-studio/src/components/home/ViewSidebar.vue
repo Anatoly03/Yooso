@@ -5,20 +5,16 @@
 <script setup lang="ts">
 import type { MenuOption } from 'naive-ui';
 import { NIcon, NMenu } from 'naive-ui';
+import { FlowerOutline, HomeOutline, LeafOutline } from '@vicons/ionicons5';
 import { computed, h, onMounted, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
-// Sidebar route definition
-interface SidebarRoute {
-    path: string;
-    name: string;
-    icon: () => ReturnType<typeof h>;
-}
+const { t, locale } = useI18n();
 
 // Collapse state is managed by parent component (ViewHome) and passed as prop
-const props =defineProps<{
+const props = defineProps<{
     collapsed: boolean;
-    routes: SidebarRoute[];
 }>();
 
 // Router instance for navigation
@@ -37,13 +33,15 @@ function renderMenuLabel(option: MenuOption) {
 }
 
 // Sidebar menu options
-// TODO: move to separate component/ file
-const menuOptions = computed(() => props.routes.map(route => ({
-     key: route.path, // Use path as unique key
-     label: route.name,
-     to: route.path,
-     icon: () => h(NIcon, null, { default: () => route.icon() }),
-})));
+const menuOptions = computed(() => {
+    void locale.value;
+
+    return [
+        { to: '/', key: 'home', label: t('app.menu.home'), icon: () => h(HomeOutline) },
+        { to: '/entities', key: 'entities', label: t('app.menu.entities'), icon: () => h(FlowerOutline) },
+        { to: '/components', key: 'components', label: t('app.menu.components'), icon: () => h(LeafOutline) },
+    ];
+});
 
 // Select current path as active menu item
 onMounted(() => {

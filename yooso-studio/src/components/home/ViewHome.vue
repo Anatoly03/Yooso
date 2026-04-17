@@ -4,8 +4,9 @@
 
 <template>
     <n-layout has-sider>
-        <n-layout-sider collapse-mode="width" :collapsed-width="64" :width="240" show-trigger="bar" :collapsed="collapsed" @collapse="collapsed = true" @expand="collapsed = false" bordered>
-            <ViewSidebar :collapsed="collapsed" :routes="$options.routes" />
+        <n-layout-sider :content-style="{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }" collapse-mode="width" :collapsed-width="64" :width="240" show-trigger="bar" :collapsed="collapsed" @collapse="collapsed = true" @expand="collapsed = false" bordered>
+            <ViewSidebar :collapsed="collapsed" />
+            <LanguageSelect :collapsed="collapsed" />
         </n-layout-sider>
         <n-layout>
             <router-view />
@@ -14,9 +15,10 @@
 </template>
 
 <script setup lang="ts">
-import { NIcon, NLayout, NLayoutSider } from 'naive-ui';
-import { FlowerOutline, HomeOutline, LeafOutline } from '@vicons/ionicons5';
-import { h, ref } from 'vue';
+import { NLayout, NLayoutSider } from 'naive-ui';
+import { ref } from 'vue'
+
+import LanguageSelect from '../ui/LanguageSelect.vue';
 import ViewSidebar from './ViewSidebar.vue';
 import ViewHomeGeneral from './ViewHomeGeneral.vue';
 import ViewHomeEntities from './ViewHomeEntities.vue';
@@ -28,9 +30,9 @@ const collapsed = ref(true);
 // Routes
 defineOptions({
     routes: [
-        { path: '/', component: ViewHomeGeneral, name: 'Home', icon: () => h(HomeOutline) },
-        { path: '/entities', component: ViewHomeEntities, name: 'Entities', icon: () => h(FlowerOutline) },
-        { path: '/components', component: ViewHomeComponents, name: 'Components', icon: () => h(LeafOutline) }
+        { path: '/', component: ViewHomeGeneral },
+        { path: '/entities', component: ViewHomeEntities },
+        { path: '/components', component: ViewHomeComponents },
     ],
 });
 </script>

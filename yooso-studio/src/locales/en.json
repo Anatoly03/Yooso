@@ -1,0 +1,12 @@
+{
+    "hello": "Hello, World!",
+    "app": {
+        "menu": {
+            "home": "Home",
+            "entities": "Entities",
+            "components": "Components",
+            "settings": "Settings",
+            "about": "About"
+        }
+    }
+}

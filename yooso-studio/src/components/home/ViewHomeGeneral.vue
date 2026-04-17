@@ -5,6 +5,8 @@
     <div class="view-home-general">
         <h1>Yooso Studio <small>要素</small></h1>
         Yooso - View Home - General
+
+        <p>{{ $t('hello') }}</p>
     </div>
 </template>
 
