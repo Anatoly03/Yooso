@@ -6,6 +6,7 @@
 import type { DataTableColumns } from 'naive-ui';
 import { NDataTable } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
+import InputSpan from '../ui/InputSpan.vue';
 
 const draggedIndex = ref<number | null>(null);
 const dragOverIndex = ref<number | null>(null);
@@ -26,6 +27,13 @@ const fieldColumns: DataTableColumns<FieldRow> = [
     {
         title: 'Field',
         key: 'field',
+        render: (row) =>
+            h(InputSpan, {
+                modelValue: row.field,
+                'onUpdate:modelValue': (value) => {
+                    row.field = value;
+                },
+            }),
     },
 ];
 
