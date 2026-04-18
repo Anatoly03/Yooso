@@ -1,10 +1,12 @@
 <template>
-    <n-data-table :columns="columns" :data="data" />
+    <n-data-table remote :loading="loadingRef" :columns="columns" :data="data" />
 </template>
 
 <script setup lang="ts">
 import { NButton, NDataTable, NPopover } from 'naive-ui';
-import { h, ref } from 'vue';
+import { h, onMounted, ref } from 'vue';
+
+const loadingRef = ref(true);
 
 const columns = ref([
     {
@@ -27,72 +29,30 @@ const columns = ref([
             );
         },
     },
-    // {
-    //     title: 'Components',
-    //     key: 'components',
-    //     render(row: any) {
-    //         const tags = row.components.map((component: any) =>
-    //             h(
-    //                 'span',
-    //                 {
-    //                     style: {
-    //                         display: 'inline-block',
-    //                         marginRight: '6px',
-    //                         padding: '4px 8px',
-    //                         backgroundColor: component.color,
-    //                         color: '#fff',
-    //                         borderRadius: '4px',
-    //                     },
-    //                 },
-    //                 component.name,
-    //             ),
-    //         );
-
-    //         return tags;
-    //     },
-    // },
 ]);
 
-const data = ref([
-    {
-        name: 'Superuser',
-        color: 'red',
-    },
-    {
-        name: 'EmailAuth',
-        color: 'blue',
-    },
-    {
-        name: 'PassAuth',
-        color: 'blue',
-    },
-    {
-        name: 'User',
-        color: 'green',
-    },
-    {
-        name: 'Channel',
-        color: 'purple',
-    },
-    {
-        name: 'TextChannel',
-        color: 'gray',
-    },
-    {
-        name: 'VoiceChannel',
-        color: 'orange',
-    },
-    {
-        name: 'Message',
-        color: 'purple',
-    },
-    {
-        name: 'TextMessage',
-        color: 'gray',
-    },
-    {
-        name: 'MessageAttachments',
-        color: 'cyan',
-    },
-]);
+const data = ref([]);
+
+onMounted(async () => {
+    try {
+        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/list');
+        const result = await response.json();
+
+        if (!result.success) throw new Error(result.message || 'Failed to fetch components');
+
+        // Map color to HTML approved format
+        data.value = result.components.map((component: any) => {
+            let htmlColor = '#' + component.color.toString(16).padStart(6, '0');
+
+            return {
+                name: component.name,
+                color: htmlColor,
+            };
+        });
+    } catch (error) {
+        console.error('Error fetching components:', error);
+    }
+
+    loadingRef.value = false;
+});
 </script>
