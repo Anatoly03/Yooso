@@ -1,0 +1,9 @@
+[package]
+name = "yooso"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+yooso-core = { path = "../yooso-core" }
+yooso-macro = { path = "../yooso-macro" }
+rocket = "0.5.1"

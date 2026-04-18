@@ -1,3 +1,3 @@
-# Yōso （要素）
+# Yōso Project （要素Ｐｒｏｊｅｃｔ）
 
-Yooso is a backend platform inspired by ECS data design. The data is structured as flexible entities with reusable components rather than tabular or schematic presets.
+Yōso is a backend platform inspired by ECS data design. The data is structured as flexible entities with reusable components rather than tabular or schematic presets.

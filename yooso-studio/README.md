@@ -1,3 +1,3 @@
-# Yooso Studio
+# Yōso Studio
 
-Yooso Studio is a web application which provides an administrative user interface to Yooso superusers.
+Yōso Studio is a web application which provides an administrative user interface to Yōso superusers.
