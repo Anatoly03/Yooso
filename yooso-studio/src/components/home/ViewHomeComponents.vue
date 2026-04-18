@@ -1,8 +1,10 @@
 <template>
     <div class="view-components">
         <n-data-table remote :loading="loadingRef" :columns="columns" :data="data" />
-        <n-drawer v-model:show="editComponent" :default-width="502" placement="right" resizable>
-            <n-drawer-content :title="'Edit Component: ' + editComponentName"> To-Do: Fields Table</n-drawer-content>
+        <n-drawer v-model:show="editComponent" :default-width="612" :min-width="416" placement="right" resizable>
+            <n-drawer-content :title="'Edit Component: ' + editComponentName">
+                <view-fields-editor :component-id="editComponentId" />
+            </n-drawer-content>
         </n-drawer>
     </div>
 </template>
@@ -10,6 +12,7 @@
 <script setup lang="ts">
 import { NButton, NDataTable, NPopover, NDrawer, NDrawerContent } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
+import ViewFieldsEditor from './ViewFieldsEditor.vue';
 
 const editComponent = ref(false);
 const editComponentId = ref('');
