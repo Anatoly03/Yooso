@@ -10,7 +10,7 @@
   - [ ] Patch
   - [ ] Remove
 - [ ] Component Viewer
-  - [ ] List
+  - [x] List
   - [ ] View
   - [ ] Create
   - [ ] Patch Name
@@ -31,17 +31,6 @@
   - [ ] Table `ComponentFields(UUID component, STRING field_name, STRING field_type, BOOL is_system)`
   - [ ] Table `EntityComponent(UUID entity, UUID component)`
   - [ ] Component Table `<Component> (UUID entity, <...>)`
-- [ ] Admin UI
-  - [ ] List Entities
-  - [ ] View Entities
-  - [ ] Create Entities
-  - [ ] Patch Entities
-  - [ ] Remove Entities
-  - [x] List Components
-  - [ ] View Components
-  - [ ] Create Components
-  - [ ] Patch Components
-  - [ ] Remove Components
 
 ## Chapter II: Query API
 - [ ] Pagination

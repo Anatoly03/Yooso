@@ -1,11 +1,19 @@
 <template>
-    <n-data-table remote :loading="loadingRef" :columns="columns" :data="data" />
+    <div class="view-components">
+        <n-data-table remote :loading="loadingRef" :columns="columns" :data="data" />
+        <n-drawer v-model:show="editComponent" :default-width="502" placement="right" resizable>
+            <n-drawer-content :title="'Edit Component: ' + editComponentName"> To-Do: Fields Table</n-drawer-content>
+        </n-drawer>
+    </div>
 </template>
 
 <script setup lang="ts">
-import { NButton, NDataTable, NPopover } from 'naive-ui';
+import { NButton, NDataTable, NPopover, NDrawer, NDrawerContent } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
 
+const editComponent = ref(false);
+const editComponentId = ref('');
+const editComponentName = ref('');
 const loadingRef = ref(true);
 
 const columns = ref([
@@ -30,6 +38,24 @@ const columns = ref([
             );
         },
     },
+    {
+        title: 'Actions',
+        key: 'actions',
+        render(row: any) {
+            return h(
+                NButton,
+                {
+                    type: 'primary',
+                    onClick: () => {
+                        editComponent.value = true;
+                        editComponentId.value = row.id;
+                        editComponentName.value = row.name;
+                    },
+                },
+                'Edit',
+            );
+        },
+    },
 ]);
 
 const data = ref([]);
@@ -45,7 +71,9 @@ onMounted(async () => {
         data.value = result.components.map((component: any) => {
             let htmlColor = '#' + component.color.toString(16).padStart(6, '0');
 
+            console.log(`Component: ${component.name} (${component.id}), Original Color: ${component.color}, HTML Color: ${htmlColor}`);
             return {
+                id: component.id,
                 name: component.name,
                 color: htmlColor,
             };
@@ -57,3 +85,11 @@ onMounted(async () => {
     loadingRef.value = false;
 });
 </script>
+
+<style lang="scss" scoped>
+.view-components {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+</style>
