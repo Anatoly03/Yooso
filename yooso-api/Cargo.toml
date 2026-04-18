@@ -1,10 +1,13 @@
 [package]
-name = "yooso-core"
+name = "yooso-api"
 version = "0.1.0"
 edition = "2024"
 # publish = true
 
 [dependencies]
 chrono = { version = "0.4.44", features = [ "serde" ] }
+rocket = { version = "0.5.1", features = [ "json" ] }
+rocket_cors = "0.6.0"
 serde = "1.0.228"
 uuid = { version = "1.23.1", features = [ "v7", "serde" ] }
+yooso-core = { path = "../yooso-core" }

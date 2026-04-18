@@ -2134,8 +2134,21 @@ name = "yooso"
 version = "0.1.0"
 dependencies = [
  "rocket",
+ "yooso-api",
  "yooso-core",
  "yooso-macro",
+]
+
+[[package]]
+name = "yooso-api"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "rocket",
+ "rocket_cors",
+ "serde",
+ "uuid",
+ "yooso-core",
 ]
 
 [[package]]
@@ -2143,8 +2156,6 @@ name = "yooso-core"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "rocket",
- "rocket_cors",
  "serde",
  "uuid",
 ]

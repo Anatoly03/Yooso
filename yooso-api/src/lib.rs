@@ -1,5 +1,7 @@
 //! TODO: document
 
+mod components;
+
 use rocket::{Build, Ignite, Rocket};
 use rocket_cors::{Cors, CorsOptions};
 

@@ -1,10 +1,13 @@
-//! This module manages component entries in the Yooso application.
+//! This module defines the [Component] struct, which represents a
+//! composable unit of functionality within the Yooso ecosystem.
 
-mod list;
-
+#[cfg(doc)]
+use crate::Entity;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+/// A [Component] represents a building block of data that can be
+/// attached to an [Entity] within the Yooso ecosystem.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Component {
     pub id: Uuid,
@@ -24,8 +27,4 @@ pub struct Component {
     /// The timestamp of the component's creation, used for tracking and
     /// debugging. It is represented as a Unix timestamp in milliseconds.
     pub created_at: i64,
-}
-
-pub fn routes() -> Vec<rocket::Route> {
-    rocket::routes![list::list_components]
 }

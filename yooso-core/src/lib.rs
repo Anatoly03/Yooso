@@ -1,5 +1,5 @@
-mod app;
-mod components;
+mod component;
+mod entity;
 
-pub use app::Yooso;
-pub use components::Component;
+pub use component::Component;
+pub use entity::Entity;

@@ -1,10 +1,10 @@
 //! TODO: document
 
-use super::Component;
 use rocket::get;
 use rocket::serde::json::{Json, Value};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use yooso_core::Component;
 
 /// TODO: document
 #[derive(Debug, Serialize, Deserialize)]
