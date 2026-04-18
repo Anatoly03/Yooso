@@ -1,13 +1,16 @@
 <template>
     <div class="view-components">
-        <n-data-table remote :loading="loadingRef" :columns="columns" :data="data" />
+        <n-data-table remote :bordered="false" :loading="loadingRef" :columns="columns" :data="data" />
+        <div class="view-components-footer">
+            <n-button type="primary" @click="openCreateNewComponentDrawer"> Create Component </n-button>
+        </div>
         <n-drawer v-model:show="editComponent" :default-width="612" :min-width="416" placement="right" resizable>
             <n-drawer-content :title="'Edit Component: ' + editComponentName">
-                <n-form style="display: flex; flex-direction: column; gap: 5px;">
+                <n-form style="display: flex; flex-direction: column; gap: 5px">
                     <edit-component-label :name="editComponentName" :color="editComponentColor" />
                     <view-fields-editor :component-id="editComponentId" />
                     <n-button-group class="component-action-slot">
-                        <n-button type="error" @click="editComponent = false">Delete</n-button>
+                        <n-button v-if="!editComponentIsNew" type="error" @click="editComponent = false">Delete</n-button>
                         <n-button secondary type="default" @click="editComponent = false">Cancel</n-button>
                         <n-button type="primary" @click="editComponent = false">Save</n-button>
                     </n-button-group>
@@ -18,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { NButton, NButtonGroup, NDataTable, NForm, NFormItem, NLayout, NPopover, NDrawer, NDrawerContent } from 'naive-ui';
+import { NButton, NButtonGroup, NDataTable, NForm, NFormItem, NLayout, NPopover, NDrawer, NDrawerContent, DataTableCreateSummary } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
 import ViewFieldsEditor from './ViewFieldsEditor.vue';
 import EditComponentLabel from '../ui/EditComponentLabel.vue';
@@ -27,6 +30,7 @@ const editComponent = ref(false);
 const editComponentId = ref('');
 const editComponentName = ref('');
 const editComponentColor = ref('');
+const editComponentIsNew = ref(false);
 const loadingRef = ref(true);
 
 const columns = ref([
@@ -64,6 +68,7 @@ const columns = ref([
                         editComponentId.value = row.id;
                         editComponentName.value = row.name;
                         editComponentColor.value = row.color;
+                        editComponentIsNew.value = false;
                     },
                 },
                 'Edit',
@@ -73,6 +78,14 @@ const columns = ref([
 ]);
 
 const data = ref([]);
+
+function openCreateNewComponentDrawer() {
+    editComponent.value = true;
+    editComponentId.value = '';
+    editComponentName.value = 'New Component';
+    editComponentColor.value = '#000000';
+    editComponentIsNew.value = true;
+}
 
 onMounted(async () => {
     try {
@@ -105,6 +118,23 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     width: 100%;
+    height: 100%;
+
+    :deep(.n-data-table) {
+        flex: 1 1 0;
+        min-height: 0;
+        overflow: auto;
+    }
+}
+
+.view-components-footer {
+    flex: 0 0 auto;
+    display: flex;
+    padding: 10px 24px;
+    gap: 8px;
+
+    border-top: 1px solid #eee;
+    background-color: #f5f5f5;
 }
 
 .component-action-slot {
