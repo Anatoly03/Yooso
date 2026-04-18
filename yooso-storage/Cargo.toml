@@ -1,0 +1,14 @@
+[package]
+name = "yooso-storage"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = ["rusqlite"]
+rusqlite = ["rusqlite/bundled"]
+# postgres = [] # https://docs.rs/postgres/latest/postgres/#features
+
+[dependencies]
+rusqlite = { version = "0.31", optional = true, features = ["bundled"] }
+uuid = { version = "1.23.1", features = [ "v7", "serde" ] }
+yooso-macro = { path = "../yooso-macro" }
