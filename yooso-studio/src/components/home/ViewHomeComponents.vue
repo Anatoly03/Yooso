@@ -6,6 +6,11 @@
                 <n-form style="display: flex; flex-direction: column; gap: 5px;">
                     <edit-component-label :name="editComponentName" :color="editComponentColor" />
                     <view-fields-editor :component-id="editComponentId" />
+                    <n-button-group class="component-action-slot">
+                        <n-button type="error" @click="editComponent = false">Delete</n-button>
+                        <n-button secondary type="default" @click="editComponent = false">Cancel</n-button>
+                        <n-button type="primary" @click="editComponent = false">Save</n-button>
+                    </n-button-group>
                 </n-form>
             </n-drawer-content>
         </n-drawer>
@@ -13,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { NButton, NDataTable, NForm, NFormItem, NPopover, NDrawer, NDrawerContent } from 'naive-ui';
+import { NButton, NButtonGroup, NDataTable, NForm, NFormItem, NLayout, NPopover, NDrawer, NDrawerContent } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
 import ViewFieldsEditor from './ViewFieldsEditor.vue';
 import EditComponentLabel from '../ui/EditComponentLabel.vue';
@@ -100,5 +105,20 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     width: 100%;
+}
+
+.component-action-slot {
+    width: 100%;
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+
+    :deep(.n-layout-scroll-container) {
+        flex: 1;
+    }
+
+    :deep(.n-button) {
+        flex: 1 0 auto;
+    }
 }
 </style>
