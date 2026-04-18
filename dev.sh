@@ -1,5 +1,18 @@
 # Yooso General UNIX Installer
 
+# This script is useful for first-time contributors and users who
+# try to quickly set up a running Yooso instance on their local
+# machine in development mode.
+# This script is opiniated and will install the Rust and Node.js
+# toolchains, including the node package manager (npm) if they are
+# not already installed on the system.
+# If you prefer to use a different method of installing, or prefer
+# to use different toolchains, you should ignore this script.
+
+#
+# DEPENDENCY INSTALLATION
+#
+
 # 1. Installs Rust toolchain if not already installed
 #
 if ! command -v rustc &> /dev/null
@@ -27,18 +40,35 @@ else
     echo "npm $(npm --version)"
 fi
 
+#
+# FIRST TIME PROJECT SETUP
+#
+
 # 3. Install web client local dependencies
 #
 if [ ! -d "node_modules" ]; then
     npm install
 fi
 
+#
+# STARTING THE APPLICATION
+#
+# To start the application you can run either this script, or open
+# two different terminal windows and run the following commands in
+# each console:
+#
+# > cargo run --bin yooso-example
+# > npm run dev
+#
+
 # 4. Start the Rust server in a separate process.
-# TODO:   cargo run --bin server & 
+#
+cargo run --bin yooso-example & 
 
 # 5. Start the web client application in a separate process.
-# TODO:   npm run serve &
+#
+npm run dev &
 
 # 6. Wait for both processes to finish.
-# TODO:   wait
-
+# 
+wait
