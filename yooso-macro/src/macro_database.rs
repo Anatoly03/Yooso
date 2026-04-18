@@ -5,8 +5,9 @@ use syn::{Fields, ItemStruct, LitStr};
 
 /// The [database] attribute marks a struct as a database definition. The
 /// struct will be converted into a connection pool.
-pub fn database(path: LitStr, strucc: ItemStruct) -> TokenStream {
+pub fn database(file_path: LitStr, strucc: ItemStruct) -> TokenStream {
     let ident = &strucc.ident;
+    // let mutex_ident = format_ident!("{}Mutex", ident);
 
     match strucc.fields {
         Fields::Unit => (),
@@ -19,9 +20,18 @@ pub fn database(path: LitStr, strucc: ItemStruct) -> TokenStream {
     quote! {
         #strucc
 
+        // /// The connection mutex for the database.
+        // struct #mutex_ident (pub ::std::sync::Mutex<
+        //     ::rusqlite::Connection
+        // >);
+
         impl #ident {
-            pub fn path() -> &'static str {
-                #path
+            const PATH: &str = #file_path;
+
+            /// Initializes the database connection.
+            pub fn new() -> Self {
+                let _ = ::rusqlite::Connection::open(Self::PATH).expect("open sqlite db");
+                Self
             }
         }
     }
