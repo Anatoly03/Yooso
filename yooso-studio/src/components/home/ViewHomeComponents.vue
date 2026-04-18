@@ -3,20 +3,25 @@
         <n-data-table remote :loading="loadingRef" :columns="columns" :data="data" />
         <n-drawer v-model:show="editComponent" :default-width="612" :min-width="416" placement="right" resizable>
             <n-drawer-content :title="'Edit Component: ' + editComponentName">
-                <view-fields-editor :component-id="editComponentId" />
+                <n-form style="display: flex; flex-direction: column; gap: 5px;">
+                    <edit-component-label :name="editComponentName" :color="editComponentColor" />
+                    <view-fields-editor :component-id="editComponentId" />
+                </n-form>
             </n-drawer-content>
         </n-drawer>
     </div>
 </template>
 
 <script setup lang="ts">
-import { NButton, NDataTable, NPopover, NDrawer, NDrawerContent } from 'naive-ui';
+import { NButton, NDataTable, NForm, NFormItem, NPopover, NDrawer, NDrawerContent } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
 import ViewFieldsEditor from './ViewFieldsEditor.vue';
+import EditComponentLabel from '../ui/EditComponentLabel.vue';
 
 const editComponent = ref(false);
 const editComponentId = ref('');
 const editComponentName = ref('');
+const editComponentColor = ref('');
 const loadingRef = ref(true);
 
 const columns = ref([
@@ -53,6 +58,7 @@ const columns = ref([
                         editComponent.value = true;
                         editComponentId.value = row.id;
                         editComponentName.value = row.name;
+                        editComponentColor.value = row.color;
                     },
                 },
                 'Edit',
