@@ -10,7 +10,7 @@ const loadingRef = ref(true);
 
 const columns = ref([
     {
-        title: 'Component Name',
+        title: 'Component',
         key: 'name',
         render(row: any) {
             return h(
@@ -18,6 +18,7 @@ const columns = ref([
                 {
                     style: {
                         display: 'inline-block',
+                        marginLeft: '12px',
                         marginRight: '6px',
                         padding: '4px 8px',
                         backgroundColor: row.color,

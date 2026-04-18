@@ -13,10 +13,16 @@ const columns = ref([
         render(row: any) {
             return h(
                 NPopover,
-                { trigger: 'hover' },
+                { trigger: 'hover'},
                 {
                     // copy ID to clipboard on click
-                    trigger: () => h(NButton, { onClick: () => navigator.clipboard.writeText(row.id) }, row.id.slice(0, 8)),
+                    trigger: () => h(NButton, {
+                        style: {
+                            display: 'inline-block',
+                            marginLeft: '12px',
+                        },
+                        onClick: () => navigator.clipboard.writeText(row.id)
+                    }, row.id.slice(0, 8)),
                     default: () => h('span', row.id),
                 },
             );
