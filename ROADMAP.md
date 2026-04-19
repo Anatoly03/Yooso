@@ -55,10 +55,22 @@ Introduce CI to benchmark pull request against current standard speed and start 
 ## Chapter V: Demo
 Since this project was inspired
 
-## Chapter VI: File Storage
+## Chapter VI: Powerful Admin Panel
+The home page in the admin UI should be customizable. Boxes counting and listing some queries to provide statistics. For example: "Users: 100", "Messages: 567", etc.
+
+## Chapter VII: File Storage
 - [ ] Component Type: 'File'
   - Restriction by Extension `jpg`
   - Restriction by Type `img`
+
+## Chapter: Memory Components
+Components per default are 'stored', however there should exist 'memory' components which unlocks streaming-like field types. These are useful for data like currently-online users (erased after server restarts), or opened 'rooms' (useful in online video games) and streaming channels.
+
+The cool thing is that if we support the admin UI to have customizable dashboard counting components per entities things like "Online Users: 25" are automatically possible.
+
+- [ ] Memory Components
+  - [ ] Audio Streaming Channel
+  - [ ] Video Streaming Channel
 
 ## Chapter: Archetypes
 We will have a lot of tables and table joins for longer queries so it makes sense to 'pack' queries into prototypes with component hierarchies. For example `User` and `PassAuth` occur more often together than `User` and `Message`, so for performance 'archetype' tables could be made: Reduces SQL joins needed for a query.
