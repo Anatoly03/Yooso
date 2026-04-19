@@ -1,5 +1,4 @@
 use proc_macro2::TokenStream;
-
 use quote::quote;
 use syn::{Fields, ItemStruct, LitStr};
 
@@ -29,9 +28,10 @@ pub fn database(file_path: LitStr, strucc: ItemStruct) -> TokenStream {
             const PATH: &str = #file_path;
 
             /// Initializes the database connection.
-            pub fn new() -> Self {
-                let _ = ::rusqlite::Connection::open(Self::PATH).expect("open sqlite db");
-                Self
+            pub fn connect() -> ::std::sync::Mutex<::rusqlite::Connection> {
+                ::std::sync::Mutex::new(
+                    ::rusqlite::Connection::open(Self::PATH).expect("open sqlite db")
+                )
             }
         }
     }

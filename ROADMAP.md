@@ -25,11 +25,11 @@
     - [ ] Integer
     - [ ] Boolean
     - [ ] 
-- [ ] Storage
-  - [ ] Table `Entity (UUID entity, INT created_at)`
-  - [ ] Table `Component (UUID component, STRING name, INT created_at, BOOL is_system)`
-  - [ ] Table `ComponentFields(UUID component, STRING field_name, STRING field_type, BOOL is_system)`
-  - [ ] Table `EntityComponent(UUID entity, UUID component)`
+- [x] Storage
+  - [x] Table `Entity (UUID entity, INT created_at)`
+  - [x] Table `Component (UUID component, STRING name, INT created_at, BOOL is_system)`
+  - [x] Table `ComponentFields(UUID component, STRING field_name, STRING field_type, BOOL is_system)`
+  <!-- - [ ] Table `EntityComponent(UUID entity, UUID component)` -->
   - [ ] Component Table `<Component> (UUID entity, <...>)`
 
 ## Chapter II: Query API
@@ -65,6 +65,8 @@ We will have a lot of tables and table joins for longer queries so it makes sens
 
 Either solve this algorithmatically or force superusers to generate such "indeces" or cache (or call them chunks if you want)
 
+Also SQL Indeces: https://sqlite.org/partialindex.html
+
 ## Chapter: Extended Authentication
 - [ ] `OTPAuth`
 - [ ] `OAuth`
@@ -78,7 +80,7 @@ Either solve this algorithmatically or force superusers to generate such "indece
   - [ ] Remove
 
 ## Chapter: Postgres Support
-- [ ] Add features `postgres` and `sqlight` and allow library user to swap.
+- [ ] Add features `postgres` and `sqlite` and allow library user to swap.
 
 ## Chapter: Realtime
 - [ ] WebSockets: Subscriptions to Query (Track modifications)
