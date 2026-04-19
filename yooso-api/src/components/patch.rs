@@ -24,7 +24,7 @@ pub async fn update_component(
 ) -> Json<Component> {
     let new_component = ComponentTable {
         id: body.id,
-        name: body.name.clone(),
+        component_name: body.name.clone(),
         is_system: body.is_system,
         color: body.color,
         created_at: body.created_at,
@@ -34,7 +34,7 @@ pub async fn update_component(
 
     Json(Component {
         id: new_component.id,
-        name: new_component.name,
+        name: new_component.component_name,
         is_system: new_component.is_system,
         color: new_component.color,
         created_at: new_component.created_at,

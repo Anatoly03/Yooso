@@ -8,7 +8,7 @@
             <n-drawer-content :title="'Edit Component: ' + editComponentName">
                 <n-form style="display: flex; flex-direction: column; gap: 5px">
                     <edit-component-label v-model:value="editComponentName" v-model:color="editComponentColor" />
-                    <view-fields-editor :component-id="editComponentId" />
+                    <view-fields-editor v-model:model-value="editComponentFields" :component-id="editComponentId" />
                     <n-button-group class="component-action-slot">
                         <n-button type="error" @click="deleteComponent()" v-if="!editComponentIsNew"> Delete </n-button>
                         <n-button secondary type="default" @click="editComponent = false">Cancel</n-button>
@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { NButton, NButtonGroup, NDataTable, NForm, NFormItem, NLayout, NPopover, NDrawer, NDrawerContent, DataTableCreateSummary } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
-import ViewFieldsEditor from './ViewFieldsEditor.vue';
+import ViewFieldsEditor, { type ComponentField } from './ViewFieldsEditor.vue';
 import EditComponentLabel from '../ui/EditComponentLabel.vue';
 
 const editComponent = ref(false);
@@ -32,6 +32,7 @@ const editComponentId = ref('');
 const editComponentName = ref('');
 const editComponentColor = ref('');
 const editComponentCreatedAt = ref(0);
+const editComponentFields = ref<ComponentField[]>([]);
 const editComponentIsNew = ref(false);
 const loadingRef = ref(true);
 
@@ -73,6 +74,7 @@ const columns = ref([
                             editComponentColor.value = row.color;
                             editComponentCreatedAt.value = row.createdAt;
                             editComponentIsNew.value = false;
+                            // TODO fetch fields for this component and set editComponentFields.value
                         },
                     },
                     'Edit',
@@ -100,6 +102,7 @@ function openCreateNewComponentDrawer() {
     editComponentName.value = 'new-component';
     editComponentColor.value = '#000000';
     editComponentIsNew.value = true;
+    editComponentFields.value = [];
 }
 
 async function refreshComponentList() {
@@ -132,6 +135,8 @@ async function refreshComponentList() {
 
 async function createComponent() {
     try {
+        console.log(editComponentFields);
+
         const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components', {
             method: 'POST',
             headers: {
@@ -140,6 +145,7 @@ async function createComponent() {
             body: JSON.stringify({
                 name: editComponentName.value,
                 is_system: false,
+                fields: editComponentFields.value,
                 color: parseInt(editComponentColor.value.replace('#', ''), 16),
             }),
         });

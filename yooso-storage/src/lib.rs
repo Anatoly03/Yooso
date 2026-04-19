@@ -30,13 +30,14 @@ pub struct EntityTable {
 /// Represents a table in the database that corresponds to a component in the application.
 #[collection(db = MetaDB, table = "components")]
 #[derive(Default)]
+// TODO: add unique constraint on name: https://www.sqlitetutorial.net/sqlite-unique-constraint/
 pub struct ComponentTable {
     /// Snowflake value. This is the unique identifier of the component.
     #[primary]
     pub id: Uuid,
 
     /// The name of the component.
-    pub name: String,
+    pub component_name: String,
 
     /// The color of the component, represented in RGB0 integer format. This
     /// is used in the admin panel to visually distinguish components and has
@@ -55,6 +56,7 @@ pub struct ComponentTable {
 /// Represents a table in the database that corresponds to a component in the application.
 #[collection(db = MetaDB, table = "fields")]
 #[derive(Default)]
+// TODO: add unique constraint on (component_id, name): https://www.sqlitetutorial.net/sqlite-unique-constraint/
 pub struct ComponentFieldTable {
     /// Snowflake value. This is the unique identifier of the field.
     #[primary]
@@ -64,10 +66,18 @@ pub struct ComponentFieldTable {
     pub component_id: Uuid,
 
     /// The name of the field.
-    pub name: String,
+    pub field_name: String,
+
+    /// The type of the field, represented as a string.
+    pub field_type: String,
 
     /// Whether the field is system (true) or user-defined (false).
     pub is_system: bool,
+
+    /// The order index of the field. This is used in the admin panel to
+    /// preserve the field order and has no functional significance in the
+    /// application logic.
+    pub position: i32,
 
     /// The timestamp of when the component was created, in seconds since
     /// the Unix epoch.

@@ -28,7 +28,7 @@ pub async fn list_components(
                     .into_iter()
                     .map(|component| Component {
                         id: component.id,
-                        name: component.name,
+                        name: component.component_name,
                         is_system: component.is_system,
                         color: component.color,
                         created_at: component.created_at,

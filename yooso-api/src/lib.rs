@@ -2,7 +2,7 @@
 
 mod components;
 
-use yooso_storage::{ComponentTable, MetaDBState};
+use yooso_storage::{ComponentFieldTable, ComponentTable, MetaDBState};
 use rocket::{Build, Ignite, Rocket};
 use rocket_cors::{Cors, CorsOptions};
 
@@ -17,6 +17,7 @@ impl Yooso {
     /// Creates a [Yooso] instance with the default config provider for [Rocket].
     pub async fn build() -> Self {
         ComponentTable::create_table().await;
+        ComponentFieldTable::create_table().await;
 
         Self {
             rocket: rocket::build()

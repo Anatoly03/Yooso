@@ -14,13 +14,13 @@
   - [ ] View
   - [x] Create
   - [x] Patch Name and Color
-  - [ ] Patch Fields
+  - [x] Remove
+  - [ ] Fields
     - [ ] List
-    - [ ] Create
+    - [x] Create
     - [ ] Edit
     - [ ] Remove
-  - [x] Remove
-  - [ ] Component Types
+  - [ ] Component Field Types
     - [ ] String
     - [ ] Integer
     - [ ] Boolean

@@ -1,5 +1,5 @@
 <template>
-    <span ref="spanRef" contenteditable="true" class="input-span" @input="handleInput" @paste="handlePaste"></span>
+    <span ref="spanRef" :contenteditable="!props.disabled" class="input-span" @input="handleInput" @paste="handlePaste" :class="{disabled: props.disabled}"></span>
 </template>
 
 <script lang="ts" setup>
@@ -7,6 +7,7 @@ import { onMounted, ref, watch } from 'vue';
 
 const props = defineProps<{
     modelValue: string;
+    disabled?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -53,8 +54,9 @@ function handlePaste(e: ClipboardEvent) {
 .input-span {
     display: inline-block;
     vertical-align: baseline;
-    padding: 2px 4px;
+    padding: 5px 4px;
     min-width: 144px;
+    width: 100%;
     border: 0;
     border-radius: 2px;
 
@@ -77,6 +79,12 @@ function handlePaste(e: ClipboardEvent) {
 
     &:focus {
         background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    &.disabled {
+        color: rgba(0, 0, 0, 0.25);
+        background-color: rgba(0, 0, 0, 0.05);
+        cursor: not-allowed;
     }
 }
 </style>

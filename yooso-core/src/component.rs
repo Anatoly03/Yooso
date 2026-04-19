@@ -13,11 +13,11 @@ pub struct Component {
     pub id: Uuid,
 
     /// The name of the component, used for identification and retrieval.
-    /// It is unique across the application and serves as the primary key.
+    /// It is unique across the application.
     pub name: String,
 
     /// System-level components are used internally by the Yooso framework
-    /// to manage application state. Managing such components is
+    /// to manage application state.
     pub is_system: bool,
 
     /// Color code for visual representation in the Admin UI, stored as an
