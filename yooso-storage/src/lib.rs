@@ -1,5 +1,9 @@
+mod fields;
+
 use uuid::Uuid;
 use yooso_macro::{collection, database};
+
+pub use fields::ComponentFieldTable;
 
 /// Meta database for Yooso, which contains the component definitions and other
 /// system tables.
@@ -29,8 +33,8 @@ pub struct EntityTable {
 
 /// Represents a table in the database that corresponds to a component in the application.
 #[collection(db = MetaDB, table = "components")]
+#[unique(component_name)]
 #[derive(Default)]
-// TODO: add unique constraint on name: https://www.sqlitetutorial.net/sqlite-unique-constraint/
 pub struct ComponentTable {
     /// Snowflake value. This is the unique identifier of the component.
     #[primary]
@@ -47,37 +51,6 @@ pub struct ComponentTable {
     /// Whether the component is a system component (true) or a user-defined
     /// component (false).
     pub is_system: bool,
-
-    /// The timestamp of when the component was created, in seconds since
-    /// the Unix epoch.
-    pub created_at: i64,
-}
-
-/// Represents a table in the database that corresponds to a component in the application.
-#[collection(db = MetaDB, table = "fields")]
-#[derive(Default)]
-// TODO: add unique constraint on (component_id, name): https://www.sqlitetutorial.net/sqlite-unique-constraint/
-pub struct ComponentFieldTable {
-    /// Snowflake value. This is the unique identifier of the field.
-    #[primary]
-    pub id: Uuid,
-
-    /// The ID of the component that this field belongs to.
-    pub component_id: Uuid,
-
-    /// The name of the field.
-    pub field_name: String,
-
-    /// The type of the field, represented as a string.
-    pub field_type: String,
-
-    /// Whether the field is system (true) or user-defined (false).
-    pub is_system: bool,
-
-    /// The order index of the field. This is used in the admin panel to
-    /// preserve the field order and has no functional significance in the
-    /// application logic.
-    pub position: i32,
 
     /// The timestamp of when the component was created, in seconds since
     /// the Unix epoch.

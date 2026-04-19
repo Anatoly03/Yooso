@@ -16,12 +16,14 @@ pub struct Yooso {
 impl Yooso {
     /// Creates a [Yooso] instance with the default config provider for [Rocket].
     pub async fn build() -> Self {
-        ComponentTable::create_table().await;
-        ComponentFieldTable::create_table().await;
+        let meta_db_state = MetaDBState::default();
+
+        ComponentTable::create_table(&meta_db_state).await;
+        ComponentFieldTable::create_table(&meta_db_state).await;
 
         Self {
             rocket: rocket::build()
-                .manage(MetaDBState::default())
+                .manage(meta_db_state)
                 .mount("/api/components", crate::components::routes())
                 .attach(Self::cors_config()),
         }

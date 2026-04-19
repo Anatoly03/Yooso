@@ -19,7 +19,7 @@ pub struct ComponentListResponse {
 pub async fn list_components(
     state: &State<MetaDBState>,
 ) -> Result<Json<ComponentListResponse>, Json<Value>> {
-    ComponentTable::list_all_in_state(state)
+    ComponentTable::list_all(state)
         .await
         .map(|components| {
             Json(ComponentListResponse {

@@ -62,10 +62,10 @@ pub async fn create_component(
         })
         .collect::<Vec<_>>();
 
-    new_component.save_in_state(state).await;
+    new_component.save(state).await;
 
     for field in &new_fields {
-        field.save_in_state(state).await;
+        field.save(state).await;
     }
 
     let fields = new_fields

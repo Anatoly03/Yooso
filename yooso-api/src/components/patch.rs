@@ -30,7 +30,7 @@ pub async fn update_component(
         created_at: body.created_at,
     };
 
-    new_component.save_in_state(state).await;
+    new_component.save(state).await;
 
     Json(Component {
         id: new_component.id,

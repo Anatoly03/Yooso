@@ -11,7 +11,7 @@
   - [ ] Remove
 - [ ] Component Viewer
   - [x] List
-  - [ ] View
+  - [x] View
   - [x] Create
   - [x] Patch Name and Color
   - [x] Remove

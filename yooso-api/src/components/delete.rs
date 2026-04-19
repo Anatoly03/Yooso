@@ -22,7 +22,7 @@ pub async fn delete_component(
         id,
         ..Default::default()
     }
-    .delete_in_state(state)
+    .delete(state)
     .await;
 
     Ok(Json(json!({

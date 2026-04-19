@@ -33,7 +33,7 @@ pub fn database(file_path: LitStr, strucc: ItemStruct) -> TokenStream {
             const PATH: &str = #file_path;
 
             /// Initializes the database connection.
-            pub fn connect() -> ::std::sync::Mutex<::rusqlite::Connection> {
+            pub(crate) fn connect() -> ::std::sync::Mutex<::rusqlite::Connection> {
                 // Create the directories along the path if they don't exist.
                 // Note that the last slash is not included in the path, so we
                 // need to get the parent directory.

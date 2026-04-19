@@ -23,15 +23,18 @@ import FieldType from '../ui/FieldType.vue';
 
 export type ComponentField = {
     id?: string;
+    client_key?: string;
     name: string;
     field_type: string;
     is_system: boolean;
     created_at: number;
+    operation?: 'add' | 'remove' | 'update';
 };
 
 type FieldRow = ComponentField & { key: string; operation?: 'add' | 'remove' | 'update' };
 
 const props = defineProps<{
+    isNewComponent?: boolean;
     modelValue: ComponentField[];
 }>();
 
@@ -43,19 +46,25 @@ const draggedIndex = ref<number | null>(null);
 const dragOverIndex = ref<number | null>(null);
 const editorRef = ref<HTMLElement | null>(null);
 
+function getFieldKey(field: Pick<ComponentField, 'id' | 'client_key' | 'created_at'>) {
+    return field.id ?? field.client_key ?? `new-${field.created_at}`;
+}
+
 function activateCreateRow() {
     const newField: ComponentField = {
         id: undefined,
+        client_key: crypto.randomUUID(),
         name: '',
         field_type: 'text',
         is_system: false,
         created_at: Date.now(),
+        operation: props.isNewComponent ? undefined : 'add',
     };
 
     emit('update:modelValue', [...props.modelValue, newField]);
 
     void nextTick(() => {
-        const selector = `[data-field-key="${newField.created_at}"]`;
+        const selector = `[data-field-key="${getFieldKey(newField)}"]`;
         const editable = document.querySelector(selector) as HTMLSpanElement | null;
         editable?.focus();
     });
@@ -74,11 +83,11 @@ const fieldColumns: DataTableColumns<FieldRow> = [
         render: (row) =>
             h(InputSpan, {
                 modelValue: row.name,
-                'data-field-key': row.created_at.toString(),
+                'data-field-key': row.key,
                 disabled: row.operation === 'remove',
 
                 'onUpdate:modelValue': (value) => {
-                    const fieldIndex = props.modelValue.findIndex((f) => f.created_at === row.created_at);
+                    const fieldIndex = props.modelValue.findIndex((f) => getFieldKey(f) === row.key);
                     if (fieldIndex !== -1) {
                         const updated = [...props.modelValue];
                         updated[fieldIndex] = { ...updated[fieldIndex], name: value };
@@ -95,7 +104,7 @@ const fieldColumns: DataTableColumns<FieldRow> = [
                 disabled: row.operation === 'remove',
                 modelValue: row.field_type,
                 'onUpdate:modelValue': (value) => {
-                    const fieldIndex = props.modelValue.findIndex((f) => f.created_at === row.created_at);
+                    const fieldIndex = props.modelValue.findIndex((f) => getFieldKey(f) === row.key);
                     if (fieldIndex !== -1) {
                         const updated = [...props.modelValue];
                         updated[fieldIndex] = { ...updated[fieldIndex], field_type: value };
@@ -115,20 +124,17 @@ const fieldColumns: DataTableColumns<FieldRow> = [
                     quaternary: true,
                     type: row.operation === 'remove' ? 'default' : 'error',
                     onClick() {
-                        switch (row.operation) {
-                            case 'update':
-                                row.operation = 'remove';
-                                break;
-                            case 'remove':
-                                row.operation = undefined;
-                                break;
-                            default:
-                                if (row.id === undefined) {
-                                    emit('update:modelValue', props.modelValue.filter((f) => f.created_at !== row.created_at));
-                                } else {
-                                    row.operation = 'remove';
-                                }
+                        if (props.isNewComponent) {
+                            emit('update:modelValue', props.modelValue.filter((f) => getFieldKey(f) !== row.key));
+                            return;
                         }
+
+                        if (row.id === undefined) {
+                            emit('update:modelValue', props.modelValue.filter((f) => getFieldKey(f) !== row.key));
+                            return;
+                        }
+
+                        updateFieldOperation(row.key, row.operation === 'remove' ? undefined : 'remove');
                     },
                 },
                 h(NIcon, h(row.operation === 'remove' ? DismissCircle20Regular : TrashBin)),
@@ -136,8 +142,23 @@ const fieldColumns: DataTableColumns<FieldRow> = [
     },
 ];
 
+function updateFieldOperation(rowKey: string, operation?: FieldRow['operation']) {
+    const fieldIndex = props.modelValue.findIndex((f) => getFieldKey(f) === rowKey);
+    if (fieldIndex === -1) {
+        return;
+    }
+
+    const updated = [...props.modelValue];
+    updated[fieldIndex] = { ...updated[fieldIndex], operation };
+    emit('update:modelValue', updated);
+}
+
 const fields = computed<FieldRow[]>(() =>
-    props.modelValue.map((f) => ({ ...f, key: f.created_at.toString(), operation: undefined as 'add' | 'remove' | 'update' | undefined })),
+    props.modelValue.map((f) => ({
+        ...f,
+        key: getFieldKey(f),
+        operation: props.isNewComponent ? undefined : f.operation ?? (f.id === undefined ? 'add' : undefined),
+    })),
 );
 
 onMounted(() => {
@@ -154,7 +175,7 @@ onMounted(() => {
 });
 
 function fieldRowProps(row: FieldRow) {
-    const rowIndex = fields.value.findIndex((item) => item.created_at === row.created_at);
+    const rowIndex = fields.value.findIndex((item) => item.key === row.key);
     const rowClass = [row.operation ? `field-row-${row.operation}` : '', dragOverIndex.value === rowIndex ? 'drag-over-row' : '']
         .filter(Boolean)
         .join(' ');
@@ -164,7 +185,7 @@ function fieldRowProps(row: FieldRow) {
         class: rowClass,
         onDragstart: (event: DragEvent) => {
             draggedIndex.value = rowIndex;
-            event.dataTransfer?.setData('text/plain', row.created_at.toString());
+            event.dataTransfer?.setData('text/plain', row.key);
             if (event.dataTransfer) {
                 event.dataTransfer.effectAllowed = 'move';
             }

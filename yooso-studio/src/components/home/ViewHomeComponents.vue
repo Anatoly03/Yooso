@@ -8,7 +8,7 @@
             <n-drawer-content :title="'Edit Component: ' + editComponentName">
                 <n-form style="display: flex; flex-direction: column; gap: 5px">
                     <edit-component-label v-model:value="editComponentName" v-model:color="editComponentColor" />
-                    <view-fields-editor v-model:model-value="editComponentFields" :component-id="editComponentId" />
+                    <view-fields-editor v-model:model-value="editComponentFields" :component-id="editComponentId" :is-new-component="editComponentIsNew" />
                     <n-button-group class="component-action-slot">
                         <n-button type="error" @click="deleteComponent()" v-if="!editComponentIsNew"> Delete </n-button>
                         <n-button secondary type="default" @click="editComponent = false">Cancel</n-button>
@@ -67,14 +67,18 @@ const columns = ref([
                     NButton,
                     {
                         type: 'primary',
-                        onClick: () => {
+                        onClick: async () => {
                             editComponent.value = true;
                             editComponentId.value = row.id;
                             editComponentName.value = row.name;
                             editComponentColor.value = row.color;
                             editComponentCreatedAt.value = row.createdAt;
                             editComponentIsNew.value = false;
-                            // TODO fetch fields for this component and set editComponentFields.value
+
+                            const componentData = await viewComponent(row.id);
+                            if (componentData) {
+                                editComponentFields.value = componentData.fields;
+                            }
                         },
                     },
                     'Edit',
@@ -118,7 +122,7 @@ async function refreshComponentList() {
         data.value = result.components.map((component: any) => {
             let htmlColor = '#' + component.color.toString(16).padStart(6, '0');
 
-            console.log(`Component: ${component.name} (${component.id}), Original Color: ${component.color}, HTML Color: ${htmlColor}`);
+            // console.log(`Component: ${component.name} (${component.id}), Original Color: ${component.color}, HTML Color: ${htmlColor}`);
             return {
                 id: component.id,
                 name: component.name,
@@ -135,8 +139,6 @@ async function refreshComponentList() {
 
 async function createComponent() {
     try {
-        console.log(editComponentFields);
-
         const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components', {
             method: 'POST',
             headers: {
@@ -156,7 +158,7 @@ async function createComponent() {
         }
 
         const result = await response.json();
-        console.log('Component created/updated:', result);
+        // console.log('Component created/updated:', result);
 
         refreshComponentList();
     } catch (error) {
@@ -164,6 +166,27 @@ async function createComponent() {
     }
 
     editComponent.value = false;
+}
+
+async function viewComponent(id = editComponentId.value): Promise<any> {
+    try {
+        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/view/' + id);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to create/update component');
+        }
+
+        const result = await response.json();
+
+        refreshComponentList();
+
+        return result;
+    } catch (error) {
+        console.error('Error creating/updating component:', error);
+    }
+
+    return null;
 }
 
 async function patchComponent() {
@@ -188,7 +211,7 @@ async function patchComponent() {
         }
 
         const result = await response.json();
-        console.log('Component patched:', result);
+        // console.log('Component patched:', result);
 
         refreshComponentList();
     } catch (error) {
@@ -210,7 +233,7 @@ async function deleteComponent(id = editComponentId.value) {
         }
 
         const result = await response.json();
-        console.log('Component deleted:', result);
+        // console.log('Component deleted:', result);
 
         refreshComponentList();
     } catch (error) {

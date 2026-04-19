@@ -4,6 +4,7 @@ mod create;
 mod delete;
 mod list;
 mod patch;
+mod view;
 
 pub fn routes() -> Vec<rocket::Route> {
     rocket::routes![
@@ -11,5 +12,6 @@ pub fn routes() -> Vec<rocket::Route> {
         delete::delete_component,
         list::list_components,
         patch::update_component,
+        view::view_component,
     ]
 }
