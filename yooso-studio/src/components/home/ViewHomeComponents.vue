@@ -63,7 +63,7 @@ const columns = ref([
         title: 'Actions',
         key: 'actions',
         render(row: any) {
-            return h(NButtonGroup, null, [
+            return h(NButtonGroup, () => [
                 h(
                     NButton,
                     {
@@ -84,7 +84,7 @@ const columns = ref([
                             }
                         },
                     },
-                    'Edit',
+                    () => 'Edit',
                 ),
                 h(
                     NButton,
@@ -94,7 +94,7 @@ const columns = ref([
                             deleteComponent(row.id);
                         },
                     },
-                    'Delete',
+                    () => 'Delete',
                 ),
             ]);
         },

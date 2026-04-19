@@ -18,9 +18,9 @@
   - [x] Remove
   - [x] Fields
     - [x] List
-    - [ ] Create (Patch Component)
-    - [ ] Edit (Patch Component)
-    - [ ] Remove (Patch Component)
+    - [x] Create (Patch Component)
+    - [ ] Edit Field Name (Patch Component, Field Type Migration not supported)
+    - [x] Remove (Patch Component)
   - [ ] Component Field Types
     - [ ] String
     - [ ] Integer

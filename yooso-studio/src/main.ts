@@ -8,6 +8,8 @@ import en from './locales/en.json';
 import jp from './locales/jp.json';
 
 const i18n = createI18n({
+    legacy: false,
+    globalInjection: true,
     locale: 'en',
     fallbackLocale: 'en',
     messages: { en, jp },

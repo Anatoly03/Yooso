@@ -147,7 +147,7 @@ const fieldColumns: DataTableColumns<FieldRow> = [
                         updateFieldOperation(row.key, row.operation === 'remove' ? undefined : 'remove');
                     },
                 },
-                h(NIcon, h(row.operation === 'remove' ? DismissCircle20Regular : TrashBin)),
+                h(NIcon, () => h(row.operation === 'remove' ? DismissCircle20Regular : TrashBin)),
             ),
     },
 ];

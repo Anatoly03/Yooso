@@ -5,7 +5,7 @@ use rocket::{State, patch};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use yooso_core::Component;
-use yooso_storage::{ComponentTable, MetaDBState};
+use yooso_storage::{ComponentTable, ComponentFieldTable, MetaDBState};
 
 /// TODO: document
 #[derive(Debug, Serialize, Deserialize)]
@@ -45,7 +45,7 @@ pub enum PatchFieldOperation {
 pub async fn update_component(
     state: &State<MetaDBState>,
     body: Json<PatchComponentRequest>,
-) -> Json<Component> {
+) -> Result<Json<Component>, Json<Value>> {
     let new_component = ComponentTable {
         id: body.id,
         component_name: body.name.clone(),
@@ -62,33 +62,49 @@ pub async fn update_component(
         .iter()
         .filter(|f| f.operation == PatchFieldOperation::Remove)
     {
-        // TODO
-        println!("TODO: remove field `{}.{}`", new_component.component_name, field.name);
+        ComponentFieldTable {
+            id: field.id.ok_or(json!({
+                "error": "Invalid field ID"
+            }))?,
+            ..Default::default()
+        }.delete(state).await;
     }
 
     // Process Updates
-    for field in body        .fields
+    for field in body
+        .fields
         .iter()
         .filter(|f| f.operation == PatchFieldOperation::Update)
     {
         // TODO
-        println!("TODO: update field `{}.{}`", new_component.component_name, field.name);
+        println!(
+            "TODO: update field `{}.{}`",
+            new_component.component_name, field.name
+        );
     }
 
     // Process Additions
-    for field in body        .fields
+    for field in body
+        .fields
         .iter()
         .filter(|f| f.operation == PatchFieldOperation::Add)
     {
-        // TODO
-        println!("TODO: add field `{}.{}`", new_component.component_name, field.name);
+        ComponentFieldTable {
+            id: Uuid::now_v7(),
+            component_id: new_component.id,
+            field_name: field.name.clone(),
+            field_type: field.field_type.clone(),
+            is_system: field.is_system,
+            position: 0, // TODO: determine position
+            created_at: chrono::Utc::now().timestamp_millis(),
+        }.save(state).await;
     }
 
-    Json(Component {
+    Ok(Json(Component {
         id: new_component.id,
         name: new_component.component_name,
         is_system: new_component.is_system,
         color: new_component.color,
         created_at: new_component.created_at,
-    })
+    }))
 }

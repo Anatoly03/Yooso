@@ -26,7 +26,7 @@ const selectedKey = ref<string | undefined>(undefined);
 // Custom render function for menu labels to support router links
 function renderMenuLabel(option: MenuOption) {
     if ('to' in option && typeof option.to === 'string') {
-        return h(RouterLink, { to: option.to, activeClass: 'router-link-active' }, [option.label as string]);
+        return h(RouterLink, { to: option.to, activeClass: 'router-link-active' }, () => option.label as string);
     }
 
     return option.label as string;
