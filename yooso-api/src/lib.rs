@@ -5,7 +5,7 @@ mod entities;
 
 use rocket::{Build, Ignite, Rocket};
 use rocket_cors::{Cors, CorsOptions};
-use yooso_storage::{ComponentFieldTable, ComponentTable, EntityTable, MetaDBState};
+use yooso_storage::{ComponentFieldTable, ComponentTable, EntityTable, GeneralDBState, MetaDBState};
 
 /// TODO: document
 pub struct Yooso {
@@ -17,6 +17,7 @@ pub struct Yooso {
 impl Yooso {
     /// Creates a [Yooso] instance with the default config provider for [Rocket].
     pub async fn build() -> Self {
+        let general_db_state = GeneralDBState::default();
         let meta_db_state = MetaDBState::default();
 
         EntityTable::create_table(&meta_db_state).await;
@@ -25,6 +26,7 @@ impl Yooso {
 
         Self {
             rocket: rocket::build()
+                .manage(general_db_state)
                 .manage(meta_db_state)
                 .mount("/api/components", crate::components::routes())
                 .mount("/api/entities", crate::entities::routes())

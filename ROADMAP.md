@@ -21,17 +21,15 @@
     - [x] Create (Patch Component)
     - [ ] Edit Field Name (Patch Component, Field Type Migration not supported)
     - [x] Remove (Patch Component)
-  - [ ] Component Field Types
-    - [ ] String
-    - [ ] Integer
-    - [ ] Boolean
-    - [ ] 
+  - [x] Component Field Types
+    - [x] String
+    - [x] Integer
+    - [x] Boolean
 - [x] Storage
   - [x] Table `Entity (UUID entity, INT created_at)`
   - [x] Table `Component (UUID component, STRING name, INT created_at, BOOL is_system)`
   - [x] Table `ComponentFields(UUID component, STRING field_name, STRING field_type, BOOL is_system)`
-  <!-- - [ ] Table `EntityComponent(UUID entity, UUID component)` -->
-  - [ ] Component Table `<Component> (UUID entity, <...>)`
+  - [x] Component Table `<Component> (UUID entity, <...>)`
 
 ## Chapter II: Query API
 - [ ] Pagination

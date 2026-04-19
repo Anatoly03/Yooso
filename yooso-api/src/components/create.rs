@@ -4,7 +4,7 @@ use rocket::serde::json::Json;
 use rocket::{State, post};
 use serde::{Deserialize, Serialize};
 use yooso_core::{Component, ComponentField};
-use yooso_storage::{ComponentFieldTable, ComponentTable, MetaDBState};
+use yooso_storage::{ComponentFieldTable, ComponentTable, GeneralDBState, MetaDBState};
 
 /// TODO: document
 #[derive(Debug, Serialize, Deserialize)]
@@ -34,6 +34,7 @@ pub struct CreateComponentResponse {
 #[post("/", data = "<body>")]
 pub async fn create_component(
     state: &State<MetaDBState>,
+    general_state: &State<GeneralDBState>,
     body: Json<CreateComponentRequest>,
 ) -> Json<CreateComponentResponse> {
     let uuid = uuid::Uuid::now_v7();
@@ -62,12 +63,23 @@ pub async fn create_component(
         })
         .collect::<Vec<_>>();
 
+    // Save component and fields to the metadata database.
     new_component.save(state).await;
 
     for field in &new_fields {
         field.save(state).await;
     }
 
+    // Save component schema to the general database.
+    let create_table_query = sql_query_create_table(&new_component, &new_fields);
+    general_state
+        .0
+        .lock()
+        .expect("failed to acquire lock on general database")
+        .execute(&create_table_query, [])
+        .expect("failed to create component table in general database");
+
+    // Return the created component and fields in the response.
     let fields = new_fields
         .iter()
         .map(|field| ComponentField {
@@ -89,4 +101,32 @@ pub async fn create_component(
         },
         fields,
     })
+}
+
+/// Helper function to generate the SQL query for creating a component table
+/// based on the component and its fields.
+// TODO: use a proper SQL query builder library instead of string concatenation to
+// prevent SQL injection and handle edge cases.
+fn sql_query_create_table(component: &ComponentTable, fields: &[ComponentFieldTable]) -> String {
+    format!(
+        "CREATE TABLE {} (entity_id UUID PRIMARY KEY, {})",
+        component.component_name,
+        fields
+            .iter()
+            .map(|field| format!("{} {}", field.field_name, sql_type(&field.field_type)))
+            .collect::<Vec<_>>()
+            .join(", ")
+    )
+}
+
+/// Helper function to create appropriate SQL type for a given field type.
+/// Types in the project are high-level abstractions and need to be mapped
+/// to actual SQL types when generating
+fn sql_type(field_type: &str) -> &str {
+    match field_type {
+        "text" => "TEXT",
+        "integer" => "INT",
+        "boolean" => "BOOLEAN",
+        _ => panic!("unsupported field type: {}", field_type),
+    }
 }

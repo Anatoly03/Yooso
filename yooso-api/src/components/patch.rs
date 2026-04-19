@@ -5,7 +5,7 @@ use rocket::{State, patch};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use yooso_core::Component;
-use yooso_storage::{ComponentTable, ComponentFieldTable, MetaDBState};
+use yooso_storage::{ComponentFieldTable, ComponentTable, GeneralDBState, MetaDBState};
 
 /// TODO: document
 #[derive(Debug, Serialize, Deserialize)]
@@ -19,7 +19,7 @@ pub struct PatchComponentRequest {
 }
 
 /// TODO: document
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PatchFieldRequest {
     pub id: Option<Uuid>,
     pub name: String,
@@ -44,6 +44,7 @@ pub enum PatchFieldOperation {
 #[patch("/", data = "<body>")]
 pub async fn update_component(
     state: &State<MetaDBState>,
+    general_state: &State<GeneralDBState>,
     body: Json<PatchComponentRequest>,
 ) -> Result<Json<Component>, Json<Value>> {
     let new_component = ComponentTable {
@@ -68,6 +69,15 @@ pub async fn update_component(
             }))?,
             ..Default::default()
         }.delete(state).await;
+
+        // Alter the table in the general database to drop the column for this field.
+        let alter_table_query = sql_query_alter_table_drop_column(&new_component, field.clone());
+        general_state
+            .0
+            .lock()
+            .expect("failed to acquire lock on general database")
+            .execute(&alter_table_query, [])
+            .expect("failed to alter component table in general database");
     }
 
     // Process Updates
@@ -98,6 +108,15 @@ pub async fn update_component(
             position: 0, // TODO: determine position
             created_at: chrono::Utc::now().timestamp_millis(),
         }.save(state).await;
+
+        // Alter the table in the general database to add the new column for this field.
+        let alter_table_query = sql_query_alter_table_add_column(&new_component, field.clone());
+        general_state
+            .0
+            .lock()
+            .expect("failed to acquire lock on general database")
+            .execute(&alter_table_query, [])
+            .expect("failed to alter component table in general database");
     }
 
     Ok(Json(Component {
@@ -107,4 +126,43 @@ pub async fn update_component(
         color: new_component.color,
         created_at: new_component.created_at,
     }))
+}
+
+/// Helper function to generate the SQL query for altering a component
+/// table based on the updated component and its fields.
+// TODO: use a proper SQL query builder library instead of string concatenation to
+// prevent SQL injection and handle edge cases.
+// https://database.guide/add-a-column-to-an-existing-table-in-sqlite/
+fn sql_query_alter_table_add_column(component: &ComponentTable, field: PatchFieldRequest) -> String {
+    format!(
+        "ALTER TABLE {} ADD COLUMN {} {}",
+        component.component_name,
+        field.name,
+        sql_type(&field.field_type)
+    )
+}
+
+/// Helper function to generate the SQL query for altering a component
+/// table based on the updated component and its fields.
+// TODO: use a proper SQL query builder library instead of string concatenation to
+// prevent SQL injection and handle edge cases.
+// https://database.guide/add-a-column-to-an-existing-table-in-sqlite/
+fn sql_query_alter_table_drop_column(component: &ComponentTable, field: PatchFieldRequest) -> String {
+    format!(
+        "ALTER TABLE {} DROP COLUMN {}",
+        component.component_name,
+        field.name
+    )
+}
+
+/// Helper function to create appropriate SQL type for a given field type.
+/// Types in the project are high-level abstractions and need to be mapped
+/// to actual SQL types when generating
+fn sql_type(field_type: &str) -> &str {
+    match field_type {
+        "text" => "TEXT",
+        "integer" => "INT",
+        "boolean" => "BOOLEAN",
+        _ => panic!("unsupported field type: {}", field_type),
+    }
 }
