@@ -2261,6 +2261,7 @@ name = "yooso-storage"
 version = "0.1.0"
 dependencies = [
  "rusqlite",
+ "serde",
  "uuid",
  "yooso-macro",
 ]

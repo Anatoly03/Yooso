@@ -10,5 +10,6 @@ rusqlite = ["rusqlite/bundled"]
 
 [dependencies]
 rusqlite = { version = "0.31", optional = true, features = ["bundled"] }
+serde = "1.0.228"
 uuid = { version = "1.23.1", features = [ "v7", "serde" ] }
 yooso-macro = { path = "../yooso-macro" }

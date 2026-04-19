@@ -4,9 +4,10 @@
 
 #[cfg(doc)]
 use crate::Component;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Entity(Uuid);
 
 /// Converts an [Entity] into its underlying [Uuid] representation.

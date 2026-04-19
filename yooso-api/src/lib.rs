@@ -1,10 +1,11 @@
 //! TODO: document
 
 mod components;
+mod entities;
 
-use yooso_storage::{ComponentFieldTable, ComponentTable, MetaDBState};
 use rocket::{Build, Ignite, Rocket};
 use rocket_cors::{Cors, CorsOptions};
+use yooso_storage::{ComponentFieldTable, ComponentTable, EntityTable, MetaDBState};
 
 /// TODO: document
 pub struct Yooso {
@@ -18,6 +19,7 @@ impl Yooso {
     pub async fn build() -> Self {
         let meta_db_state = MetaDBState::default();
 
+        EntityTable::create_table(&meta_db_state).await;
         ComponentTable::create_table(&meta_db_state).await;
         ComponentFieldTable::create_table(&meta_db_state).await;
 
@@ -25,6 +27,7 @@ impl Yooso {
             rocket: rocket::build()
                 .manage(meta_db_state)
                 .mount("/api/components", crate::components::routes())
+                .mount("/api/entities", crate::entities::routes())
                 .attach(Self::cors_config()),
         }
     }

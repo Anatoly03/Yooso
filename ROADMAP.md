@@ -3,10 +3,10 @@
 > This is an early sketch of the roadmap. Nothing is certain in this plan.
 
 ## Chapter I: Core Engine
-- [ ] Entity Viewer
-  - [ ] List
+- [x] Entity Viewer
+  - [x] List
   - [ ] View
-  - [ ] Create
+  - [x] Create
   - [ ] Patch
   - [ ] Remove
 - [ ] Component Viewer

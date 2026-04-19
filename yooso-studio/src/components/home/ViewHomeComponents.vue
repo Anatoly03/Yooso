@@ -39,6 +39,35 @@ const editComponentLoadingRef = ref(false);
 
 const columns = ref([
     {
+        title: () => h('span', { style: { marginLeft: '12px' } }, 'ID'),
+        key: 'id',
+        width: 180,
+        render(row: any) {
+            return h(
+                NPopover,
+                { trigger: 'hover' },
+                {
+                    // copy ID to clipboard on click
+                    trigger: () =>
+                        h(
+                            NButton,
+                            {
+                                style: {
+                                    'font-family': 'monospace',
+                                    width: '100%',
+                                    display: 'inline-block',
+                                    marginLeft: '12px',
+                                },
+                                onClick: () => navigator.clipboard.writeText(row.id),
+                            },
+                            row.id.slice(-12),
+                        ),
+                    default: () => h('span', row.id),
+                },
+            );
+        },
+    },
+    {
         title: 'Component',
         key: 'name',
         render(row: any) {
@@ -47,7 +76,6 @@ const columns = ref([
                 {
                     style: {
                         display: 'inline-block',
-                        marginLeft: '12px',
                         marginRight: '6px',
                         padding: '4px 8px',
                         backgroundColor: row.color,

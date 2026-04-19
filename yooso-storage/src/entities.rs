@@ -1,8 +1,9 @@
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 /// Represents a table in the database that corresponds to an entity in the application.
 #[collection(db = crate::MetaDB, table = "entities")]
-#[derive(Default)]
+#[derive(Default, Debug, Serialize, Deserialize)]
 pub struct EntityTable {
     /// Snowflake value. This is the unique identifier of the entity.
     #[primary]
