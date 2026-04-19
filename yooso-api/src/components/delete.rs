@@ -6,7 +6,7 @@ use uuid::Uuid;
 use yooso_storage::{ComponentTable, MetaDBState};
 
 /// TODO: document
-#[delete("/delete/<uuid>")]
+#[delete("/<uuid>")]
 pub async fn delete_component(
     state: &State<MetaDBState>,
     uuid: &str,

@@ -15,7 +15,7 @@ pub struct CreateComponentRequest {
 }
 
 /// TODO: document
-#[post("/create", data = "<body>")]
+#[post("/", data = "<body>")]
 pub async fn create_component(
     state: &State<MetaDBState>,
     body: Json<CreateComponentRequest>,

@@ -97,7 +97,7 @@ const data = ref([]);
 function openCreateNewComponentDrawer() {
     editComponent.value = true;
     editComponentId.value = '';
-    editComponentName.value = 'New Component';
+    editComponentName.value = 'new-component';
     editComponentColor.value = '#000000';
     editComponentIsNew.value = true;
 }
@@ -132,7 +132,7 @@ async function refreshComponentList() {
 
 async function createComponent() {
     try {
-        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/create', {
+        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -162,7 +162,7 @@ async function createComponent() {
 
 async function patchComponent() {
     try {
-        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/' + editComponentId.value, {
+        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components', {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -194,7 +194,7 @@ async function patchComponent() {
 
 async function deleteComponent(id = editComponentId.value) {
     try {
-        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/delete/' + id, {
+        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/' + id, {
             method: 'DELETE',
         });
 
