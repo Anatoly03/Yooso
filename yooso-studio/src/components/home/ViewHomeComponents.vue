@@ -202,6 +202,8 @@ async function patchComponent() {
                 is_system: false,
                 color: parseInt(editComponentColor.value.replace('#', ''), 16),
                 created_at: editComponentCreatedAt.value,
+                // send fields that have an operation (add, update, remove)
+                fields: editComponentFields.value.filter((f) => f.operation),
             }),
         });
 

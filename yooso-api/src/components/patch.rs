@@ -3,17 +3,41 @@
 use rocket::serde::json::{Json, Value, json};
 use rocket::{State, patch};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 use yooso_core::Component;
 use yooso_storage::{ComponentTable, MetaDBState};
 
 /// TODO: document
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PatchComponentRequest {
-    pub id: uuid::Uuid,
+    pub id: Uuid,
     pub name: String,
     pub is_system: bool,
     pub color: u32,
     pub created_at: i64,
+    pub fields: Vec<PatchFieldRequest>,
+}
+
+/// TODO: document
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PatchFieldRequest {
+    pub id: Option<Uuid>,
+    pub name: String,
+    pub is_system: bool,
+    pub field_type: String,
+    pub created_at: Option<i64>,
+    pub operation: PatchFieldOperation,
+}
+
+/// TODO: document
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+pub enum PatchFieldOperation {
+    #[serde(rename = "add")]
+    Add,
+    #[serde(rename = "update")]
+    Update,
+    #[serde(rename = "remove")]
+    Remove,
 }
 
 /// TODO: document
@@ -31,6 +55,34 @@ pub async fn update_component(
     };
 
     new_component.save(state).await;
+
+    // Process Deletions
+    for field in body
+        .fields
+        .iter()
+        .filter(|f| f.operation == PatchFieldOperation::Remove)
+    {
+        // TODO
+        println!("TODO: remove field `{}.{}`", new_component.component_name, field.name);
+    }
+
+    // Process Updates
+    for field in body        .fields
+        .iter()
+        .filter(|f| f.operation == PatchFieldOperation::Update)
+    {
+        // TODO
+        println!("TODO: update field `{}.{}`", new_component.component_name, field.name);
+    }
+
+    // Process Additions
+    for field in body        .fields
+        .iter()
+        .filter(|f| f.operation == PatchFieldOperation::Add)
+    {
+        // TODO
+        println!("TODO: add field `{}.{}`", new_component.component_name, field.name);
+    }
 
     Json(Component {
         id: new_component.id,
