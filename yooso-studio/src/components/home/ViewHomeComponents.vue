@@ -1,6 +1,6 @@
 <template>
     <div class="view-components">
-        <n-data-table remote :bordered="false" :loading="loadingRef" :columns="columns" :data="data" />
+        <n-data-table remote :loading="loadingRef" :bordered="false" :columns="columns" :data="data" />
         <div class="view-components-footer">
             <n-button type="primary" @click="openCreateNewComponentDrawer"> Create Component </n-button>
         </div>
@@ -8,7 +8,7 @@
             <n-drawer-content :title="'Edit Component: ' + editComponentName">
                 <n-form style="display: flex; flex-direction: column; gap: 5px">
                     <edit-component-label v-model:value="editComponentName" v-model:color="editComponentColor" />
-                    <view-fields-editor v-model:model-value="editComponentFields" :component-id="editComponentId" :is-new-component="editComponentIsNew" />
+                    <view-fields-editor v-model:loading="editComponentLoadingRef" v-model:model-value="editComponentFields" :component-id="editComponentId" :is-new-component="editComponentIsNew" />
                     <n-button-group class="component-action-slot">
                         <n-button type="error" @click="deleteComponent()" v-if="!editComponentIsNew"> Delete </n-button>
                         <n-button secondary type="default" @click="editComponent = false">Cancel</n-button>
@@ -35,6 +35,7 @@ const editComponentCreatedAt = ref(0);
 const editComponentFields = ref<ComponentField[]>([]);
 const editComponentIsNew = ref(false);
 const loadingRef = ref(true);
+const editComponentLoadingRef = ref(false);
 
 const columns = ref([
     {
@@ -74,10 +75,12 @@ const columns = ref([
                             editComponentColor.value = row.color;
                             editComponentCreatedAt.value = row.createdAt;
                             editComponentIsNew.value = false;
+                            editComponentLoadingRef.value = true;
 
                             const componentData = await viewComponent(row.id);
                             if (componentData) {
                                 editComponentFields.value = componentData.fields;
+                                editComponentLoadingRef.value = false;
                             }
                         },
                     },
@@ -178,8 +181,6 @@ async function viewComponent(id = editComponentId.value): Promise<any> {
         }
 
         const result = await response.json();
-
-        refreshComponentList();
 
         return result;
     } catch (error) {

@@ -1,6 +1,6 @@
 <template>
     <div class="table-border" ref="editorRef">
-        <n-data-table :bordered="false" :columns="fieldColumns" :data="fields" :pagination="false" :row-props="fieldRowProps" size="small">
+        <n-data-table remote :loading="props.loading" :bordered="false" :columns="fieldColumns" :data="fields" :pagination="false" :row-props="fieldRowProps" size="small">
             <template #empty>
                 <!-- empty node to remove template slot -->
                 <div></div>
@@ -34,11 +34,13 @@ export type ComponentField = {
 type FieldRow = ComponentField & { key: string; operation?: 'add' | 'remove' | 'update' };
 
 const props = defineProps<{
+    loading?: boolean;
     isNewComponent?: boolean;
     modelValue: ComponentField[];
 }>();
 
 const emit = defineEmits<{
+    'update:loading': [value: boolean];
     'update:modelValue': [value: ComponentField[]];
 }>();
 
@@ -101,7 +103,15 @@ const fieldColumns: DataTableColumns<FieldRow> = [
         key: 'type',
         render: (row) =>
             h(FieldType, {
-                disabled: row.operation === 'remove',
+                // TODO: support for type migrations in distant future, currently disabled
+                // (number -> text, but not text -> number)
+                // DATETIME -> NUMBER
+                // NUMBER -> BOOL
+                // BOOL -> TEXT
+                // NUMBER -> DATETIME
+                // DATETIME -> TEXT
+                // BOOl -> NUMBER
+                disabled: !row.operation || row.operation !== 'add',
                 modelValue: row.field_type,
                 'onUpdate:modelValue': (value) => {
                     const fieldIndex = props.modelValue.findIndex((f) => getFieldKey(f) === row.key);
@@ -236,15 +246,15 @@ function fieldRowProps(row: FieldRow) {
 }
 
 :deep(tr.field-row-add > td) {
-    background-color: #e6ffed !important;
+    background-color: #f4fff7 !important;
 }
 
 :deep(tr.field-row-remove > td) {
-    background-color: #e9e9e9 !important;
+    background-color: #ffeeee !important;
 }
 
 :deep(tr.field-row-update > td) {
-    background-color: #e6f8ff !important;
+    background-color: #f0fbff !important;
 }
 
 :deep(tr.drag-over-row > td) {
