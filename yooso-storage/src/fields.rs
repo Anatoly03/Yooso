@@ -1,5 +1,4 @@
 use uuid::Uuid;
-use yooso_macro::collection;
 
 /// Represents a table in the database that corresponds to a component in the application.
 #[collection(db = crate::MetaDB, table = "fields")]

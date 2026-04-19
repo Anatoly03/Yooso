@@ -111,7 +111,7 @@ const fieldColumns: DataTableColumns<FieldRow> = [
                 // NUMBER -> DATETIME
                 // DATETIME -> TEXT
                 // BOOl -> NUMBER
-                disabled: !row.operation || row.operation !== 'add',
+                disabled: props.isNewComponent ? false : (!row.operation || row.operation !== 'add'),
                 modelValue: row.field_type,
                 'onUpdate:modelValue': (value) => {
                     const fieldIndex = props.modelValue.findIndex((f) => getFieldKey(f) === row.key);
