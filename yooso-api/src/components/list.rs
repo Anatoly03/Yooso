@@ -13,13 +13,6 @@ pub struct ComponentListResponse {
     pub components: Vec<Component>,
 }
 
-/// TODO: move to general response type
-#[derive(Debug, Serialize, Deserialize)]
-pub struct JsonErrorResponse {
-    pub success: bool, // always false
-    pub message: String,
-}
-
 /// TODO: document
 /// This module defines the API endpoint for listing components in the Yooso application.
 #[get("/list")]

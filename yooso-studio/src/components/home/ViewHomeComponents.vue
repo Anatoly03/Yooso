@@ -10,11 +10,10 @@
                     <edit-component-label v-model:value="editComponentName" v-model:color="editComponentColor" />
                     <view-fields-editor :component-id="editComponentId" />
                     <n-button-group class="component-action-slot">
-                        <n-button v-if="!editComponentIsNew" type="error" @click="deleteComponent"> Delete </n-button>
+                        <n-button type="error" @click="deleteComponent()" v-if="!editComponentIsNew"> Delete </n-button>
                         <n-button secondary type="default" @click="editComponent = false">Cancel</n-button>
-                        <n-button type="primary" @click="createUpdateComponent">
-                            {{ editComponentIsNew ? 'Create' : 'Save' }}
-                        </n-button>
+                        <n-button type="primary" @click="patchComponent" v-if="!editComponentIsNew"> Patch </n-button>
+                        <n-button type="primary" @click="createComponent" v-if="editComponentIsNew"> Create </n-button>
                     </n-button-group>
                 </n-form>
             </n-drawer-content>
@@ -32,6 +31,7 @@ const editComponent = ref(false);
 const editComponentId = ref('');
 const editComponentName = ref('');
 const editComponentColor = ref('');
+const editComponentCreatedAt = ref(0);
 const editComponentIsNew = ref(false);
 const loadingRef = ref(true);
 
@@ -71,6 +71,7 @@ const columns = ref([
                             editComponentId.value = row.id;
                             editComponentName.value = row.name;
                             editComponentColor.value = row.color;
+                            editComponentCreatedAt.value = row.createdAt;
                             editComponentIsNew.value = false;
                         },
                     },
@@ -119,6 +120,7 @@ async function refreshComponentList() {
                 id: component.id,
                 name: component.name,
                 color: htmlColor,
+                createdAt: component.created_at,
             };
         });
     } catch (error) {
@@ -128,7 +130,7 @@ async function refreshComponentList() {
     loadingRef.value = false;
 }
 
-async function createUpdateComponent() {
+async function createComponent() {
     try {
         const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/create', {
             method: 'POST',
@@ -158,18 +160,42 @@ async function createUpdateComponent() {
     editComponent.value = false;
 }
 
-async function deleteComponent(id = editComponentId.value) {
+async function patchComponent() {
     try {
-        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/delete/' + id, {
-            method: 'DELETE',
+        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/' + editComponentId.value, {
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                id: editComponentId.value,
                 name: editComponentName.value,
                 is_system: false,
                 color: parseInt(editComponentColor.value.replace('#', ''), 16),
+                created_at: editComponentCreatedAt.value,
             }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to patch component');
+        }
+
+        const result = await response.json();
+        console.log('Component patched:', result);
+
+        refreshComponentList();
+    } catch (error) {
+        console.error('Error patching component:', error);
+    }
+
+    editComponent.value = false;
+}
+
+async function deleteComponent(id = editComponentId.value) {
+    try {
+        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/delete/' + id, {
+            method: 'DELETE',
         });
 
         if (!response.ok) {

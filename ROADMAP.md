@@ -13,7 +13,7 @@
   - [x] List
   - [ ] View
   - [x] Create
-  - [ ] Patch Name
+  - [x] Patch Name and Color
   - [ ] Patch Fields
     - [ ] List
     - [ ] Create
