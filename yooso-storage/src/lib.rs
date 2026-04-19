@@ -23,7 +23,7 @@ pub struct EntityTable {
 
     /// The timestamp of when the entity was created, in seconds since
     /// the Unix epoch.
-    pub created_at: i32,
+    pub created_at: i64,
 }
 
 /// Represents a table in the database that corresponds to a component in the application.
@@ -36,13 +36,18 @@ pub struct ComponentTable {
     /// The name of the component.
     pub name: String,
 
+    /// The color of the component, represented in RGB0 integer format. This
+    /// is used in the admin panel to visually distinguish components and has
+    /// no functional significance in the application logic.
+    pub color: u32,
+
     /// Whether the component is a system component (true) or a user-defined
     /// component (false).
     pub is_system: bool,
 
     /// The timestamp of when the component was created, in seconds since
     /// the Unix epoch.
-    pub created_at: i32,
+    pub created_at: i64,
 }
 
 /// Represents a table in the database that corresponds to a component in the application.
@@ -63,5 +68,5 @@ pub struct ComponentFieldTable {
 
     /// The timestamp of when the component was created, in seconds since
     /// the Unix epoch.
-    pub created_at: i32,
+    pub created_at: i64,
 }

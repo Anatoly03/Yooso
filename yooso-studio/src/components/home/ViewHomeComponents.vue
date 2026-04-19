@@ -7,12 +7,14 @@
         <n-drawer v-model:show="editComponent" :default-width="612" :min-width="416" placement="right" resizable>
             <n-drawer-content :title="'Edit Component: ' + editComponentName">
                 <n-form style="display: flex; flex-direction: column; gap: 5px">
-                    <edit-component-label :name="editComponentName" :color="editComponentColor" />
+                    <edit-component-label v-model:value="editComponentName" v-model:color="editComponentColor" />
                     <view-fields-editor :component-id="editComponentId" />
                     <n-button-group class="component-action-slot">
                         <n-button v-if="!editComponentIsNew" type="error" @click="editComponent = false">Delete</n-button>
                         <n-button secondary type="default" @click="editComponent = false">Cancel</n-button>
-                        <n-button type="primary" @click="editComponent = false">Save</n-button>
+                        <n-button type="primary" @click="createUpdateComponent">
+                            {{ editComponentIsNew ? 'Create' : 'Save' }}
+                        </n-button>
                     </n-button-group>
                 </n-form>
             </n-drawer-content>
@@ -59,20 +61,32 @@ const columns = ref([
         title: 'Actions',
         key: 'actions',
         render(row: any) {
-            return h(
-                NButton,
-                {
-                    type: 'primary',
-                    onClick: () => {
-                        editComponent.value = true;
-                        editComponentId.value = row.id;
-                        editComponentName.value = row.name;
-                        editComponentColor.value = row.color;
-                        editComponentIsNew.value = false;
+            return h(NButtonGroup, null, [
+                h(
+                    NButton,
+                    {
+                        type: 'primary',
+                        onClick: () => {
+                            editComponent.value = true;
+                            editComponentId.value = row.id;
+                            editComponentName.value = row.name;
+                            editComponentColor.value = row.color;
+                            editComponentIsNew.value = false;
+                        },
                     },
-                },
-                'Edit',
-            );
+                    'Edit',
+                ),
+                h(
+                    NButton,
+                    {
+                        type: 'error',
+                        onClick: () => {
+                            console.log('component delete not implemented')
+                        },
+                    },
+                    'Delete',
+                ),
+            ]);
         },
     },
 ]);
@@ -87,7 +101,9 @@ function openCreateNewComponentDrawer() {
     editComponentIsNew.value = true;
 }
 
-onMounted(async () => {
+async function refreshComponentList() {
+    loadingRef.value = true;
+
     try {
         const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/list');
         const result = await response.json();
@@ -110,6 +126,40 @@ onMounted(async () => {
     }
 
     loadingRef.value = false;
+}
+
+async function createUpdateComponent() {
+    try {
+        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: editComponentName.value,
+                is_system: false,
+                color: parseInt(editComponentColor.value.replace('#', ''), 16),
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to create/update component');
+        }
+
+        const result = await response.json();
+        console.log('Component created/updated:', result);
+
+        refreshComponentList();
+    } catch (error) {
+        console.error('Error creating/updating component:', error);
+    }
+
+    editComponent.value = false;
+}
+
+onMounted(async () => {
+    refreshComponentList();
 });
 </script>
 

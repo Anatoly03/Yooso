@@ -2228,6 +2228,7 @@ dependencies = [
  "serde",
  "uuid",
  "yooso-core",
+ "yooso-storage",
 ]
 
 [[package]]

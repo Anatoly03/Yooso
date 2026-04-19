@@ -2,6 +2,7 @@
 
 mod components;
 
+use yooso_storage::{ComponentTable, MetaDBState};
 use rocket::{Build, Ignite, Rocket};
 use rocket_cors::{Cors, CorsOptions};
 
@@ -14,9 +15,12 @@ pub struct Yooso {
 
 impl Yooso {
     /// Creates a [Yooso] instance with the default config provider for [Rocket].
-    pub fn build() -> Self {
+    pub async fn build() -> Self {
+        ComponentTable::create_table().await;
+
         Self {
             rocket: rocket::build()
+                .manage(MetaDBState::default())
                 .mount("/api/components", crate::components::routes())
                 .attach(Self::cors_config()),
         }

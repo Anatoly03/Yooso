@@ -1,8 +1,8 @@
 <template>
-    <n-color-picker v-model:value="componentColor">
+    <n-color-picker v-model:value="modelColor">
         <template #trigger="{ value, onClick }">
             <div class="edit-component-label" :style="{ color: 'white', backgroundColor: value ?? '' }">
-                <input-span class="edit-component-input" v-model="componentName" />
+                <input-span class="edit-component-input" v-model="modelValue" />
                 <n-icon class="edit-component-color" @click="onClick">
                     <ColorWand />
                 </n-icon>
@@ -12,18 +12,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed } from 'vue';
 import { NColorPicker, NIcon } from 'naive-ui';
 import { ColorWand } from '@vicons/ionicons5';
 import InputSpan from './InputSpan.vue';
 
 const props = defineProps<{
-    name: string;
+    value: string;
     color: string;
 }>();
 
-const componentColor = ref(props.color);
-const componentName = ref(props.name);
+const emit = defineEmits<{
+    (e: 'update:value', value: string): void;
+    (e: 'update:color', value: string): void;
+}>();
+
+const modelValue = computed({
+    get: () => props.value,
+    set: (value: string) => emit('update:value', value),
+});
+
+const modelColor = computed({
+    get: () => props.color,
+    set: (value: string | null) => emit('update:color', value ?? ''),
+});
 </script>
 
 <style lang="scss" scoped>

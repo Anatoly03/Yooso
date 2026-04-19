@@ -18,11 +18,11 @@ pub struct Component {
 
     /// System-level components are used internally by the Yooso framework
     /// to manage application state. Managing such components is
-    pub system: bool,
+    pub is_system: bool,
 
     /// Color code for visual representation in the Admin UI, stored as an
     /// RGB0 integer.
-    pub color: i32,
+    pub color: u32,
 
     /// The timestamp of the component's creation, used for tracking and
     /// debugging. It is represented as a Unix timestamp in milliseconds.

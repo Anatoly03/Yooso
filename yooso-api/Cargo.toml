@@ -11,3 +11,4 @@ rocket_cors = "0.6.0"
 serde = "1.0.228"
 uuid = { version = "1.23.1", features = [ "v7", "serde" ] }
 yooso-core = { path = "../yooso-core" }
+yooso-storage = { path = "../yooso-storage" }
