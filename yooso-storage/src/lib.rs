@@ -16,6 +16,7 @@ pub struct LogDB;
 
 /// Represents a table in the database that corresponds to an entity in the application.
 #[collection(db = MetaDB, table = "entities")]
+#[derive(Default)]
 pub struct EntityTable {
     /// Snowflake value. This is the unique identifier of the entity.
     #[primary]
@@ -28,6 +29,7 @@ pub struct EntityTable {
 
 /// Represents a table in the database that corresponds to a component in the application.
 #[collection(db = MetaDB, table = "components")]
+#[derive(Default)]
 pub struct ComponentTable {
     /// Snowflake value. This is the unique identifier of the component.
     #[primary]
@@ -52,6 +54,7 @@ pub struct ComponentTable {
 
 /// Represents a table in the database that corresponds to a component in the application.
 #[collection(db = MetaDB, table = "fields")]
+#[derive(Default)]
 pub struct ComponentFieldTable {
     /// Snowflake value. This is the unique identifier of the field.
     #[primary]

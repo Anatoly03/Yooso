@@ -12,14 +12,14 @@
 - [ ] Component Viewer
   - [x] List
   - [ ] View
-  - [ ] Create
+  - [x] Create
   - [ ] Patch Name
   - [ ] Patch Fields
     - [ ] List
     - [ ] Create
     - [ ] Edit
     - [ ] Remove
-  - [ ] Remove
+  - [x] Remove
   - [ ] Component Types
     - [ ] String
     - [ ] Integer

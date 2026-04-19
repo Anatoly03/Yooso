@@ -10,7 +10,7 @@
                     <edit-component-label v-model:value="editComponentName" v-model:color="editComponentColor" />
                     <view-fields-editor :component-id="editComponentId" />
                     <n-button-group class="component-action-slot">
-                        <n-button v-if="!editComponentIsNew" type="error" @click="editComponent = false">Delete</n-button>
+                        <n-button v-if="!editComponentIsNew" type="error" @click="deleteComponent"> Delete </n-button>
                         <n-button secondary type="default" @click="editComponent = false">Cancel</n-button>
                         <n-button type="primary" @click="createUpdateComponent">
                             {{ editComponentIsNew ? 'Create' : 'Save' }}
@@ -81,7 +81,7 @@ const columns = ref([
                     {
                         type: 'error',
                         onClick: () => {
-                            console.log('component delete not implemented')
+                            deleteComponent(row.id);
                         },
                     },
                     'Delete',
@@ -153,6 +153,36 @@ async function createUpdateComponent() {
         refreshComponentList();
     } catch (error) {
         console.error('Error creating/updating component:', error);
+    }
+
+    editComponent.value = false;
+}
+
+async function deleteComponent(id = editComponentId.value) {
+    try {
+        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/delete/' + id, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: editComponentName.value,
+                is_system: false,
+                color: parseInt(editComponentColor.value.replace('#', ''), 16),
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to delete component');
+        }
+
+        const result = await response.json();
+        console.log('Component deleted:', result);
+
+        refreshComponentList();
+    } catch (error) {
+        console.error('Error deleting component:', error);
     }
 
     editComponent.value = false;
