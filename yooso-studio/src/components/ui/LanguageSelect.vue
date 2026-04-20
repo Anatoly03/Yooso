@@ -1,6 +1,6 @@
 <template>
     <div class="language-select-menu">
-        <n-dropdown :options="dropdownOptions" trigger="click" @select="handleSelect">
+        <n-dropdown :options="dropdownOptions" trigger="click" @select="handleSelect" placement="top-start">
             <button type="button" class="n-menu-item-content language-select" :class="{'collapsed': props.collapsed}" :aria-label="selectorAriaLabel">
                 <n-icon class="language-select-icon">
                     <Language />
@@ -12,12 +12,13 @@
 </template>
 
 <script lang="ts" setup>
-import 'naive-ui/es/menu/src/styles/index.cssr';
+// import 'naive-ui/es/menu/src/styles/index.cssr';
 
 import { computed } from 'vue';
 import { Language } from '@vicons/ionicons5';
 import { NDropdown, NIcon, type DropdownOption } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
+import localesMeta from '../../locales/_meta.json';
 
 const i18n = useI18n();
 
@@ -31,14 +32,8 @@ type LanguageOption = {
     disabled?: boolean;
 };
 
-const languageOptions: LanguageOption[] = [
-    { value: 'en', label: 'English (United Kingdom)' },
-    { value: 'jp', label: '日本語（日本）' },
-    { value: 'zh', label: '中文（中国）', disabled: true },
-];
-
 const dropdownOptions = computed<DropdownOption[]>(() =>
-    languageOptions.map((option) => ({
+    localesMeta.map((option) => ({
         key: option.value,
         label: option.label,
         disabled: option.disabled,
@@ -50,7 +45,7 @@ const dropdownOptions = computed<DropdownOption[]>(() =>
 
 const currentLanguageLabel = computed(() => {
     const currentLocale = i18n.locale.value;
-    const currentOption = languageOptions.find((option) => option.value === currentLocale);
+    const currentOption = localesMeta.find((option) => option.value === currentLocale);
     return currentOption?.label ?? currentLocale;
 });
 

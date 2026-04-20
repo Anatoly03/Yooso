@@ -4,6 +4,11 @@
         "label": "English (United Kingdom)"
     },
     {
+        "value": "de",
+        "label": "Deutsch (Deutschland)",
+        "disabled": true
+    },
+    {
         "value": "jp",
         "label": "日本語（日本）"
     },
