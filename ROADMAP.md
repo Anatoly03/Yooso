@@ -31,10 +31,10 @@
     - [x] Integer
     - [x] Boolean
 - [x] Storage
-  - [x] Table `Entity (UUID entity, INT created_at)`
-  - [x] Table `Component (UUID component, STRING name, INT created_at, BOOL is_system)`
-  - [x] Table `ComponentFields(UUID component, STRING field_name, STRING field_type, BOOL is_system)`
-  - [x] Component Table `<Component> (UUID entity, <...>)`
+  - [x] Entity Table
+  - [x] Component Metadata Table
+  - [x] Component Fields Metadata Table
+  - [x] (Generated) Component Tables
 
 ## Chapter II: Validation & Error Handling
 - [ ] Refactor
@@ -75,6 +75,7 @@ The home page in the admin UI should be customizable. Boxes counting and listing
 - [ ] Themes
   - https://www.naiveui.com/en-US/os-theme/docs/customize-theme
 - [ ] Localization
+  - https://vue-i18n.intlify.dev/guide/essentials/pluralization.html
   - [x] Technical Support for Localization (Ability to Select Locale)
   - [ ] Localize everything
     - [ ] Japanese

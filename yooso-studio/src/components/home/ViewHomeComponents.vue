@@ -87,7 +87,10 @@ const columns = ref([
 
                             const componentData = await viewComponent(row.id);
                             if (componentData) {
-                                editComponentFields.value = componentData.fields;
+                                editComponentFields.value = componentData.fields.map((field: any) => ({
+                                    ...field,
+                                    original_name: field.name,
+                                }));
                                 editComponentLoadingRef.value = false;
                             }
                         },

@@ -25,6 +25,7 @@ import { useI18n } from 'vue-i18n';
 export type ComponentField = {
     id?: string;
     client_key?: string;
+    original_name?: string;
     name: string;
     field_type: string;
     is_system: boolean;
@@ -113,7 +114,7 @@ const fieldColumns: DataTableColumns<FieldRow> = [
                 // NUMBER -> DATETIME
                 // DATETIME -> TEXT
                 // BOOl -> NUMBER
-                disabled: props.isNewComponent ? false : (!row.operation || row.operation !== 'add'),
+                disabled: props.isNewComponent ? false : !row.operation || row.operation !== 'add',
                 modelValue: row.field_type,
                 'onUpdate:modelValue': (value) => {
                     const fieldIndex = props.modelValue.findIndex((f) => getFieldKey(f) === row.key);
@@ -137,12 +138,18 @@ const fieldColumns: DataTableColumns<FieldRow> = [
                     type: row.operation === 'remove' ? 'default' : 'error',
                     onClick() {
                         if (props.isNewComponent) {
-                            emit('update:modelValue', props.modelValue.filter((f) => getFieldKey(f) !== row.key));
+                            emit(
+                                'update:modelValue',
+                                props.modelValue.filter((f) => getFieldKey(f) !== row.key),
+                            );
                             return;
                         }
 
                         if (row.id === undefined) {
-                            emit('update:modelValue', props.modelValue.filter((f) => getFieldKey(f) !== row.key));
+                            emit(
+                                'update:modelValue',
+                                props.modelValue.filter((f) => getFieldKey(f) !== row.key),
+                            );
                             return;
                         }
 
@@ -166,11 +173,32 @@ function updateFieldOperation(rowKey: string, operation?: FieldRow['operation'])
 }
 
 const fields = computed<FieldRow[]>(() =>
-    props.modelValue.map((f) => ({
-        ...f,
-        key: getFieldKey(f),
-        operation: props.isNewComponent ? undefined : f.operation ?? (f.id === undefined ? 'add' : undefined),
-    })),
+    props.modelValue.map((f) => {
+        const key = getFieldKey(f);
+
+        // Determine the operation for existing fields.
+        let operation = (() => {
+            switch (true) {
+                case props.isNewComponent:
+                    return undefined;
+                case f.operation === 'add' || f.id === undefined:
+                    return 'add';
+                case f.operation === 'remove':
+                    return 'remove';
+                case !!f.original_name && f.name !== f.original_name:
+                    return 'update';
+                default:
+                    return undefined;
+            }
+        })();
+
+        // Returncomputed field with metadata and state information.
+        return {
+            ...f,
+            key,
+            operation: operation as any,
+        };
+    }),
 );
 
 onMounted(() => {
@@ -188,9 +216,7 @@ onMounted(() => {
 
 function fieldRowProps(row: FieldRow) {
     const rowIndex = fields.value.findIndex((item) => item.key === row.key);
-    const rowClass = [row.operation ? `field-row-${row.operation}` : '', dragOverIndex.value === rowIndex ? 'drag-over-row' : '']
-        .filter(Boolean)
-        .join(' ');
+    const rowClass = [row.operation ? `field-row-${row.operation}` : '', dragOverIndex.value === rowIndex ? 'drag-over-row' : ''].filter(Boolean).join(' ');
 
     return {
         draggable: true,
