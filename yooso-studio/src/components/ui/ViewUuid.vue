@@ -1,7 +1,7 @@
 <template>
     <n-popover trigger="hover">
         <template #trigger>
-            <n-button class="view-uuid" type="default" @click="copyUuid()" :style="{ marginLeft: props.marginLeft ?? '0px' }">
+            <n-button class="view-uuid" :type="active ? 'primary' : 'default'" :ghost="active" @click="copyUuid()" :style="{ marginLeft: props.marginLeft ?? '0px' }">
                 {{ uuid.slice(-12) }}
             </n-button>
         </template>
@@ -14,6 +14,7 @@ import { NButton, NPopover } from 'naive-ui';
 
 const props = defineProps<{
     uuid: string;
+    active?: boolean;
     // optional; home page tables need left margin to prevent overlap with
     // sidebar collapse (toggle) button
     marginLeft?: string;

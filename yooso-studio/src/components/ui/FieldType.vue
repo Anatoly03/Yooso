@@ -76,8 +76,6 @@ const modelValue = ref(
     options.find((o) => o.value === props.modelValue)?.value ?? "text",
 )
 
-console.log(modelValue.value)
-
 const renderSingleSelectTag: SelectRenderTag = ({ option }) => {
     return h(
         "div",
@@ -89,7 +87,7 @@ const renderSingleSelectTag: SelectRenderTag = ({ option }) => {
             },
         },
         [
-            h(NIcon, { size: 18 }, [option.icon ? h(option.icon) : null]),
+            h(NIcon, { size: 18 }, { default: () => (option.icon ? h(option.icon) : null) }),
             option.label as string,
         ],
     )
@@ -105,7 +103,7 @@ const renderLabel: SelectRenderLabel = (option) => {
             },
         },
         [
-            h(NIcon, { size: 18 }, [option.icon ? h(option.icon) : null]),
+            h(NIcon, { size: 18 }, { default: () => (option.icon ? h(option.icon) : null) }),
             h(
                 "div",
                 {

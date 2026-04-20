@@ -10,7 +10,7 @@
                     <n-card size="small">
                         <small>Preview</small>
                         <div>
-                            <view-uuid :uuid="addComponentEntityId" />
+                            <view-uuid active :uuid="addComponentEntityId" />
                             <div class="view-component-label" style="display: inline-block; padding: 4px 8px; background-color: #C1D1D1; color: black; border-radius: 4px; margin-left: 6px; padding: 5px 8px;">
                                 {{ addComponentId }}
                             </div>
@@ -29,15 +29,27 @@
 
 <script setup lang="ts">
 import { NButton, NButtonGroup, NCard, NDataTable, NDrawer, NDrawerContent, NForm, NPopover } from 'naive-ui';
-import { h, onMounted, ref } from 'vue';
+import { computed, h, onMounted, ref } from 'vue';
 import EditEntityComponents from '../ui/EditEntityComponents.vue';
 import ViewUuid from '../ui/ViewUuid.vue';
 
 const loadingRef = ref(true);
-const addComponentDrawer = ref(false);
+const addComponentDrawerRef = ref(false);
 const addComponentName = ref('');
 const addComponentEntityId = ref('');
 const addComponentId = ref('');
+
+const addComponentDrawer = computed({
+    get: () => addComponentDrawerRef.value,
+    set: (value) => {
+        if (!value) {
+            addComponentEntityId.value = '';
+            addComponentId.value = '';
+            addComponentName.value = '';
+        }
+        addComponentDrawerRef.value = value;
+    },
+});
 
 const columns = ref([
     {
@@ -45,7 +57,7 @@ const columns = ref([
         key: 'id',
         width: 180,
         render(row: any) {
-            return h(ViewUuid, { uuid: row.id, marginLeft: '12px' });
+            return h(ViewUuid, { uuid: row.id, active: row.id === addComponentEntityId.value, marginLeft: '12px' });
         },
     },
     {
@@ -55,7 +67,6 @@ const columns = ref([
             return h(EditEntityComponents, {
                 entityId: row.id,
                 onAddComponent: (entityId: string, componentId: string) => {
-                    console.log('Add component', entityId, componentId);
                     addComponentEntityId.value = entityId;
                     addComponentId.value = componentId;
                     addComponentName.value = componentId;

@@ -70,7 +70,7 @@ const columns = ref([
         key: 'actions',
         render(row: any) {
             return h(NButtonGroup, () => [
-                () => h(
+                h(
                     NButton,
                     {
                         type: 'primary',
@@ -92,7 +92,7 @@ const columns = ref([
                     },
                     () => 'Edit',
                 ),
-                () => h(
+                h(
                     NButton,
                     {
                         type: 'error',
