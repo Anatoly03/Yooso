@@ -59,6 +59,7 @@ function handlePaste(e: ClipboardEvent) {
     width: 100%;
     border: 0;
     border-radius: 2px;
+    color: black;
 
     font: inherit;
     line-height: inherit;

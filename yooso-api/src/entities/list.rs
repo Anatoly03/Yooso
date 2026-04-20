@@ -3,8 +3,7 @@
 use rocket::serde::json::{Json, Value, json};
 use rocket::{State, get};
 use serde::{Deserialize, Serialize};
-use yooso_core::{Component, Entity};
-use yooso_storage::{ComponentTable, EntityTable, MetaDBState};
+use yooso_storage::{EntityTable, MetaDBState};
 
 /// TODO: document
 #[derive(Debug, Serialize, Deserialize)]
@@ -19,16 +18,18 @@ pub struct ComponentListResponse {
 pub async fn list_entities(
     state: &State<MetaDBState>,
 ) -> Result<Json<ComponentListResponse>, Json<Value>> {
-    EntityTable::list_all(state).await.map(|entities| {
-        Json(ComponentListResponse {
-            success: true,
-            entities,
+    EntityTable::list_all(state)
+        .await
+        .map(|entities| {
+            Json(ComponentListResponse {
+                success: true,
+                entities,
+            })
         })
-    })
-    .map_err(|err| {
-        Json(json!({
-            "success": false,
-            "message": format!("Failed to list entities: {}", err),
-        }))
-    })
+        .map_err(|err| {
+            Json(json!({
+                "success": false,
+                "message": format!("Failed to list entities: {}", err),
+            }))
+        })
 }

@@ -45,6 +45,7 @@ const modelColor = computed({
     align-items: stretch;
     width: 100%;
     border-radius: 4px;
+    color: black;
 
     .edit-component-input {
         flex: 1 1 auto;
@@ -63,6 +64,7 @@ const modelColor = computed({
         z-index: 1;
         cursor: pointer;
         flex: none;
+        color: black;
     }
 }
 </style>

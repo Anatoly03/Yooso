@@ -79,7 +79,7 @@ const columns = ref([
                         marginRight: '6px',
                         padding: '4px 8px',
                         backgroundColor: row.color,
-                        color: '#fff',
+                        color: 'black',
                         borderRadius: '4px',
                     },
                 },
@@ -135,7 +135,7 @@ function openCreateNewComponentDrawer() {
     editComponent.value = true;
     editComponentId.value = '';
     editComponentName.value = 'new-component';
-    editComponentColor.value = '#000000';
+    editComponentColor.value = '#C1C1C1';
     editComponentIsNew.value = true;
     editComponentFields.value = [];
 }

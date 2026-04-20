@@ -4,14 +4,32 @@
         <div class="view-entities-footer">
             <n-button type="primary" @click="createEntity"> Create Entity </n-button>
         </div>
+        <n-drawer v-model:show="addComponentDrawer" :default-width="612" :min-width="416" placement="right" resizable>
+            <n-drawer-content :title="'Add Component: ' + addComponentName">
+                <n-form style="display: flex; flex-direction: column; gap: 5px">
+                    <div style="font-family: monospace">Entity: {{ addComponentEntityId }}</div>
+                    <div style="font-family: monospace">Component: {{ addComponentId }}</div>
+                    <!-- <edit-component-label v-model:value="editComponentName" v-model:color="editComponentColor" />
+                    <view-fields-editor v-model:loading="editComponentLoadingRef" v-model:model-value="editComponentFields" :component-id="editComponentId" :is-new-component="editComponentIsNew" /> -->
+                    <n-button-group class="component-action-slot">
+                        <n-button secondary type="default" @click="addComponentDrawer = false">Cancel</n-button>
+                    </n-button-group>
+                </n-form>
+            </n-drawer-content>
+        </n-drawer>
     </div>
 </template>
 
 <script setup lang="ts">
-import { NButton, NDataTable, NPopover } from 'naive-ui';
+import { NButton, NButtonGroup, NDataTable, NDrawer, NDrawerContent, NForm, NPopover } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
+import EditEntityComponents from '../ui/EditEntityComponents.vue';
 
 const loadingRef = ref(true);
+const addComponentDrawer = ref(false);
+const addComponentName = ref('');
+const addComponentEntityId = ref('');
+const addComponentId = ref('');
 
 const columns = ref([
     {
@@ -47,28 +65,16 @@ const columns = ref([
         title: 'Components',
         key: 'components',
         render(row: any) {
-            if (!row.components || row.components.length === 0) {
-                return h('span', { style: { fontStyle: 'italic', color: '#888' } }, 'No components');
-            }
-
-            const tags = row.components.map((component: any) =>
-                h(
-                    'span',
-                    {
-                        style: {
-                            display: 'inline-block',
-                            marginRight: '6px',
-                            padding: '4px 8px',
-                            backgroundColor: component.color,
-                            color: '#fff',
-                            borderRadius: '4px',
-                        },
-                    },
-                    component.name,
-                ),
-            );
-
-            return tags;
+            return h(EditEntityComponents, {
+                entityId: row.id,
+                onAddComponent: (entityId: string, componentId: string) => {
+                    console.log('Add component', entityId, componentId);
+                    addComponentEntityId.value = entityId;
+                    addComponentId.value = componentId;
+                    addComponentName.value = componentId;
+                    addComponentDrawer.value = true;
+                },
+            });
         },
     },
 ]);
