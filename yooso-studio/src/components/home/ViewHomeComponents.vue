@@ -26,6 +26,7 @@ import { NButton, NButtonGroup, NDataTable, NForm, NFormItem, NLayout, NPopover,
 import { h, onMounted, ref } from 'vue';
 import ViewFieldsEditor, { type ComponentField } from './ViewFieldsEditor.vue';
 import EditComponentLabel from '../ui/EditComponentLabel.vue';
+import ViewUuid from '../ui/ViewUuid.vue';
 
 const editComponent = ref(false);
 const editComponentId = ref('');
@@ -42,30 +43,7 @@ const columns = ref([
         title: () => h('span', { style: { marginLeft: '12px' } }, 'ID'),
         key: 'id',
         width: 180,
-        render(row: any) {
-            return h(
-                NPopover,
-                { trigger: 'hover' },
-                {
-                    // copy ID to clipboard on click
-                    trigger: () =>
-                        h(
-                            NButton,
-                            {
-                                style: {
-                                    'font-family': 'monospace',
-                                    width: '100%',
-                                    display: 'inline-block',
-                                    marginLeft: '12px',
-                                },
-                                onClick: () => navigator.clipboard.writeText(row.id),
-                            },
-                            row.id.slice(-12),
-                        ),
-                    default: () => h('span', row.id),
-                },
-            );
-        },
+        render: (row: any) => h(ViewUuid, { uuid: row.id, marginLeft: '12px' }),
     },
     {
         title: 'Component',
@@ -92,7 +70,7 @@ const columns = ref([
         key: 'actions',
         render(row: any) {
             return h(NButtonGroup, () => [
-                h(
+                () => h(
                     NButton,
                     {
                         type: 'primary',
@@ -114,7 +92,7 @@ const columns = ref([
                     },
                     () => 'Edit',
                 ),
-                h(
+                () => h(
                     NButton,
                     {
                         type: 'error',

@@ -7,11 +7,18 @@
         <n-drawer v-model:show="addComponentDrawer" :default-width="612" :min-width="416" placement="right" resizable>
             <n-drawer-content :title="'Add Component: ' + addComponentName">
                 <n-form style="display: flex; flex-direction: column; gap: 5px">
-                    <div style="font-family: monospace">Entity: {{ addComponentEntityId }}</div>
-                    <div style="font-family: monospace">Component: {{ addComponentId }}</div>
+                    <n-card size="small">
+                        <small>Preview</small>
+                        <div>
+                            <view-uuid :uuid="addComponentEntityId" />
+                            <div class="view-component-label" style="display: inline-block; padding: 4px 8px; background-color: #C1D1D1; color: black; border-radius: 4px; margin-left: 6px; padding: 5px 8px;">
+                                {{ addComponentId }}
+                            </div>
+                        </div>
+                    </n-card>
                     <!-- <edit-component-label v-model:value="editComponentName" v-model:color="editComponentColor" />
                     <view-fields-editor v-model:loading="editComponentLoadingRef" v-model:model-value="editComponentFields" :component-id="editComponentId" :is-new-component="editComponentIsNew" /> -->
-                    <n-button-group class="component-action-slot">
+                    <n-button-group class="entity-action-slot">
                         <n-button secondary type="default" @click="addComponentDrawer = false">Cancel</n-button>
                     </n-button-group>
                 </n-form>
@@ -21,9 +28,10 @@
 </template>
 
 <script setup lang="ts">
-import { NButton, NButtonGroup, NDataTable, NDrawer, NDrawerContent, NForm, NPopover } from 'naive-ui';
+import { NButton, NButtonGroup, NCard, NDataTable, NDrawer, NDrawerContent, NForm, NPopover } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
 import EditEntityComponents from '../ui/EditEntityComponents.vue';
+import ViewUuid from '../ui/ViewUuid.vue';
 
 const loadingRef = ref(true);
 const addComponentDrawer = ref(false);
@@ -37,28 +45,7 @@ const columns = ref([
         key: 'id',
         width: 180,
         render(row: any) {
-            return h(
-                NPopover,
-                { trigger: 'hover' },
-                {
-                    // copy ID to clipboard on click
-                    trigger: () =>
-                        h(
-                            NButton,
-                            {
-                                style: {
-                                    'font-family': 'monospace',
-                                    width: '100%',
-                                    display: 'inline-block',
-                                    marginLeft: '12px',
-                                },
-                                onClick: () => navigator.clipboard.writeText(row.id),
-                            },
-                            row.id.slice(-12),
-                        ),
-                    default: () => h('span', row.id),
-                },
-            );
+            return h(ViewUuid, { uuid: row.id, marginLeft: '12px' });
         },
     },
     {
@@ -164,7 +151,7 @@ async function createEntity() {
 
 onMounted(() => {
     refreshEntityList();
-})
+});
 </script>
 
 <style lang="scss" scoped>
@@ -189,5 +176,20 @@ onMounted(() => {
 
     border-top: 1px solid #eee;
     background-color: #f5f5f5;
+}
+
+.entity-action-slot {
+    width: 100%;
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+
+    :deep(.n-layout-scroll-container) {
+        flex: 1;
+    }
+
+    :deep(.n-button) {
+        flex: 1 0 auto;
+    }
 }
 </style>
