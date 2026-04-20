@@ -7,6 +7,46 @@
             "components": "コンポーネント",
             "settings": "設定",
             "about": "について"
+        },
+        "keywords": {
+            "id": "ＩＤ",
+            "entity": "エンティティ",
+            "component": "コンポーネント",
+            "system": "システム",
+            "field": "フィールド",
+            "type": "タイプ"
+        },
+        "actions": {
+            "add": "追加",
+            "edit": "編集",
+            "delete": "削除",
+            "save": "保存",
+            "cancel": "キャンセル",
+            "create": "作成",
+            "drag-order": "ドラッグして順序を変更",
+            "preview": "プレビュー"
+        },
+        "add": {
+            "entity": "エンティティを追加",
+            "component": "コンポーネントを追加",
+            "field": "フィールドを追加"
+        },
+        "create": {
+            "entity": "エンティティを作成",
+            "component": "コンポーネントを作成",
+            "field": "フィールドを作成"
+        },
+        "edit": {
+            "entity": "エンティティを編集",
+            "component": "コンポーネントを編集"
+        },
+        "field": {
+            "types": {
+                "text": "テキスト",
+                "number": "数値",
+                "boolean": "ブール値",
+                "date": "日付"
+            }
         }
     }
 }

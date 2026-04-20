@@ -2,18 +2,18 @@
     <div class="view-components">
         <n-data-table remote :loading="loadingRef" :bordered="false" :columns="columns" :data="data" />
         <div class="view-components-footer">
-            <n-button type="primary" @click="openCreateNewComponentDrawer"> Create Component </n-button>
+            <n-button type="primary" @click="openCreateNewComponentDrawer"> {{ $t('app.create.component') }} </n-button>
         </div>
         <n-drawer v-model:show="editComponent" :default-width="612" :min-width="416" placement="right" resizable>
-            <n-drawer-content :title="'Edit Component: ' + editComponentName">
+            <n-drawer-content :title="editComponentIsNew ? $t('app.create.component') : $t('app.actions.edit') + ': ' + editComponentName">
                 <n-form style="display: flex; flex-direction: column; gap: 5px">
                     <edit-component-label v-model:value="editComponentName" v-model:color="editComponentColor" />
                     <view-fields-editor v-model:loading="editComponentLoadingRef" v-model:model-value="editComponentFields" :component-id="editComponentId" :is-new-component="editComponentIsNew" />
                     <n-button-group class="component-action-slot">
-                        <n-button type="error" @click="deleteComponent()" v-if="!editComponentIsNew"> Delete </n-button>
-                        <n-button secondary type="default" @click="editComponent = false">Cancel</n-button>
-                        <n-button type="primary" @click="patchComponent" v-if="!editComponentIsNew"> Patch </n-button>
-                        <n-button type="primary" @click="createComponent" v-if="editComponentIsNew"> Create </n-button>
+                        <n-button type="error" @click="deleteComponent()" v-if="!editComponentIsNew"> {{ $t('app.actions.delete') }} </n-button>
+                        <n-button secondary type="default" @click="editComponent = false"> {{ $t('app.actions.cancel') }} </n-button>
+                        <n-button type="primary" @click="patchComponent" v-if="!editComponentIsNew"> {{ $t('app.actions.save') }} </n-button>
+                        <n-button type="primary" @click="createComponent" v-if="editComponentIsNew"> {{ $t('app.actions.create') }} </n-button>
                     </n-button-group>
                 </n-form>
             </n-drawer-content>
@@ -27,7 +27,9 @@ import { h, onMounted, ref } from 'vue';
 import ViewFieldsEditor, { type ComponentField } from './ViewFieldsEditor.vue';
 import EditComponentLabel from '../ui/EditComponentLabel.vue';
 import ViewUuid from '../ui/ViewUuid.vue';
+import { useI18n } from 'vue-i18n';
 
+const i18n = useI18n();
 const editComponent = ref(false);
 const editComponentId = ref('');
 const editComponentName = ref('');
@@ -40,13 +42,13 @@ const editComponentLoadingRef = ref(false);
 
 const columns = ref([
     {
-        title: () => h('span', { style: { marginLeft: '12px' } }, 'ID'),
+        title: () => h('span', { style: { marginLeft: '12px' } }, i18n.t('app.keywords.id')),
         key: 'id',
         width: 180,
         render: (row: any) => h(ViewUuid, { uuid: row.id, marginLeft: '12px' }),
     },
     {
-        title: 'Component',
+        title: i18n.t('app.keywords.component', 1),
         key: 'name',
         render(row: any) {
             return h(
@@ -66,7 +68,7 @@ const columns = ref([
         },
     },
     {
-        title: 'Actions',
+        title: '',
         key: 'actions',
         render(row: any) {
             return h(NButtonGroup, () => [

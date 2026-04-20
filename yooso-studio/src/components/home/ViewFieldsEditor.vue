@@ -7,7 +7,7 @@
             </template>
         </n-data-table>
         <div class="create-new-field-row">
-            <n-button secondary type="success" @click="activateCreateRow()" block> + Add Field </n-button>
+            <n-button secondary type="success" @click="activateCreateRow()" block> + {{ $t('app.create.field') }} </n-button>
         </div>
     </div>
 </template>
@@ -20,6 +20,7 @@ import { ArrowUndoCircleOutline, TrashBin, ReloadCircleOutline } from '@vicons/i
 import { DismissCircle20Regular } from '@vicons/fluent';
 import InputSpan from '../ui/InputSpan.vue';
 import FieldType from '../ui/FieldType.vue';
+import { useI18n } from 'vue-i18n';
 
 export type ComponentField = {
     id?: string;
@@ -33,6 +34,7 @@ export type ComponentField = {
 
 type FieldRow = ComponentField & { key: string; operation?: 'add' | 'remove' | 'update' };
 
+const i18n = useI18n();
 const props = defineProps<{
     loading?: boolean;
     isNewComponent?: boolean;
@@ -77,10 +79,10 @@ const fieldColumns: DataTableColumns<FieldRow> = [
         title: '',
         key: 'drag',
         width: 30,
-        render: (row) => h('span', { class: 'drag-handle', title: 'Drag to reorder' }, '::'),
+        render: (row) => h('span', { class: 'drag-handle', title: i18n.t('app.actions.drag-order') }, '::'),
     },
     {
-        title: 'Field',
+        title: i18n.t('app.keywords.field'),
         key: 'field',
         render: (row) =>
             h(InputSpan, {
@@ -99,7 +101,7 @@ const fieldColumns: DataTableColumns<FieldRow> = [
             }),
     },
     {
-        title: 'Type',
+        title: i18n.t('app.keywords.type'),
         key: 'type',
         render: (row) =>
             h(FieldType, {

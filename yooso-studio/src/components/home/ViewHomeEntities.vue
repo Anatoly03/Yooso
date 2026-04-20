@@ -2,13 +2,13 @@
     <div class="view-entities">
         <n-data-table remote :loading="loadingRef" :bordered="false" :columns="columns" :data="data" />
         <div class="view-entities-footer">
-            <n-button type="primary" @click="createEntity"> Create Entity </n-button>
+            <n-button type="primary" @click="createEntity"> {{ $t('app.create.entity') }} </n-button>
         </div>
         <n-drawer v-model:show="addComponentDrawer" :default-width="612" :min-width="416" placement="right" resizable>
-            <n-drawer-content :title="'Add Component: ' + addComponentName">
+            <n-drawer-content :title="$t('app.add.component') + ': ' + addComponentName">
                 <n-form style="display: flex; flex-direction: column; gap: 5px" label-placement="left" label-width="auto" size="small">
                     <n-card size="small">
-                        <small>Preview</small>
+                        <small>{{ $t('app.actions.preview') }}</small>
                         <div>
                             <view-uuid active :uuid="addComponentEntityId" />
                             <div
@@ -36,8 +36,8 @@
                     <!-- <edit-component-label v-model:value="editComponentName" v-model:color="editComponentColor" />
                     <view-fields-editor v-model:loading="editComponentLoadingRef" v-model:model-value="editComponentFields" :component-id="editComponentId" :is-new-component="editComponentIsNew" /> -->
                     <n-button-group class="entity-action-slot">
-                        <n-button secondary type="default" @click="addComponentDrawer = false">Cancel</n-button>
-                        <n-button type="primary" :loading="addComponentSubmittingRef" @click="submitAddComponent">Add</n-button>
+                        <n-button secondary type="default" @click="addComponentDrawer = false">{{ $t('app.actions.cancel') }}</n-button>
+                        <n-button type="primary" :loading="addComponentSubmittingRef" @click="submitAddComponent">{{ $t('app.actions.add') }}</n-button>
                     </n-button-group>
                 </n-form>
             </n-drawer-content>
@@ -50,7 +50,9 @@ import { NButton, NButtonGroup, NCard, NDataTable, NDrawer, NDrawerContent, NFor
 import { computed, h, onMounted, ref } from 'vue';
 import EditEntityComponents from '../ui/EditEntityComponents.vue';
 import ViewUuid from '../ui/ViewUuid.vue';
+import { useI18n } from 'vue-i18n';
 
+const i18n = useI18n();
 const loadingRef = ref(true);
 const addComponentDrawerRef = ref(false);
 const addComponentName = ref('');
@@ -79,7 +81,7 @@ const addComponentDrawer = computed({
 
 const columns = ref([
     {
-        title: () => h('span', { style: { marginLeft: '12px' } }, 'ID'),
+        title: () => h('span', { style: { marginLeft: '12px' } }, i18n.t('app.keywords.id')),
         key: 'id',
         width: 180,
         render(row: any) {
@@ -87,7 +89,7 @@ const columns = ref([
         },
     },
     {
-        title: 'Components',
+        title: i18n.t('app.keywords.component', 2),
         key: 'components',
         render(row: any) {
             const componentRenderKey = `${row.id}:${(row.components ?? []).map((c: any) => c.id).join(',')}`;
@@ -133,12 +135,9 @@ const columns = ref([
                 },
                 onRemoveComponent: async (entityId: string, componentId: string) => {
                     try {
-                        const response = await fetch(
-                            import.meta.env.VITE_API_SERVER + `/api/entities/${entityId}/component/${componentId}`,
-                            {
-                                method: 'DELETE',
-                            },
-                        );
+                        const response = await fetch(import.meta.env.VITE_API_SERVER + `/api/entities/${entityId}/component/${componentId}`, {
+                            method: 'DELETE',
+                        });
 
                         const result = await response.json();
                         if (!response.ok || !result.success) {
@@ -251,16 +250,13 @@ async function submitAddComponent() {
     addComponentSubmittingRef.value = true;
 
     try {
-        const response = await fetch(
-            import.meta.env.VITE_API_SERVER + `/api/entities/${addComponentEntityId.value}/component/${addComponentId.value}`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(addComponentData.value),
+        const response = await fetch(import.meta.env.VITE_API_SERVER + `/api/entities/${addComponentEntityId.value}/component/${addComponentId.value}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
             },
-        );
+            body: JSON.stringify(addComponentData.value),
+        });
 
         const result = await response.json();
         if (!response.ok || !result.success) {

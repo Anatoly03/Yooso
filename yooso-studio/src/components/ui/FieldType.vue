@@ -17,6 +17,9 @@ import { BookNumber16Regular } from "@vicons/fluent"
 import type { SelectRenderLabel, SelectRenderTag } from "naive-ui"
 import { NSelect, NText, NIcon } from "naive-ui"
 import { h, PropType, ref } from "vue"
+import { useI18n } from "vue-i18n"
+
+const i18n = useI18n();
 
 const props = defineProps<{
     modelValue: string;
@@ -36,13 +39,13 @@ const options = [
     // },
     {
         value: "text",
-        label: "Text",
+        label: i18n.t('app.field.types.text'),
         icon: Text,
         description: "Plain text value",
     },
     {
         value: "integer",
-        label: "Number",
+        label: i18n.t('app.field.types.number'),
         icon: BookNumber16Regular,
         description: "Integer value",
     },
@@ -54,7 +57,7 @@ const options = [
     // },
     {
         value: "boolean",
-        label: "Boolean",
+        label: i18n.t('app.field.types.boolean'),
         icon: Toggle,
         description: "Binary value, either truthy or false.",
     },

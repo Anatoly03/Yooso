@@ -7,6 +7,46 @@
             "components": "Components",
             "settings": "Settings",
             "about": "About"
+        },
+        "keywords": {
+            "id": "ID",
+            "entity": "Entity | Entities",
+            "component": "Component | Components",
+            "system": "System",
+            "field": "Field",
+            "type": "Type"
+        },
+        "actions": {
+            "add": "Add",
+            "edit": "Edit",
+            "delete": "Delete",
+            "save": "Save",
+            "cancel": "Cancel",
+            "create": "Create",
+            "drag-order": "Drag to reorder",
+            "preview": "Preview"
+        },
+        "add": {
+            "entity": "Add Entity",
+            "component": "Add Component",
+            "field": "Add Field"
+        },
+        "create": {
+            "entity": "Create Entity",
+            "component": "Create Component",
+            "field": "Create Field"
+        },
+        "edit": {
+            "entity": "Edit Entity",
+            "component": "Edit Component"
+        },
+        "field": {
+            "types": {
+                "text": "Text",
+                "number": "Number",
+                "boolean": "Boolean",
+                "date": "Date"
+            }
         }
     }
 }
