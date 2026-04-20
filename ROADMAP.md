@@ -43,6 +43,8 @@
   - [ ] Refactor Client networking to separate module.
     - [ ] Error Handling in Client.
     - [ ] Add 'loading' indicator to everything
+  - [ ] Use Naive UI messages for notification communication bottom right.
+    - https://www.naiveui.com/en-US/os-theme/components/message
 
 ## Chapter III: Query API
 - [ ] Pagination
@@ -69,6 +71,15 @@ Since this project was inspired
 
 ## Chapter VII: Powerful Admin Panel
 The home page in the admin UI should be customizable. Boxes counting and listing some queries to provide statistics. For example: "Users: 100", "Messages: 567", etc.
+
+- [ ] Themes
+  - https://www.naiveui.com/en-US/os-theme/docs/customize-theme
+- [ ] Localization
+  - [x] Technical Support for Localization (Ability to Select Locale)
+  - [ ] Localize everything
+    - [ ] Japanese
+    - [ ] German
+    - [ ] Chinese (use AI or find translators)
 
 ## Chapter VIII: File Storage
 - [ ] Component Type: 'File'

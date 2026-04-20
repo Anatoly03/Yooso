@@ -25,7 +25,8 @@ import ViewHomeEntities from './ViewHomeEntities.vue';
 import ViewHomeComponents from './ViewHomeComponents.vue';
 
 // State of left sidebar
-const collapsed = ref(true);
+// TODO: set to true if more components flood the screen
+const collapsed = ref(false);
 
 // Routes
 defineOptions({

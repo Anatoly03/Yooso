@@ -42,6 +42,9 @@ const dropdownOptions = computed<DropdownOption[]>(() =>
         key: option.value,
         label: option.label,
         disabled: option.disabled,
+        props: {
+            class: option.value === i18n.locale.value ? 'language-option-active' : 'language-option',
+        },
     })),
 );
 
@@ -91,8 +94,12 @@ function handleSelect(key: string | number): void {
     }
 
     .language-active-span {
-        text-wrap: nowrap;
-        transition: all 0.3s;
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 280px;
+        opacity: 1;
+        transform: translateX(0);
+        transition: max-width 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
     }
 
     &:hover {
@@ -111,15 +118,38 @@ function handleSelect(key: string | number): void {
         }
 
         .language-active-span {
-            width: 0;
             max-width: 0;
-            flex-basis: 0;
-            overflow: hidden;
-            white-space: nowrap;
             opacity: 0;
+            transform: translateX(-6px);
         }
     }
 
     transition: all 0.3s;
 }
+</style>
+
+<style lang="scss">
+// .n-dropdown-menu .n-dropdown-option
+
+.n-dropdown-option-body.language-option-active {
+    color: #137442;
+    font-weight: 600;
+
+    &:not(.n-dropdown-option-body--disabled)::before {
+        background-color: rgba(35, 161, 96, 0.227);
+
+        // .n-dropdown-option-body__label:hover {
+        //     background-color: rgba(35, 161, 96, 0.73);
+        // }
+    }
+
+    // &.n-dropdown-option-body--pending::before {
+    //     background-color: rgba(35, 161, 96, 0.227);
+    // }
+
+    // .n-dropdown-option-body__prefix {}
+    // .n-dropdown-option-body__label {}
+    // .n-dropdown-option-body__suffix {}
+}
+
 </style>
