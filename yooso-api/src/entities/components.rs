@@ -2,7 +2,7 @@
 //! TODO: document
 
 use rocket::serde::json::{Json, Value, json};
-use rocket::{State, post};
+use rocket::{State, delete, post};
 use uuid::Uuid;
 use yooso_storage::{ComponentTable, EntityTable, GeneralDBState, MetaDBState};
 
@@ -150,6 +150,75 @@ pub async fn add_component(
     let query = format!(
         "INSERT INTO {} ({}) VALUES ({})",
         component.component_name, field_names.join(", "), field_values.join(", ")
+    );
+
+    // Execute query
+    let conn = match general_state.0.lock() {
+        Ok(conn) => conn,
+        Err(err) => {
+            return Json(json! ({
+                "success": false,
+                "error": format!("failed to lock db: {err}"),
+            }));
+        }
+    };
+
+    if let Err(err) = conn.execute(&query, []) {
+        return Json(json! ({
+            "success": false,
+            "error": format!("failed to execute query: {err}"),
+        }));
+    }
+
+    Json(json!({ "success": true }))
+}
+
+/// TODO: document
+#[delete("/<id>/component/<component_id>")]
+pub async fn remove_component(
+    state: &State<MetaDBState>,
+    general_state: &State<GeneralDBState>,
+    id: &str,
+    component_id: &str,
+) -> Json<Value> {
+    let entity_uuid = match Uuid::parse_str(id) {
+        Ok(uuid) => uuid,
+        Err(err) => {
+            return Json(json! ({
+                "success": false,
+                "error": format!("invalid entity UUID: {err}"),
+            }));
+        }
+    };
+
+    let component_uuid = match Uuid::parse_str(component_id) {
+        Ok(uuid) => uuid,
+        Err(err) => {
+            return Json(json! ({
+                "success": false,
+                "error": format!("invalid component UUID: {err}"),
+            }));
+        }
+    };
+    
+    // Check that the component exists.
+    let component = match ComponentTable::view(state, &component_uuid).await {
+        Ok(component) => component,
+        Err(err) => {
+            return Json(json! ({
+                "success": false,
+                "error": format!("failed to view component: {err}"),
+            }));
+        }
+    };
+    // let component_name = component.component_name;
+
+    
+    // Create SQL query (insert row into component table with entity as key)
+    // TODO refactor sql queries into storage layer
+    let query = format!(
+        "DELETE FROM {} WHERE entity_id = '{}'",
+        component.component_name, entity_uuid
     );
 
     // Execute query

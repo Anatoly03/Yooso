@@ -174,7 +174,18 @@ function renderTag(tag: string, index: number) {
             disabled: index > 3,
             closable: true,
             onClose: () => {
-                // TODO: invoke call to server to remove component from entity
+                const normalizedTag = tag.toLowerCase();
+                const componentId =
+                    props.components.find((component) => component.name.toLowerCase() === normalizedTag)
+                        ?.id ?? availableComponents.value.find((component) => component.value.toLowerCase() === normalizedTag)?.id;
+
+                if (!componentId) {
+                    console.error('Error removing component from entity: component id not found for tag', tag);
+                    return;
+                }
+
+                tags.value.splice(index, 1);
+                emit('remove-component', props.entityId, componentId);
             },
             style: {
                 padding: '17px 8px',

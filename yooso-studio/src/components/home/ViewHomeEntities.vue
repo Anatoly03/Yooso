@@ -131,6 +131,25 @@ const columns = ref([
 
                     addComponentDrawer.value = true;
                 },
+                onRemoveComponent: async (entityId: string, componentId: string) => {
+                    try {
+                        const response = await fetch(
+                            import.meta.env.VITE_API_SERVER + `/api/entities/${entityId}/component/${componentId}`,
+                            {
+                                method: 'DELETE',
+                            },
+                        );
+
+                        const result = await response.json();
+                        if (!response.ok || !result.success) {
+                            throw new Error(result.error || result.message || 'Failed to remove component from entity');
+                        }
+                    } catch (error) {
+                        console.error('Error removing component from entity:', error);
+                    }
+
+                    await refreshEntityList();
+                },
             });
         },
     },

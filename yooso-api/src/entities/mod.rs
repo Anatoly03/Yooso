@@ -9,6 +9,7 @@ mod view;
 pub fn routes() -> Vec<rocket::Route> {
     rocket::routes![
         components::add_component,
+        components::remove_component,
         create::create_entity,
         delete::delete_entity,
         list::list_entities,
