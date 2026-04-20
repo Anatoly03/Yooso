@@ -2,7 +2,7 @@
     <n-color-picker v-model:value="modelColor">
         <template #trigger="{ value, onClick }">
             <div class="edit-component-label" :style="{ color: 'white', backgroundColor: value ?? '' }">
-                <input-span class="edit-component-input" v-model="modelValue" />
+                <input-span class="edit-component-input" v-model="modelValue" :pattern="/^[a-zA-Z0-9\-]*$/" />
                 <n-icon class="edit-component-color" @click="onClick">
                     <ColorWand />
                 </n-icon>

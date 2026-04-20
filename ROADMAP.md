@@ -8,6 +8,7 @@
   - [x] View (Components per Entity)
   - [x] Create (Entity)
   - [ ] Remove (Entity)
+    - [ ] Batch Remove Related Components
   - [x] Patch (Components per Entity)
     - [x] Add (Components to Entity)
     - [ ] Edit (Components of Entity)
@@ -34,7 +35,15 @@
   - [x] Table `ComponentFields(UUID component, STRING field_name, STRING field_type, BOOL is_system)`
   - [x] Component Table `<Component> (UUID entity, <...>)`
 
-## Chapter II: Query API
+## Chapter II: Validation & Error Handling
+- [ ] Refactor
+  - [ ] Clean up `dash-case` in user interface and `snake_case` in sqlite.
+  - [ ] Error Handling in Api.
+  - [ ] Refactor Client networking to separate module.
+    - [ ] Error Handling in Client.
+    - [ ] Add 'loading' indicator to everything
+
+## Chapter III: Query API
 - [ ] Pagination
 - [ ] Query Filters
   - [ ] `query User, EmailAuth(email)`
@@ -46,26 +55,26 @@
   - [ ] Regular Expression String Validation
   - [ ] Integer Range
 
-## Chapter III: Simple Authentication
+## Chapter IV: Simple Authentication
 - [ ] `User`
 - [ ] `Superuser`
 - [ ] `PassAuth`
 
-## Chapter IV: Github CI and Benchmarking
+## Chapter V: Github CI and Benchmarking
 Introduce CI to benchmark pull request against current standard speed and start profiling.
 
-## Chapter V: Demo
+## Chapter VI: Demo
 Since this project was inspired
 
-## Chapter VI: Powerful Admin Panel
+## Chapter VII: Powerful Admin Panel
 The home page in the admin UI should be customizable. Boxes counting and listing some queries to provide statistics. For example: "Users: 100", "Messages: 567", etc.
 
-## Chapter VII: File Storage
+## Chapter VIII: File Storage
 - [ ] Component Type: 'File'
   - Restriction by Extension `jpg`
   - Restriction by Type `img`
 
-## Chapter: Memory Components
+## Chapter IX: Memory Components
 Components per default are 'stored', however there should exist 'memory' components which unlocks streaming-like field types. These are useful for data like currently-online users (erased after server restarts), or opened 'rooms' (useful in online video games) and streaming channels.
 
 The cool thing is that if we support the admin UI to have customizable dashboard counting components per entities things like "Online Users: 25" are automatically possible.

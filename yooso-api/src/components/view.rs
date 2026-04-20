@@ -35,22 +35,32 @@ pub async fn view_component(
         .await
         .expect("failed to view component fields");
 
+    // Convert underscore to minus in component name. (Convention
+    // transformation between database and user interface).
+    let name = component.component_name.replace('_', "-");
+
     Ok(Json(ViewComponentResponse {
         metadata: Component {
             id: component.id,
-            name: component.component_name,
+            name,
             is_system: component.is_system,
             color: component.color,
             created_at: component.created_at,
         },
         fields: fields
             .into_iter()
-            .map(|field| ComponentField {
-                id: field.id,
-                name: field.field_name,
-                field_type: field.field_type,
-                is_system: field.is_system,
-                created_at: field.created_at,
+            .map(|field| {
+                // Convert underscore to minus in field name. (Convention
+                // transformation between database and user interface).
+                let name = field.field_name.replace('_', "-");
+
+                ComponentField {
+                    id: field.id,
+                    name,
+                    field_type: field.field_type,
+                    is_system: field.is_system,
+                    created_at: field.created_at,
+                }
             })
             .collect(),
     }))

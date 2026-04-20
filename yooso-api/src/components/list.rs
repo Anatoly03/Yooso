@@ -26,12 +26,19 @@ pub async fn list_components(
                 success: true,
                 components: components
                     .into_iter()
-                    .map(|component| Component {
-                        id: component.id,
-                        name: component.component_name,
-                        is_system: component.is_system,
-                        color: component.color,
-                        created_at: component.created_at,
+                    .map(|component| {
+
+                        // Convert underscore to minus in component name. (Convention
+                        // transformation between database and user interface).
+                        let name = component.component_name.replace('_', "-");
+
+                        Component {
+                            id: component.id,
+                            name,
+                            is_system: component.is_system,
+                            color: component.color,
+                            created_at: component.created_at,
+                        }
                     })
                     .collect(),
             })

@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { NButton, NButtonGroup, NDataTable, NForm, NFormItem, NLayout, NPopover, NDrawer, NDrawerContent, DataTableCreateSummary } from 'naive-ui';
+import { NButton, NButtonGroup, NDataTable, NForm, NFormItem, NLayout, NPopover, NDrawer, NDrawerContent, DataTableCreateSummary, FormRules } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
 import ViewFieldsEditor, { type ComponentField } from './ViewFieldsEditor.vue';
 import EditComponentLabel from '../ui/EditComponentLabel.vue';
@@ -107,13 +107,29 @@ const columns = ref([
     },
 ]);
 
+const editComponentRules: FormRules = {
+    name: [
+        {
+            required: true,
+            message: 'Component name is required',
+            trigger: 'blur',
+        },
+        {
+            min: 3,
+            max: 50,
+            message: 'Component name must be between 3 and 50 characters',
+            trigger: 'blur',
+        },
+    ],
+};
+
 const data = ref([]);
 
 function openCreateNewComponentDrawer() {
     editComponent.value = true;
     editComponentId.value = '';
     editComponentName.value = 'new-component';
-    editComponentColor.value = '#C1C1C1';
+    editComponentColor.value = '#C1D1E1';
     editComponentIsNew.value = true;
     editComponentFields.value = [];
 }

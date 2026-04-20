@@ -90,10 +90,12 @@ const columns = ref([
         title: 'Components',
         key: 'components',
         render(row: any) {
+            const componentRenderKey = `${row.id}:${(row.components ?? []).map((c: any) => c.id).join(',')}`;
+
             return h(EditEntityComponents, {
+                key: componentRenderKey,
                 entityId: row.id,
                 components: row.components,
-                // key: row.fields?.length ?? 0,
                 onAddComponent: async (entityId: string, componentId: string) => {
                     addComponentEntityId.value = entityId;
                     addComponentId.value = componentId;
@@ -184,7 +186,10 @@ async function refreshEntityList() {
 
         if (!result.success) throw new Error(result.message || 'Failed to fetch entities');
 
-        data.value = result.entities;
+        data.value = result.entities.map((entity: any) => ({
+            ...entity,
+            components: entity.components ?? [],
+        }));
 
         console.log('Fetched entities:', result.entities);
     } catch (error) {

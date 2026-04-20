@@ -165,7 +165,7 @@ watch(
 );
 
 function renderTag(tag: string, index: number) {
-    const color = componentColorByName.value.get(tag.toLowerCase()) || '#C1D1D1';
+    const color = componentColorByName.value.get(tag.toLowerCase()) || '#C1F1D1';
 
     return h(
         NTag,

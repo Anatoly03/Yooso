@@ -40,9 +40,20 @@ pub async fn create_component(
     let uuid = uuid::Uuid::now_v7();
     let created_at = chrono::Utc::now().timestamp_millis();
 
+    // Validate request body: component name must be: non-empty,
+    // not sql keyword, unique and must match regex for valid SQL
+    // table names
+    // TODO
+
+    // Convert minus to underscore in component name to make it a
+    // valid SQL table name. We keep the `dash-case` convention for
+    // the user interface, but use `snake_case` for the database.
+    let component_name = body.name.replace('-', "_");
+
+    // Create new Component
     let new_component = ComponentTable {
         id: uuid,
-        component_name: body.name.clone(),
+        component_name: component_name,
         is_system: body.is_system,
         color: body.color,
         created_at,
@@ -52,14 +63,21 @@ pub async fn create_component(
         .fields
         .iter()
         .enumerate()
-        .map(|(position, field)| ComponentFieldTable {
-            id: uuid::Uuid::now_v7(),
-            component_id: uuid,
-            field_name: field.name.clone(),
-            field_type: field.field_type.clone(),
-            is_system: field.is_system,
-            position: position as i32,
-            created_at,
+        .map(|(position, field)| {
+            // Convert minus to underscore in field name to make it a
+            // valid SQL table name. We keep the `dash-case` convention for
+            // the user interface, but use `snake_case` for the database.
+            let field_name = field.name.replace('-', "_");
+
+            ComponentFieldTable {
+                id: uuid::Uuid::now_v7(),
+                component_id: uuid,
+                field_name,
+                field_type: field.field_type.clone(),
+                is_system: field.is_system,
+                position: position as i32,
+                created_at,
+            }
         })
         .collect::<Vec<_>>();
 
@@ -108,14 +126,18 @@ pub async fn create_component(
 // TODO: use a proper SQL query builder library instead of string concatenation to
 // prevent SQL injection and handle edge cases.
 fn sql_query_create_table(component: &ComponentTable, fields: &[ComponentFieldTable]) -> String {
-    format!(
-        "CREATE TABLE {} (entity_id UUID PRIMARY KEY, {})",
-        component.component_name,
+    let mut sql_fields = vec!["entity_id UUID PRIMARY KEY".to_string()];
+
+    sql_fields.extend(
         fields
             .iter()
-            .map(|field| format!("{} {}", field.field_name, sql_type(&field.field_type)))
-            .collect::<Vec<_>>()
-            .join(", ")
+            .map(|field| format!("{} {}", field.field_name, sql_type(&field.field_type))),
+    );
+
+    format!(
+        "CREATE TABLE {} ({})",
+        component.component_name,
+        sql_fields.join(", ")
     )
 }
 

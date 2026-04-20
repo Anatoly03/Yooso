@@ -57,19 +57,18 @@ pub async fn add_component(
 
     // Check component schema.
     let schema = component.schema(state).await;
-    if schema.is_empty() {
-        return Json(json! ({
-            "success": false,
-            "error": "component has no fields",
-        }));
-    }
 
     // Generate array of field names
     let field_names = {
-        let mut v = vec!["entity_id"];
+        let mut v = vec!["entity_id".to_string()];
 
         for field in &schema {
-            v.push(field.field_name.as_str());
+            // Convert minus to underscore in field name to make it a
+            // valid SQL table name. We keep the `dash-case` convention for
+            // the user interface, but use `snake_case` for the database.
+            let field_name = field.field_name.replace('-', "_");
+
+            v.push(field_name);
         }
 
         v
@@ -80,12 +79,16 @@ pub async fn add_component(
         let mut v = vec![format!("'{}'", entity_uuid)];
 
         for field in &schema {
-            let data = match body.get(field.field_name.as_str()) {
+            // Convert underscore to minus in component name. (Convention
+            // transformation between database and user interface).
+            let name = field.field_name.replace('_', "-");
+
+            let data = match body.get(name.as_str()) {
                 Some(data) => data,
                 None => {
                     return Json(json! ({
                         "success": false,
-                        "error": format!("missing field: {}", field.field_name),
+                        "error": format!("missing field: {}", name),
                     }));
                 }
             };

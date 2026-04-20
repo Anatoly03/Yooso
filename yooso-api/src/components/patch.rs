@@ -47,9 +47,14 @@ pub async fn update_component(
     general_state: &State<GeneralDBState>,
     body: Json<PatchComponentRequest>,
 ) -> Result<Json<Component>, Json<Value>> {
+    // Convert minus to underscore in component name to make it a
+    // valid SQL table name. We keep the `dash-case` convention for
+    // the user interface, but use `snake_case` for the database.
+    let component_name = body.name.replace('-', "_");
+
     let new_component = ComponentTable {
         id: body.id,
-        component_name: body.name.clone(),
+        component_name,
         is_system: body.is_system,
         color: body.color,
         created_at: body.created_at,

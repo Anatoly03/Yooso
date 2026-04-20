@@ -87,7 +87,7 @@ const fieldColumns: DataTableColumns<FieldRow> = [
                 modelValue: row.name,
                 'data-field-key': row.key,
                 disabled: row.operation === 'remove',
-
+                pattern: /^[a-zA-Z0-9\-]*$/,
                 'onUpdate:modelValue': (value) => {
                     const fieldIndex = props.modelValue.findIndex((f) => getFieldKey(f) === row.key);
                     if (fieldIndex !== -1) {
