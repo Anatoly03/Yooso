@@ -15,33 +15,44 @@ pub async fn add_component(
     component_id: &str,
     body: Json<Value>,
 ) -> Json<Value> {
-    let entity_uuid = Uuid::parse_str(id)
-        .map_err(|err| {
-            json! ({
+    let entity_uuid = match Uuid::parse_str(id) {
+        Ok(uuid) => uuid,
+        Err(err) => {
+            return Json(json! ({
                 "success": false,
                 "error": format!("invalid entity UUID: {err}"),
-            })
-        })
-        .unwrap();
+            }));
+        }
+    };
 
-    let component_uuid = Uuid::parse_str(component_id)
-        .map_err(|err| {
-            json! ({
+    let component_uuid = match Uuid::parse_str(component_id) {
+        Ok(uuid) => uuid,
+        Err(err) => {
+            return Json(json! ({
                 "success": false,
                 "error": format!("invalid component UUID: {err}"),
-            })
-        })
-        .unwrap();
+            }));
+        }
+    };
 
     // Check that the entity exists.
-    let _entity = EntityTable::view(state, &entity_uuid)
-        .await
-        .expect("failed to view entity");
+    if let Err(err) = EntityTable::view(state, &entity_uuid).await {
+        return Json(json! ({
+            "success": false,
+            "error": format!("failed to view entity: {err}"),
+        }));
+    }
 
     // Check that the component exists.
-    let component = ComponentTable::view(state, &component_uuid)
-        .await
-        .expect("failed to view component");
+    let component = match ComponentTable::view(state, &component_uuid).await {
+        Ok(component) => component,
+        Err(err) => {
+            return Json(json! ({
+                "success": false,
+                "error": format!("failed to view component: {err}"),
+            }));
+        }
+    };
     // let component_name = component.component_name;
 
     // Check component schema.
@@ -66,44 +77,56 @@ pub async fn add_component(
 
     // Generate array of field values.
     let field_values = {
-        let mut v = vec![entity_uuid.to_string()];
+        let mut v = vec![format!("'{}'", entity_uuid)];
 
         for field in &schema {
-            let data = body.get(field.field_name.as_str()).ok_or_else(|| {
-                json! ({
-                    "success": false,
-                    "error": format!("missing field: {}", field.field_name),
-                })
-            }).unwrap();
+            let data = match body.get(field.field_name.as_str()) {
+                Some(data) => data,
+                None => {
+                    return Json(json! ({
+                        "success": false,
+                        "error": format!("missing field: {}", field.field_name),
+                    }));
+                }
+            };
 
             match field.field_type.as_str() {
                 "text" => {
-                    let value = data.as_str().ok_or_else(|| {
-                        json! ({
-                            "success": false,
-                            "error": format!("field {} should be a string", field.field_name),
-                        })
-                    }).unwrap();
+                    let value = match data.as_str() {
+                        Some(value) => value,
+                        None => {
+                            return Json(json! ({
+                                "success": false,
+                                "error": format!("field {} should be a string", field.field_name),
+                            }));
+                        }
+                    };
 
                     v.push(format!("'{}'", value.replace("'", "''")));
                 },
-                "number" => {
-                    let value = data.as_f64().ok_or_else(|| {
-                        json! ({
-                            "success": false,
-                            "error": format!("field {} should be a number", field.field_name),
-                        })
-                    }).unwrap();
+                "number" | "integer" => {
+                    let value = match data.as_f64() {
+                        Some(value) => value,
+                        None => {
+                            return Json(json! ({
+                                "success": false,
+                                "error": format!("field {} should be a number", field.field_name),
+                            }));
+                        }
+                    };
 
                     v.push(value.to_string());
                 },
                 "boolean" => {
-                    let value = data.as_bool().ok_or_else(|| {
-                        json! ({
-                            "success": false,
-                            "error": format!("field {} should be a boolean", field.field_name),
-                        })
-                    }).unwrap();
+                    let value = match data.as_bool() {
+                        Some(value) => value,
+                        None => {
+                            return Json(json! ({
+                                "success": false,
+                                "error": format!("field {} should be a boolean", field.field_name),
+                            }));
+                        }
+                    };
 
                     v.push(value.to_string());
                 },
@@ -127,12 +150,22 @@ pub async fn add_component(
     );
 
     // Execute query
-    general_state.0.lock().unwrap().execute(&query, []).map_err(|err| {
-        json! ({
+    let conn = match general_state.0.lock() {
+        Ok(conn) => conn,
+        Err(err) => {
+            return Json(json! ({
+                "success": false,
+                "error": format!("failed to lock db: {err}"),
+            }));
+        }
+    };
+
+    if let Err(err) = conn.execute(&query, []) {
+        return Json(json! ({
             "success": false,
             "error": format!("failed to execute query: {err}"),
-        })
-    }).unwrap();
+        }));
+    }
 
-    Json(json!({}))
+    Json(json!({ "success": true }))
 }

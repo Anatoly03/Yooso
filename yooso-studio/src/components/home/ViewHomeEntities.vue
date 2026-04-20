@@ -6,20 +6,38 @@
         </div>
         <n-drawer v-model:show="addComponentDrawer" :default-width="612" :min-width="416" placement="right" resizable>
             <n-drawer-content :title="'Add Component: ' + addComponentName">
-                <n-form style="display: flex; flex-direction: column; gap: 5px">
+                <n-form style="display: flex; flex-direction: column; gap: 5px" label-placement="left" label-width="auto" size="small">
                     <n-card size="small">
                         <small>Preview</small>
                         <div>
                             <view-uuid active :uuid="addComponentEntityId" />
-                            <div class="view-component-label" style="display: inline-block; padding: 4px 8px; background-color: #C1D1D1; color: black; border-radius: 4px; margin-left: 6px; padding: 5px 8px;">
-                                {{ addComponentId }}
+                            <div
+                                class="view-component-label"
+                                :style="{
+                                    display: 'inline-block',
+                                    padding: '5px 8px',
+                                    backgroundColor: addComponentColor || '#c1d1d1',
+                                    color: 'black',
+                                    borderRadius: '4px',
+                                    marginLeft: '6px',
+                                }"
+                            >
+                                {{ addComponentName }}
                             </div>
                         </div>
                     </n-card>
+                    <!-- <n-card size="small" v-if="addComponentFields.length"> -->
+                    <n-form-item v-for="field in addComponentFields" :key="field.id" :path="field.id" :label="field.name" :show-feedback="false" style="padding: 2px 0">
+                        <n-input v-if="field.field_type === 'text'" v-model:value="addComponentData[field.name]" />
+                        <n-input-number v-else-if="field.field_type === 'number' || field.field_type === 'integer'" v-model:value="addComponentData[field.name]" />
+                        <n-switch v-else-if="field.field_type === 'boolean'" v-model:value="addComponentData[field.name]" />
+                    </n-form-item>
+                    <!-- </n-card> -->
                     <!-- <edit-component-label v-model:value="editComponentName" v-model:color="editComponentColor" />
                     <view-fields-editor v-model:loading="editComponentLoadingRef" v-model:model-value="editComponentFields" :component-id="editComponentId" :is-new-component="editComponentIsNew" /> -->
                     <n-button-group class="entity-action-slot">
                         <n-button secondary type="default" @click="addComponentDrawer = false">Cancel</n-button>
+                        <n-button type="primary" :loading="addComponentSubmittingRef" @click="submitAddComponent">Add</n-button>
                     </n-button-group>
                 </n-form>
             </n-drawer-content>
@@ -28,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { NButton, NButtonGroup, NCard, NDataTable, NDrawer, NDrawerContent, NForm, NPopover } from 'naive-ui';
+import { NButton, NButtonGroup, NCard, NDataTable, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NInputNumber, NPopover, NSwitch } from 'naive-ui';
 import { computed, h, onMounted, ref } from 'vue';
 import EditEntityComponents from '../ui/EditEntityComponents.vue';
 import ViewUuid from '../ui/ViewUuid.vue';
@@ -36,8 +54,12 @@ import ViewUuid from '../ui/ViewUuid.vue';
 const loadingRef = ref(true);
 const addComponentDrawerRef = ref(false);
 const addComponentName = ref('');
+const addComponentColor = ref('');
 const addComponentEntityId = ref('');
 const addComponentId = ref('');
+const addComponentFields = ref<any[]>([]);
+const addComponentData = ref<Record<string, any>>({});
+const addComponentSubmittingRef = ref(false);
 
 const addComponentDrawer = computed({
     get: () => addComponentDrawerRef.value,
@@ -46,6 +68,10 @@ const addComponentDrawer = computed({
             addComponentEntityId.value = '';
             addComponentId.value = '';
             addComponentName.value = '';
+            addComponentColor.value = '';
+            addComponentFields.value = [];
+            addComponentData.value = {};
+            addComponentSubmittingRef.value = false;
         }
         addComponentDrawerRef.value = value;
     },
@@ -66,10 +92,41 @@ const columns = ref([
         render(row: any) {
             return h(EditEntityComponents, {
                 entityId: row.id,
-                onAddComponent: (entityId: string, componentId: string) => {
+                components: row.components,
+                // key: row.fields?.length ?? 0,
+                onAddComponent: async (entityId: string, componentId: string) => {
                     addComponentEntityId.value = entityId;
                     addComponentId.value = componentId;
                     addComponentName.value = componentId;
+                    addComponentColor.value = '';
+
+                    // Fetch component details to get color for preview
+                    try {
+                        const response = await fetch(import.meta.env.VITE_API_SERVER + `/api/components/view/${componentId}`);
+                        const result = await response.json();
+
+                        addComponentName.value = result.metadata.name;
+                        addComponentColor.value = '#' + result.metadata.color.toString(16).padStart(6, '0');
+
+                        addComponentFields.value = result.fields;
+                        addComponentData.value = result.fields.reduce((acc: Record<string, any>, field: any) => {
+                            if (field.field_type === 'boolean') {
+                                acc[field.name] = false;
+                            } else if (field.field_type === 'number' || field.field_type === 'integer') {
+                                acc[field.name] = 0;
+                            } else {
+                                acc[field.name] = '';
+                            }
+
+                            return acc;
+                        }, {});
+                    } catch (error) {
+                        console.error('Error fetching component details:', error);
+                        addComponentEntityId.value = '';
+                        addComponentId.value = '';
+                        return;
+                    }
+
                     addComponentDrawer.value = true;
                 },
             });
@@ -128,6 +185,8 @@ async function refreshEntityList() {
         if (!result.success) throw new Error(result.message || 'Failed to fetch entities');
 
         data.value = result.entities;
+
+        console.log('Fetched entities:', result.entities);
     } catch (error) {
         console.error('Error fetching entities:', error);
     }
@@ -158,6 +217,40 @@ async function createEntity() {
     } catch (error) {
         console.error('Error creating/updating entity:', error);
     }
+}
+
+async function submitAddComponent() {
+    if (!addComponentEntityId.value || !addComponentId.value) {
+        return;
+    }
+
+    addComponentSubmittingRef.value = true;
+
+    try {
+        const response = await fetch(
+            import.meta.env.VITE_API_SERVER + `/api/entities/${addComponentEntityId.value}/component/${addComponentId.value}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(addComponentData.value),
+            },
+        );
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.error || result.message || 'Failed to add component to entity');
+        }
+
+        addComponentDrawer.value = false;
+    } catch (error) {
+        console.error('Error adding component to entity:', error);
+    }
+
+    addComponentSubmittingRef.value = false;
+
+    await refreshEntityList();
 }
 
 onMounted(() => {

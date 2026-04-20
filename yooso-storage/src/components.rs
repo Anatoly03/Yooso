@@ -1,12 +1,13 @@
 use crate::ComponentFieldTable;
 use rusqlite::types::ValueRef;
+use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
 /// Represents a table in the database that corresponds to a component in the application.
 #[collection(db = crate::MetaDB, table = "components")]
 #[unique(component_name)]
-#[derive(Default)]
+#[derive(Default, Debug, Serialize, Deserialize)]
 pub struct ComponentTable {
     /// Snowflake value. This is the unique identifier of the component.
     #[primary]
@@ -57,7 +58,10 @@ impl ComponentTable {
                     let mut obj = json!({});
 
                     for (i, field) in fields.iter().enumerate() {
-                        let value = row.get_ref(i + 1).map(sql_value_to_json).unwrap_or(Value::Null);
+                        let value = row
+                            .get_ref(i + 1)
+                            .map(sql_value_to_json)
+                            .unwrap_or(Value::Null);
                         obj[field.field_name.clone()] = value;
                     }
 

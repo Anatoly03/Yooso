@@ -4,6 +4,7 @@
             <n-auto-complete
                 v-model:value="proposeNewComponent"
                 :options="autoCompleteOptions"
+                :render-label="renderOptionLabel"
                 size="small"
                 :clear-after-select="true"
                 @select="(value) => onSelectComponent(value, submit, deactivate)"
@@ -30,21 +31,36 @@
 <script setup lang="ts">
 import { NAutoComplete, NButton, NDynamicTags, NIcon, NInput, NTag } from 'naive-ui';
 import { Add } from '@vicons/ionicons5';
-import { computed, h, onMounted, ref } from 'vue';
+import { computed, h, onMounted, ref, watch } from 'vue';
 
 const props = defineProps<{
     entityId: string;
+    components: { id: string; name: string; color: number; is_system: boolean; created_at: number }[];
 }>();
 
+export interface ComponentOption {
+    id: string;
+    label: string;
+    value: string;
+    color: string;
+}
+
+interface AutoCompleteOption {
+    label: string;
+    value: string;
+    color: string;
+}
+
 const proposeNewComponentRaw = ref<string | null>('');
+const tags = ref<string[]>([]);
+const availableComponents = ref<ComponentOption[]>([]);
+
 const proposeNewComponent = computed<string>({
     get: () => proposeNewComponentRaw.value ?? '',
     set: (value) => {
         proposeNewComponentRaw.value = value ?? '';
     },
 });
-const tags = ref<string[]>([]);
-const availableComponents = ref<Array<{ id: string; label: string; value: string; color: string }>>([]);
 
 const emit = defineEmits({
     'add-component': (entityId: string, componentId: string) => true,
@@ -69,8 +85,25 @@ const autoCompleteOptions = computed(() => {
         .map((component) => ({
             label: component.label,
             value: component.value,
+            color: component.color,
         }));
 });
+
+function renderOptionLabel(option: AutoCompleteOption) {
+    return h(
+        'span',
+        {
+            style: {
+                display: 'inline-block',
+                padding: '2px 8px',
+                borderRadius: '4px',
+                backgroundColor: option.color,
+                color: 'black',
+            },
+        },
+        option.label,
+    );
+}
 
 function submitComponentSelection(value: string | null | undefined, submit: (value: string) => void, deactivate: () => void) {
     const normalizedValue = (value ?? '').trim().toLowerCase();
@@ -123,6 +156,14 @@ onMounted(() => {
     fetchComponentOptions();
 });
 
+watch(
+    () => props.components,
+    (components) => {
+        tags.value = (components ?? []).map((component) => component.name);
+    },
+    { immediate: true, deep: true },
+);
+
 function renderTag(tag: string, index: number) {
     const color = componentColorByName.value.get(tag.toLowerCase()) || '#C1D1D1';
 
@@ -133,7 +174,7 @@ function renderTag(tag: string, index: number) {
             disabled: index > 3,
             closable: true,
             onClose: () => {
-                tags.value.splice(index, 1);
+                // TODO: invoke call to server to remove component from entity
             },
             style: {
                 padding: '17px 8px',

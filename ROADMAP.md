@@ -4,19 +4,22 @@
 
 ## Chapter I: Core Engine
 - [x] Entity Viewer
-  - [x] List
-  - [ ] View
-  - [x] Create
-  - [ ] Patch
-  - [ ] Remove
-- [ ] Component Viewer
-  - [x] List
-  - [x] View
-  - [x] Create
+  - [x] List (Entities)
+  - [x] View (Components per Entity)
+  - [x] Create (Entity)
+  - [ ] Remove (Entity)
+  - [x] Patch (Components per Entity)
+    - [x] Add (Components to Entity)
+    - [ ] Edit (Components of Entity)
+    - [ ] Remove (Components of Entity)
+- [x] Component Viewer
+  - [x] List (Components)
+  - [x] View (Component Fields and Meta)
+  - [x] Create Component
     - [x] Create Fields
   - [x] Patch Name and Color
-  - [x] Remove
-  - [x] Fields
+  - [x] Remove (Component)
+  - [x] Component Fields
     - [x] List
     - [x] Create (Patch Component)
     - [ ] Edit Field Name (Patch Component, Field Type Migration not supported)
