@@ -1,6 +1,6 @@
 <template>
     <div class="view-components">
-        <n-data-table remote :loading="loadingRef" :bordered="false" :columns="columns" :data="data" />
+        <n-data-table remote :loading="loadingRef" :bordered="false" :columns="columns" :row-props="componentRowProps" :data="data" />
         <div class="view-components-footer">
             <n-button type="primary" @click="openCreateNewComponentDrawer"> {{ $t('app.create.component') }} </n-button>
         </div>
@@ -67,49 +67,6 @@ const columns = ref([
             );
         },
     },
-    {
-        title: '',
-        key: 'actions',
-        render(row: any) {
-            return h(NButtonGroup, () => [
-                h(
-                    NButton,
-                    {
-                        type: 'primary',
-                        onClick: async () => {
-                            editComponent.value = true;
-                            editComponentId.value = row.id;
-                            editComponentName.value = row.name;
-                            editComponentColor.value = row.color;
-                            editComponentCreatedAt.value = row.createdAt;
-                            editComponentIsNew.value = false;
-                            editComponentLoadingRef.value = true;
-
-                            const componentData = await viewComponent(row.id);
-                            if (componentData) {
-                                editComponentFields.value = componentData.fields.map((field: any) => ({
-                                    ...field,
-                                    original_name: field.name,
-                                }));
-                                editComponentLoadingRef.value = false;
-                            }
-                        },
-                    },
-                    () => 'Edit',
-                ),
-                h(
-                    NButton,
-                    {
-                        type: 'error',
-                        onClick: () => {
-                            deleteComponent(row.id);
-                        },
-                    },
-                    () => 'Delete',
-                ),
-            ]);
-        },
-    },
 ]);
 
 const editComponentRules: FormRules = {
@@ -127,6 +84,30 @@ const editComponentRules: FormRules = {
         },
     ],
 };
+
+function componentRowProps(row: any) {
+    return {
+        class: 'clickable-row',
+        onClick: async () => {
+            editComponent.value = true;
+            editComponentId.value = row.id;
+            editComponentName.value = row.name;
+            editComponentColor.value = row.color;
+            editComponentCreatedAt.value = row.createdAt;
+            editComponentIsNew.value = false;
+            editComponentLoadingRef.value = true;
+
+            const componentData = await viewComponent(row.id);
+            if (componentData) {
+                editComponentFields.value = componentData.fields.map((field: any) => ({
+                    ...field,
+                    original_name: field.name,
+                }));
+            }
+            editComponentLoadingRef.value = false;
+        },
+    };
+}
 
 const data = ref([]);
 
@@ -289,6 +270,10 @@ onMounted(async () => {
         flex: 1 1 0;
         min-height: 0;
         overflow: auto;
+    }
+
+    :deep(tr.clickable-row) {
+        cursor: pointer;
     }
 }
 

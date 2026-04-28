@@ -1,7 +1,7 @@
 <template>
     <n-popover trigger="hover">
         <template #trigger>
-            <n-button class="view-uuid" :type="active ? 'primary' : 'default'" :ghost="active" @click="copyUuid()" :style="{ marginLeft: props.marginLeft ?? '0px' }">
+            <n-button class="view-uuid" :type="active ? 'primary' : 'default'" :ghost="active" @click.stop="copyUuid()" :style="{ marginLeft: props.marginLeft ?? '0px' }">
                 {{ uuid.slice(-12) }}
             </n-button>
         </template>

@@ -36,17 +36,7 @@
   - [x] Component Fields Metadata Table
   - [x] (Generated) Component Tables
 
-## Chapter II: Validation & Error Handling
-- [ ] Refactor
-  - [ ] Clean up `dash-case` in user interface and `snake_case` in sqlite.
-  - [ ] Error Handling in Api.
-  - [ ] Refactor Client networking to separate module.
-    - [ ] Error Handling in Client.
-    - [ ] Add 'loading' indicator to everything
-  - [ ] Use Naive UI messages for notification communication bottom right.
-    - https://www.naiveui.com/en-US/os-theme/components/message
-
-## Chapter III: Query API
+## Chapter II: Query API
 - [ ] Pagination
 - [ ] Query Filters
   - [ ] `query User, EmailAuth(email)`
@@ -58,10 +48,20 @@
   - [ ] Regular Expression String Validation
   - [ ] Integer Range
 
-## Chapter IV: Simple Authentication
+## Chapter III: Simple Authentication
 - [ ] `User`
 - [ ] `Superuser`
 - [ ] `PassAuth`
+
+## Chapter IV: Validation & Error Handling
+- [ ] Refactor
+  - [ ] Clean up `dash-case` in user interface and `snake_case` in sqlite.
+  - [ ] Error Handling in Api.
+  - [ ] Refactor Client networking to separate module.
+    - [ ] Error Handling in Client.
+    - [ ] Add 'loading' indicator to everything
+  - [ ] Use Naive UI messages for notification communication bottom right.
+    - https://www.naiveui.com/en-US/os-theme/components/message
 
 ## Chapter V: Github CI and Benchmarking
 Introduce CI to benchmark pull request against current standard speed and start profiling.
