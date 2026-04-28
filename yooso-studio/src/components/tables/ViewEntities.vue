@@ -3,6 +3,7 @@
         <n-data-table remote :loading="props.loading" :bordered="false" :columns="columns" :row-props="entityRowProps" :data="data" />
         <div class="view-entities-footer">
             <n-button type="primary" @click="emit('new-entity')"> {{ $t('app.create.entity') }} </n-button>
+            <n-button type="info" @click="emit('view-documentation')" disabled> {{ $t('app.documentation.api') }} </n-button>
         </div>
     </div>
 </template>
@@ -32,6 +33,7 @@ const emit = defineEmits<{
     'new-entity': [];
     'add-component': [entityId: string, componentId: string];
     'remove-component': [entityId: string, componentId: string];
+    'view-documentation': [];
 }>();
 
 const columns = ref([

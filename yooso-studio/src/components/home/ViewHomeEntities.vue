@@ -44,15 +44,13 @@
 </template>
 
 <script setup lang="ts">
-import { NButton, NButtonGroup, NCard, NDataTable, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NInputNumber, NPopover, NSwitch } from 'naive-ui';
+import { NButton, NButtonGroup, NCard, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NInputNumber, NSwitch } from 'naive-ui';
 import { computed, h, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import EditEntityComponents from '../ui/EditEntityComponents.vue';
 import ViewEntities from '../tables/ViewEntities.vue';
 import ViewUuid from '../ui/ViewUuid.vue';
 
-const i18n = useI18n();
 const loadingRef = ref(true);
 const addComponentDrawerRef = ref(false);
 const addComponentName = ref('');

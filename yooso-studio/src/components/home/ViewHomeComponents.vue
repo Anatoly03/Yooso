@@ -1,6 +1,13 @@
 <template>
     <div class="view-components-home">
-        <view-components :loading="loadingRef" :data="data" @view-component="openEditComponentDrawer" @new-component="openCreateNewComponentDrawer" />
+        <view-components
+            :loading="loadingRef"
+            :data="data"
+            @view-component="openEditComponentDrawer"
+            @new-component="openCreateNewComponentDrawer"
+            @view-documentation="openDocumentationDrawer = true"
+        />
+        <view-component-documentation v-model:show="openDocumentationDrawer" />
         <n-drawer v-model:show="editComponent" :default-width="612" :min-width="416" placement="right" resizable>
             <n-drawer-content :title="editComponentIsNew ? $t('app.create.component') : $t('app.actions.edit') + ': ' + editComponentName">
                 <n-form style="display: flex; flex-direction: column; gap: 5px">
@@ -27,6 +34,7 @@ import EditComponentLabel from '../ui/EditComponentLabel.vue';
 import ViewFieldsEditor, { type ComponentField } from '../tables/ViewFieldsEditor.vue';
 import ViewUuid from '../ui/ViewUuid.vue';
 import ViewComponents from '../tables/ViewComponents.vue';
+import ViewComponentDocumentation from '../docs/ViewComponentDocumentation.vue';
 
 const i18n = useI18n();
 const editComponent = ref(false);
@@ -38,7 +46,7 @@ const editComponentFields = ref<ComponentField[]>([]);
 const editComponentIsNew = ref(false);
 const loadingRef = ref(true);
 const editComponentLoadingRef = ref(false);
-
+const openDocumentationDrawer = ref(false);
 const data = ref<any[]>([]);
 
 async function openEditComponentDrawer(id: string) {

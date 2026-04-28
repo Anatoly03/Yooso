@@ -40,6 +40,9 @@
             "entity": "Edit Entity",
             "component": "Edit Component"
         },
+        "documentation": {
+            "api": "API Documentation"
+        },
         "field": {
             "types": {
                 "text": "Text",
@@ -48,5 +51,8 @@
                 "date": "Date"
             }
         }
+    },
+    "documentation": {
+        
     }
 }

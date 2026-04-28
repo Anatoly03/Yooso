@@ -3,6 +3,7 @@
         <n-data-table remote :loading="props.loading" :bordered="false" :columns="columns" :row-props="componentRowProps" :data="data" />
         <div class="view-components-footer">
             <n-button type="primary" @click="emit('new-component')"> {{ $t('app.create.component') }} </n-button>
+            <n-button type="info" @click="emit('view-documentation')"> {{ $t('app.documentation.api') }} </n-button>
         </div>
     </div>
 </template>
@@ -28,6 +29,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     'view-component': [componentId: string];
     'new-component': [];
+    'view-documentation': [];
 }>();
 
 const columns = ref([
