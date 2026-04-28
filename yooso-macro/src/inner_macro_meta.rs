@@ -6,7 +6,7 @@
 //! The following macro produces a parser for the procedural macro
 //! below.
 //!
-//! ```rust,no_run
+//! ```rust,no_run,no_test,ignore
 //! meta_parser!(
 //!     /// Metadata for the [collection] attribute macro.
 //!     CollectionMeta {

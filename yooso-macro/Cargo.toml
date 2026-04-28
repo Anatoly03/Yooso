@@ -6,6 +6,10 @@ edition = "2024"
 [lib]
 proc-macro = true
 
+[dev-dependencies]
+rusqlite = { version = "0.31", features = ["bundled"] }
+uuid = { version = "1.23.1", features = [ "v7", "serde" ] }
+
 [dependencies]
 proc-macro2 = "1.0"
 quote = "1.0"

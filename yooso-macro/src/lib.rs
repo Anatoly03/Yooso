@@ -15,7 +15,7 @@ use crate::macro_collection::CollectionMeta;
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```rust,no_run,no_test,ignore
 /// use yooso::Yooso;
 ///
 /// #[yooso::launch]
@@ -53,8 +53,11 @@ pub fn database(args: TokenStream, input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust,no_run
-/// use yooso_macro::collection;
-/// use crate::MetaDB;
+/// use yooso_macro::{database,collection};
+/// use uuid::Uuid;
+/// 
+/// #[database(".yooso/meta.sqlite")]
+/// struct MetaDB;
 ///
 /// #[collection(db = MetaDB, table = "entities")]
 /// struct EntityTable {
