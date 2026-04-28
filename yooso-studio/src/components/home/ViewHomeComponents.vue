@@ -1,9 +1,6 @@
 <template>
-    <div class="view-components">
-        <n-data-table remote :loading="loadingRef" :bordered="false" :columns="columns" :row-props="componentRowProps" :data="data" />
-        <div class="view-components-footer">
-            <n-button type="primary" @click="openCreateNewComponentDrawer"> {{ $t('app.create.component') }} </n-button>
-        </div>
+    <div class="view-components-home">
+        <view-components :loading="loadingRef" :data="data" @view-component="openEditComponentDrawer" @new-component="openCreateNewComponentDrawer" />
         <n-drawer v-model:show="editComponent" :default-width="612" :min-width="416" placement="right" resizable>
             <n-drawer-content :title="editComponentIsNew ? $t('app.create.component') : $t('app.actions.edit') + ': ' + editComponentName">
                 <n-form style="display: flex; flex-direction: column; gap: 5px">
@@ -24,10 +21,12 @@
 <script setup lang="ts">
 import { NButton, NButtonGroup, NDataTable, NForm, NFormItem, NLayout, NPopover, NDrawer, NDrawerContent, DataTableCreateSummary, FormRules } from 'naive-ui';
 import { h, onMounted, ref } from 'vue';
-import ViewFieldsEditor, { type ComponentField } from './ViewFieldsEditor.vue';
-import EditComponentLabel from '../ui/EditComponentLabel.vue';
-import ViewUuid from '../ui/ViewUuid.vue';
 import { useI18n } from 'vue-i18n';
+
+import EditComponentLabel from '../ui/EditComponentLabel.vue';
+import ViewFieldsEditor, { type ComponentField } from '../tables/ViewFieldsEditor.vue';
+import ViewUuid from '../ui/ViewUuid.vue';
+import ViewComponents from '../tables/ViewComponents.vue';
 
 const i18n = useI18n();
 const editComponent = ref(false);
@@ -40,76 +39,28 @@ const editComponentIsNew = ref(false);
 const loadingRef = ref(true);
 const editComponentLoadingRef = ref(false);
 
-const columns = ref([
-    {
-        title: () => h('span', { style: { marginLeft: '12px' } }, i18n.t('app.keywords.id')),
-        key: 'id',
-        width: 180,
-        render: (row: any) => h(ViewUuid, { uuid: row.id, marginLeft: '12px' }),
-    },
-    {
-        title: i18n.t('app.keywords.component', 1),
-        key: 'name',
-        render(row: any) {
-            return h(
-                'span',
-                {
-                    style: {
-                        display: 'inline-block',
-                        marginRight: '6px',
-                        padding: '4px 8px',
-                        backgroundColor: row.color,
-                        color: 'black',
-                        borderRadius: '4px',
-                    },
-                },
-                row.name,
-            );
-        },
-    },
-]);
+const data = ref<any[]>([]);
 
-const editComponentRules: FormRules = {
-    name: [
-        {
-            required: true,
-            message: 'Component name is required',
-            trigger: 'blur',
-        },
-        {
-            min: 3,
-            max: 50,
-            message: 'Component name must be between 3 and 50 characters',
-            trigger: 'blur',
-        },
-    ],
-};
+async function openEditComponentDrawer(id: string) {
+    const row = data.value.find((c) => c.id === id);
 
-function componentRowProps(row: any) {
-    return {
-        class: 'clickable-row',
-        onClick: async () => {
-            editComponent.value = true;
-            editComponentId.value = row.id;
-            editComponentName.value = row.name;
-            editComponentColor.value = row.color;
-            editComponentCreatedAt.value = row.createdAt;
-            editComponentIsNew.value = false;
-            editComponentLoadingRef.value = true;
+    editComponent.value = true;
+    editComponentId.value = row.id;
+    editComponentName.value = row.name;
+    editComponentColor.value = row.color;
+    editComponentCreatedAt.value = row.createdAt;
+    editComponentIsNew.value = false;
+    editComponentLoadingRef.value = true;
 
-            const componentData = await viewComponent(row.id);
-            if (componentData) {
-                editComponentFields.value = componentData.fields.map((field: any) => ({
-                    ...field,
-                    original_name: field.name,
-                }));
-            }
-            editComponentLoadingRef.value = false;
-        },
-    };
+    const componentData = await viewComponent(row.id);
+    if (componentData) {
+        editComponentFields.value = componentData.fields.map((field: any) => ({
+            ...field,
+            original_name: field.name,
+        }));
+    }
+    editComponentLoadingRef.value = false;
 }
-
-const data = ref([]);
 
 function openCreateNewComponentDrawer() {
     editComponent.value = true;
@@ -118,6 +69,7 @@ function openCreateNewComponentDrawer() {
     editComponentColor.value = '#C1D1E1';
     editComponentIsNew.value = true;
     editComponentFields.value = [];
+    editComponentLoadingRef.value = false;
 }
 
 async function refreshComponentList() {
@@ -260,9 +212,12 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
-.view-components {
+.view-components-home {
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
+    padding: 12px;
+    padding-left: 24px;
     width: 100%;
     height: 100%;
 
@@ -275,16 +230,6 @@ onMounted(async () => {
     :deep(tr.clickable-row) {
         cursor: pointer;
     }
-}
-
-.view-components-footer {
-    flex: 0 0 auto;
-    display: flex;
-    padding: 10px 24px;
-    gap: 8px;
-
-    border-top: 1px solid #eee;
-    background-color: #f5f5f5;
 }
 
 .component-action-slot {
