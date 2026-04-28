@@ -1,9 +1,7 @@
 <template>
-    <div class="view-entities">
-        <n-data-table remote :loading="loadingRef" :bordered="false" :columns="columns" :data="data" />
-        <div class="view-entities-footer">
-            <n-button type="primary" @click="createEntity"> {{ $t('app.create.entity') }} </n-button>
-        </div>
+    <div class="view-entities-home">
+        <view-entities :loading="loadingRef" :data="data" :active-entity="addComponentEntityId" @view-entity="console.log" @new-entity="createEntity" @add-component="openAddComponentDrawer" @remove-component="removeComponent" />
+        <!-- <n-data-table remote :loading="loadingRef" :bordered="false" :columns="columns" :data="data" /> -->
         <n-drawer v-model:show="addComponentDrawer" :default-width="612" :min-width="416" placement="right" resizable>
             <n-drawer-content :title="$t('app.add.component') + ': ' + addComponentName">
                 <n-form style="display: flex; flex-direction: column; gap: 5px" label-placement="left" label-width="auto" size="small">
@@ -48,9 +46,11 @@
 <script setup lang="ts">
 import { NButton, NButtonGroup, NCard, NDataTable, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NInputNumber, NPopover, NSwitch } from 'naive-ui';
 import { computed, h, onMounted, ref } from 'vue';
-import EditEntityComponents from '../ui/EditEntityComponents.vue';
-import ViewUuid from '../ui/ViewUuid.vue';
 import { useI18n } from 'vue-i18n';
+
+import EditEntityComponents from '../ui/EditEntityComponents.vue';
+import ViewEntities from '../tables/ViewEntities.vue';
+import ViewUuid from '../ui/ViewUuid.vue';
 
 const i18n = useI18n();
 const loadingRef = ref(true);
@@ -78,81 +78,6 @@ const addComponentDrawer = computed({
         addComponentDrawerRef.value = value;
     },
 });
-
-const columns = ref([
-    {
-        title: () => h('span', { style: { marginLeft: '12px' } }, i18n.t('app.keywords.id')),
-        key: 'id',
-        width: 180,
-        render(row: any) {
-            return h(ViewUuid, { uuid: row.id, active: row.id === addComponentEntityId.value, marginLeft: '12px' });
-        },
-    },
-    {
-        title: i18n.t('app.keywords.component', 2),
-        key: 'components',
-        render(row: any) {
-            const componentRenderKey = `${row.id}:${(row.components ?? []).map((c: any) => c.id).join(',')}`;
-
-            return h(EditEntityComponents, {
-                key: componentRenderKey,
-                entityId: row.id,
-                components: row.components,
-                onAddComponent: async (entityId: string, componentId: string) => {
-                    addComponentEntityId.value = entityId;
-                    addComponentId.value = componentId;
-                    addComponentName.value = componentId;
-                    addComponentColor.value = '';
-
-                    // Fetch component details to get color for preview
-                    try {
-                        const response = await fetch(import.meta.env.VITE_API_SERVER + `/api/components/view/${componentId}`);
-                        const result = await response.json();
-
-                        addComponentName.value = result.metadata.name;
-                        addComponentColor.value = '#' + result.metadata.color.toString(16).padStart(6, '0');
-
-                        addComponentFields.value = result.fields;
-                        addComponentData.value = result.fields.reduce((acc: Record<string, any>, field: any) => {
-                            if (field.field_type === 'boolean') {
-                                acc[field.name] = false;
-                            } else if (field.field_type === 'number' || field.field_type === 'integer') {
-                                acc[field.name] = 0;
-                            } else {
-                                acc[field.name] = '';
-                            }
-
-                            return acc;
-                        }, {});
-                    } catch (error) {
-                        console.error('Error fetching component details:', error);
-                        addComponentEntityId.value = '';
-                        addComponentId.value = '';
-                        return;
-                    }
-
-                    addComponentDrawer.value = true;
-                },
-                onRemoveComponent: async (entityId: string, componentId: string) => {
-                    try {
-                        const response = await fetch(import.meta.env.VITE_API_SERVER + `/api/entities/${entityId}/component/${componentId}`, {
-                            method: 'DELETE',
-                        });
-
-                        const result = await response.json();
-                        if (!response.ok || !result.success) {
-                            throw new Error(result.error || result.message || 'Failed to remove component from entity');
-                        }
-                    } catch (error) {
-                        console.error('Error removing component from entity:', error);
-                    }
-
-                    await refreshEntityList();
-                },
-            });
-        },
-    },
-]);
 
 const data = ref([
     // {
@@ -242,6 +167,59 @@ async function createEntity() {
     }
 }
 
+async function openAddComponentDrawer(entityId: string, componentId: string) {
+    addComponentEntityId.value = entityId;
+    addComponentId.value = componentId;
+    addComponentName.value = componentId;
+    addComponentColor.value = '';
+
+    // Fetch component details to get color for preview
+    try {
+        const response = await fetch(import.meta.env.VITE_API_SERVER + `/api/components/view/${componentId}`);
+        const result = await response.json();
+
+        addComponentName.value = result.metadata.name;
+        addComponentColor.value = '#' + result.metadata.color.toString(16).padStart(6, '0');
+
+        addComponentFields.value = result.fields;
+        addComponentData.value = result.fields.reduce((acc: Record<string, any>, field: any) => {
+            if (field.field_type === 'boolean') {
+                acc[field.name] = false;
+            } else if (field.field_type === 'number' || field.field_type === 'integer') {
+                acc[field.name] = 0;
+            } else {
+                acc[field.name] = '';
+            }
+
+            return acc;
+        }, {});
+    } catch (error) {
+        console.error('Error fetching component details:', error);
+        addComponentEntityId.value = '';
+        addComponentId.value = '';
+        return;
+    }
+
+    addComponentDrawer.value = true;
+}
+
+async function removeComponent(entityId: string, componentId: string) {
+    try {
+        const response = await fetch(import.meta.env.VITE_API_SERVER + `/api/entities/${entityId}/component/${componentId}`, {
+            method: 'DELETE',
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.error || result.message || 'Failed to remove component from entity');
+        }
+    } catch (error) {
+        console.error('Error removing component from entity:', error);
+    }
+
+    await refreshEntityList();
+}
+
 async function submitAddComponent() {
     if (!addComponentEntityId.value || !addComponentId.value) {
         return;
@@ -279,9 +257,12 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.view-entities {
+.view-entities-home {
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
+    padding: 12px;
+    padding-left: 24px;
     width: 100%;
     height: 100%;
 
