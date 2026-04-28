@@ -10,6 +10,18 @@
                 <ViewAPIRoute :method="httpMethod">
                     {{ httpUrl }}
                 </ViewAPIRoute>
+                <ViewAPIInput v-if="currentTab === 'create'">
+                {
+                    "name": "string",
+                    "color": "string"
+                }
+                </ViewAPIInput>
+                <ViewAPIOutput>
+                {
+                    "name": "string",
+                    "color": "string"
+                }
+                </ViewAPIOutput>
 
                 {{ currentTab }}
             </div>
@@ -21,6 +33,8 @@
 import { NDrawer, NDrawerContent, NLayout, NLayoutContent, NLayoutSider, NTab, NTabs } from 'naive-ui';
 import { computed, ref } from 'vue';
 
+import ViewAPIInput from './ViewAPIInput.vue';
+import ViewAPIOutput from './ViewAPIOutput.vue';
 import ViewAPIRoute from './ViewAPIRoute.vue';
 
 const currentTab = ref('create');
