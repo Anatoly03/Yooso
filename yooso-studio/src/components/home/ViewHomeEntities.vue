@@ -1,6 +1,6 @@
 <template>
     <div class="view-entities-home">
-        <view-entities :loading="loadingRef" :data="data" :active-entity="addComponentEntityId" @view-entity="console.log" @new-entity="createEntity" @add-component="openAddComponentDrawer" @edit-component="openEditComponentDrawer" @remove-component="removeComponent" />
+        <view-entities :loading="loadingRef" :data="data" :active-entity="addComponentEntityId" @view-entity="console.log" @new-entity="createEntity" @add-component="openAddComponentDrawer" @edit-component="openEditComponentDrawer" @remove-component="removeComponent" @delete-entity="deleteEntity" />
         <!-- <n-data-table remote :loading="loadingRef" :bordered="false" :columns="columns" :data="data" /> -->
         <n-drawer v-model:show="addComponentDrawer" :default-width="612" :min-width="416" placement="right" resizable>
             <n-drawer-content :title="(addComponentIsEdit ? $t('app.edit.component') : $t('app.add.component')) + ': ' + addComponentName">
@@ -322,6 +322,28 @@ async function removeComponent(entityId: string, componentId: string) {
         }
     } catch (error) {
         console.error('Error removing component from entity:', error);
+    }
+
+    await refreshEntityList();
+}
+
+async function deleteEntity(entityId: string) {
+    const confirmed = window.confirm('Delete this entity and all of its component data?');
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        const response = await fetch(import.meta.env.VITE_API_SERVER + `/api/entities/${entityId}`, {
+            method: 'DELETE',
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || result.error || 'Failed to delete entity');
+        }
+    } catch (error) {
+        console.error('Error deleting entity:', error);
     }
 
     await refreshEntityList();

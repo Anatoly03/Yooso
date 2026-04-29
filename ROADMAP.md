@@ -1,14 +1,12 @@
 # Implementation Plan
 
-> This is an early sketch of the roadmap. Nothing is certain in this plan.
-
 ## Chapter I: Core Engine
 - [x] Entity Viewer
   - [x] List (Entities)
   - [x] View (Components per Entity)
   - [x] Create (Entity)
-  - [ ] Remove (Entity)
-    - [ ] Batch Remove Related Components
+  - [x] Remove (Entity)
+    - [x] Batch Remove Related Components
   - [x] Patch (Components per Entity)
     - [x] Add (Components to Entity)
     - [x] View (Component Field Data of Entity)
@@ -35,6 +33,8 @@
   - [x] Component Metadata Table
   - [x] Component Fields Metadata Table
   - [x] (Generated) Component Tables
+
+> This is an early sketch of the roadmap. Nothing is certain in this plan.
 
 ## Chapter II: Query API
 - [ ] Pagination

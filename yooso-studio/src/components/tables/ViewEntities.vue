@@ -34,6 +34,7 @@ const emit = defineEmits<{
     'add-component': [entityId: string, componentId: string];
     'edit-component': [entityId: string, componentId: string];
     'remove-component': [entityId: string, componentId: string];
+    'delete-entity': [entityId: string];
     'view-documentation': [];
 }>();
 
@@ -66,6 +67,29 @@ const columns = ref([
                     emit('remove-component', entityId, componentId);
                 },
             });
+        },
+    },
+    {
+        title: '',
+        key: 'delete-entity',
+        width: 110,
+        align: 'center' as const,
+        render(row: any) {
+            return h(
+                NButton,
+                {
+                    type: 'error',
+                    secondary: true,
+                    size: 'small',
+                    onClick: (event: MouseEvent) => {
+                        event.stopPropagation();
+                        emit('delete-entity', row.id);
+                    },
+                },
+                {
+                    default: () => i18n.t('app.actions.delete'),
+                },
+            );
         },
     },
 ]);
