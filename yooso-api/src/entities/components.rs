@@ -148,7 +148,7 @@ pub async fn add_component(
     // Create SQL query (insert row into component table with entity as key)
     // TODO refactor sql queries into storage layer
     let query = format!(
-        "INSERT INTO {} ({}) VALUES ({})",
+        "INSERT OR REPLACE INTO {} ({}) VALUES ({})",
         component.component_name, field_names.join(", "), field_values.join(", ")
     );
 

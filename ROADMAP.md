@@ -11,8 +11,8 @@
     - [ ] Batch Remove Related Components
   - [x] Patch (Components per Entity)
     - [x] Add (Components to Entity)
-    - [ ] View (Component Field Data of Entity)
-    - [ ] Edit (Components of Entity)
+    - [x] View (Component Field Data of Entity)
+    - [x] Edit (Components of Entity)
     - [x] Remove (Components of Entity)
 - [x] Component Viewer
   - [x] List (Components)

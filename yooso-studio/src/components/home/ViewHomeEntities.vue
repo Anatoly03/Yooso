@@ -1,9 +1,9 @@
 <template>
     <div class="view-entities-home">
-        <view-entities :loading="loadingRef" :data="data" :active-entity="addComponentEntityId" @view-entity="console.log" @new-entity="createEntity" @add-component="openAddComponentDrawer" @remove-component="removeComponent" />
+        <view-entities :loading="loadingRef" :data="data" :active-entity="addComponentEntityId" @view-entity="console.log" @new-entity="createEntity" @add-component="openAddComponentDrawer" @edit-component="openEditComponentDrawer" @remove-component="removeComponent" />
         <!-- <n-data-table remote :loading="loadingRef" :bordered="false" :columns="columns" :data="data" /> -->
         <n-drawer v-model:show="addComponentDrawer" :default-width="612" :min-width="416" placement="right" resizable>
-            <n-drawer-content :title="$t('app.add.component') + ': ' + addComponentName">
+            <n-drawer-content :title="(addComponentIsEdit ? $t('app.edit.component') : $t('app.add.component')) + ': ' + addComponentName">
                 <n-form style="display: flex; flex-direction: column; gap: 5px" label-placement="left" label-width="auto" size="small">
                     <n-card size="small">
                         <small>{{ $t('app.actions.preview') }}</small>
@@ -35,7 +35,7 @@
                     <view-fields-editor v-model:loading="editComponentLoadingRef" v-model:model-value="editComponentFields" :component-id="editComponentId" :is-new-component="editComponentIsNew" /> -->
                     <n-button-group class="entity-action-slot">
                         <n-button secondary type="default" @click="addComponentDrawer = false">{{ $t('app.actions.cancel') }}</n-button>
-                        <n-button type="primary" :loading="addComponentSubmittingRef" @click="submitAddComponent">{{ $t('app.actions.add') }}</n-button>
+                        <n-button type="primary" :loading="addComponentSubmittingRef" @click="submitAddComponent">{{ addComponentIsEdit ? $t('app.actions.save') : $t('app.actions.add') }}</n-button>
                     </n-button-group>
                 </n-form>
             </n-drawer-content>
@@ -59,6 +59,7 @@ const addComponentEntityId = ref('');
 const addComponentId = ref('');
 const addComponentFields = ref<any[]>([]);
 const addComponentData = ref<Record<string, any>>({});
+const addComponentIsEdit = ref(false);
 const addComponentSubmittingRef = ref(false);
 
 const addComponentDrawer = computed({
@@ -71,6 +72,7 @@ const addComponentDrawer = computed({
             addComponentColor.value = '';
             addComponentFields.value = [];
             addComponentData.value = {};
+            addComponentIsEdit.value = false;
             addComponentSubmittingRef.value = false;
         }
         addComponentDrawerRef.value = value;
@@ -165,13 +167,99 @@ async function createEntity() {
     }
 }
 
-async function openAddComponentDrawer(entityId: string, componentId: string) {
+function createDefaultComponentData(fields: any[]) {
+    return fields.reduce((acc: Record<string, any>, field: any) => {
+        if (field.field_type === 'boolean') {
+            acc[field.name] = false;
+        } else if (field.field_type === 'number' || field.field_type === 'integer') {
+            acc[field.name] = 0;
+        } else {
+            acc[field.name] = '';
+        }
+
+        return acc;
+    }, {});
+}
+
+function normalizeEditComponentData(fields: any[], existingValues: Record<string, any>) {
+    return fields.reduce((acc: Record<string, any>, field: any) => {
+        const snakeCaseFieldName = field.name.replace(/-/g, '_');
+
+        if (existingValues[field.name] !== undefined) {
+            acc[field.name] = existingValues[field.name];
+        } else if (existingValues[snakeCaseFieldName] !== undefined) {
+            acc[field.name] = existingValues[snakeCaseFieldName];
+        } else if (field.field_type === 'boolean') {
+            acc[field.name] = false;
+        } else if (field.field_type === 'number' || field.field_type === 'integer') {
+            acc[field.name] = 0;
+        } else {
+            acc[field.name] = '';
+        }
+
+        return acc;
+    }, {});
+}
+
+function normalizeComponentValue(field: any, value: any) {
+    if (field.field_type === 'boolean') {
+        if (typeof value === 'boolean') {
+            return value;
+        }
+
+        if (typeof value === 'number') {
+            return value !== 0;
+        }
+
+        if (typeof value === 'string') {
+            const normalized = value.trim().toLowerCase();
+            if (normalized === 'true' || normalized === '1') {
+                return true;
+            }
+
+            if (normalized === 'false' || normalized === '0' || normalized === '') {
+                return false;
+            }
+        }
+
+        return Boolean(value);
+    }
+
+    if (field.field_type === 'number' || field.field_type === 'integer') {
+        if (typeof value === 'number') {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            const parsed = Number(value);
+            return Number.isNaN(parsed) ? 0 : parsed;
+        }
+
+        return 0;
+    }
+
+    if (value === null || value === undefined) {
+        return '';
+    }
+
+    return String(value);
+}
+
+function buildComponentPayload(fields: any[], data: Record<string, any>) {
+    return fields.reduce((payload: Record<string, any>, field: any) => {
+        payload[field.name] = normalizeComponentValue(field, data[field.name]);
+        return payload;
+    }, {});
+}
+
+async function openComponentDrawer(entityId: string, componentId: string, isEdit: boolean) {
     addComponentEntityId.value = entityId;
     addComponentId.value = componentId;
     addComponentName.value = componentId;
     addComponentColor.value = '';
+    addComponentIsEdit.value = isEdit;
 
-    // Fetch component details to get color for preview
+    // Fetch component details to get schema and color for preview
     try {
         const response = await fetch(import.meta.env.VITE_API_SERVER + `/api/components/view/${componentId}`);
         const result = await response.json();
@@ -180,25 +268,46 @@ async function openAddComponentDrawer(entityId: string, componentId: string) {
         addComponentColor.value = '#' + result.metadata.color.toString(16).padStart(6, '0');
 
         addComponentFields.value = result.fields;
-        addComponentData.value = result.fields.reduce((acc: Record<string, any>, field: any) => {
-            if (field.field_type === 'boolean') {
-                acc[field.name] = false;
-            } else if (field.field_type === 'number' || field.field_type === 'integer') {
-                acc[field.name] = 0;
-            } else {
-                acc[field.name] = '';
+        addComponentData.value = createDefaultComponentData(result.fields);
+
+        if (isEdit) {
+            const entityResponse = await fetch(import.meta.env.VITE_API_SERVER + `/api/entities/view/${entityId}`);
+            const entityResult = await entityResponse.json();
+
+            if (!entityResponse.ok || !entityResult.components) {
+                throw new Error(entityResult.error || entityResult.message || 'Failed to fetch entity component values');
             }
 
-            return acc;
-        }, {});
+            const componentKey = addComponentName.value.replace(/-/g, '_');
+            const existingValues = entityResult.components[componentKey];
+
+            if (!existingValues) {
+                throw new Error(`Component ${addComponentName.value} is not set for entity ${entityId}`);
+            }
+
+            addComponentData.value = normalizeEditComponentData(result.fields, existingValues);
+        }
     } catch (error) {
         console.error('Error fetching component details:', error);
         addComponentEntityId.value = '';
         addComponentId.value = '';
+        addComponentName.value = '';
+        addComponentColor.value = '';
+        addComponentFields.value = [];
+        addComponentData.value = {};
+        addComponentIsEdit.value = false;
         return;
     }
 
     addComponentDrawer.value = true;
+}
+
+async function openAddComponentDrawer(entityId: string, componentId: string) {
+    await openComponentDrawer(entityId, componentId, false);
+}
+
+async function openEditComponentDrawer(entityId: string, componentId: string) {
+    await openComponentDrawer(entityId, componentId, true);
 }
 
 async function removeComponent(entityId: string, componentId: string) {
@@ -226,12 +335,13 @@ async function submitAddComponent() {
     addComponentSubmittingRef.value = true;
 
     try {
+        const payload = buildComponentPayload(addComponentFields.value, addComponentData.value);
         const response = await fetch(import.meta.env.VITE_API_SERVER + `/api/entities/${addComponentEntityId.value}/component/${addComponentId.value}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(addComponentData.value),
+            body: JSON.stringify(payload),
         });
 
         const result = await response.json();

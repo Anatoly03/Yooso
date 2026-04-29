@@ -52,7 +52,7 @@ impl ComponentTable {
             .lock()
             .unwrap()
             .query_row(
-                &format!("SELECT * FROM {} WHERE id = ?", self.component_name),
+                &format!("SELECT * FROM {} WHERE entity_id = ?", self.component_name),
                 rusqlite::params![id.to_string()],
                 |row| {
                     let mut obj = json!({});

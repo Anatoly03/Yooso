@@ -32,6 +32,7 @@ const emit = defineEmits<{
     'view-entity': [entityId: string];
     'new-entity': [];
     'add-component': [entityId: string, componentId: string];
+    'edit-component': [entityId: string, componentId: string];
     'remove-component': [entityId: string, componentId: string];
     'view-documentation': [];
 }>();
@@ -57,6 +58,9 @@ const columns = ref([
                 components: row.components,
                 onAddComponent: async (entityId: string, componentId: string) => {
                     emit('add-component', entityId, componentId);
+                },
+                onEditComponent: async (entityId: string, componentId: string) => {
+                    emit('edit-component', entityId, componentId);
                 },
                 onRemoveComponent: async (entityId: string, componentId: string) => {
                     emit('remove-component', entityId, componentId);

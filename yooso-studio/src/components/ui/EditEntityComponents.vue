@@ -64,6 +64,7 @@ const proposeNewComponent = computed<string>({
 
 const emit = defineEmits({
     'add-component': (entityId: string, componentId: string) => true,
+    'edit-component': (entityId: string, componentId: string) => true,
     'remove-component': (entityId: string, componentId: string) => true,
 });
 
@@ -166,6 +167,11 @@ watch(
 
 function renderTag(tag: string, index: number) {
     const color = componentColorByName.value.get(tag.toLowerCase()) || '#C1F1D1';
+    const normalizedTag = tag.toLowerCase();
+
+    const componentId =
+        props.components.find((component) => component.name.toLowerCase() === normalizedTag)
+            ?.id ?? availableComponents.value.find((component) => component.value.toLowerCase() === normalizedTag)?.id;
 
     return h(
         NTag,
@@ -173,12 +179,8 @@ function renderTag(tag: string, index: number) {
             type: 'default',
             disabled: index > 3,
             closable: true,
-            onClose: () => {
-                const normalizedTag = tag.toLowerCase();
-                const componentId =
-                    props.components.find((component) => component.name.toLowerCase() === normalizedTag)
-                        ?.id ?? availableComponents.value.find((component) => component.value.toLowerCase() === normalizedTag)?.id;
-
+            onClose: (event: MouseEvent) => {
+                event.stopPropagation();
                 if (!componentId) {
                     console.error('Error removing component from entity: component id not found for tag', tag);
                     return;
@@ -186,6 +188,16 @@ function renderTag(tag: string, index: number) {
 
                 tags.value.splice(index, 1);
                 emit('remove-component', props.entityId, componentId);
+            },
+            onClick: (event: MouseEvent) => {
+                event.stopPropagation();
+
+                if (!componentId) {
+                    console.error('Error editing component from entity: component id not found for tag', tag);
+                    return;
+                }
+
+                emit('edit-component', props.entityId, componentId);
             },
             style: {
                 padding: '17px 8px',

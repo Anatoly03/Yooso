@@ -7,7 +7,7 @@
             </template>
         </n-data-table>
         <div class="create-new-field-row">
-            <n-button secondary type="success" @click="activateCreateRow()" block> + {{ $t('app.create.field') }} </n-button>
+            <n-button class="create-new-field-button" secondary type="success" @click="activateCreateRow()" block> + {{ $t('app.create.field') }} </n-button>
         </div>
     </div>
 </template>
@@ -267,6 +267,11 @@ function fieldRowProps(row: FieldRow) {
     border: 1px solid rgba(0, 0, 0, 0.12);
     border-radius: 4px;
     overflow: hidden;
+}
+
+.create-new-field-button {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 :deep(.n-data-table-empty) {
