@@ -1,0 +1,35 @@
+name: Cargo Build & Test
+
+on:
+  push:
+    paths:
+      - yooso/**
+      - yooso-*/**
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+env: 
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build_and_test:
+    name: Rust Project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Cache Rust dependencies to speed up the build process.
+      - name: Cache Rust Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+            Cargo.lock
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - run: rustup update stable && rustup default stable
+      - run: cargo build --verbose
+      - run: cargo test --verbose
+  
