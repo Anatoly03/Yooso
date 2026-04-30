@@ -38,6 +38,7 @@
 
 ## Chapter II: Error Handling, Validation, Refactoring, Documentation
 
+- [x] Add generic Error type
 - [ ] Error Handling & Validation
   - [ ] Github CI
   - [ ] Entities

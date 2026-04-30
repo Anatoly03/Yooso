@@ -2236,6 +2236,7 @@ name = "yooso-core"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "rusqlite",
  "serde",
  "uuid",
 ]
@@ -2256,6 +2257,7 @@ dependencies = [
  "rusqlite",
  "syn",
  "uuid",
+ "yooso-core",
 ]
 
 [[package]]
@@ -2266,6 +2268,7 @@ dependencies = [
  "serde",
  "serde_json",
  "uuid",
+ "yooso-core",
  "yooso-macro",
 ]
 

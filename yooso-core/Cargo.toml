@@ -4,7 +4,13 @@ version = "0.1.0"
 edition = "2024"
 # publish = true
 
+[features]
+default = ["rusqlite"]
+rusqlite = ["rusqlite/bundled"]
+# postgres = [] # https://docs.rs/postgres/latest/postgres/#features
+
 [dependencies]
 chrono = { version = "0.4.44", features = [ "serde" ] }
-serde = "1.0.228"
+rusqlite = { version = "0.31", optional = true, features = ["bundled"] }
+serde = { version = "1.0.228", features = ["derive"] }
 uuid = { version = "1.23.1", features = [ "v7", "serde" ] }

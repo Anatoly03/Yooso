@@ -253,13 +253,8 @@ pub fn collection(
                 quote! {
                     {
                         let value = row.get::<_, String>(#index)?;
-                        ::uuid::Uuid::parse_str(&value).map_err(|err| {
-                            ::rusqlite::Error::FromSqlConversionFailure(
-                                #index,
-                                ::rusqlite::types::Type::Text,
-                                Box::new(err),
-                            )
-                        })?
+                        ::uuid::Uuid::parse_str(&value)
+                            .map_err(|_| ::rusqlite::Error::InvalidQuery)?
                     }
                 }
             }
@@ -296,14 +291,14 @@ pub fn collection(
             ///
             /// This method returns the number of rows affected by the SQLite query.
             /// For 'CREATE TABLE' queries, this always yields `0`.
-            pub async fn create_table(db: &#db_state_struct_name) -> usize {
+            pub async fn create_table(db: &#db_state_struct_name) -> Result<usize, ::yooso_core::Error> {
                 // Execute the CREATE SQL statement to create the collection table
                 // if it doesn't exist. Returns the number of rows affected (should
                 // be 0 for CREATE TABLE).
                 db.0.lock()
-                    .expect("lock db mutex")
+                    .map_err(|e| ::yooso_core::Error::from(e))?
                     .execute(#sql_create_table, [])
-                    .expect("create collection table")
+                    .map_err(|e| ::yooso_core::Error::from(e))
 
                 // #[cfg(feature = "debug")]
                 // assert_eq!(..., 0, "CREATE TABLE should not affect any rows");
@@ -319,14 +314,15 @@ pub fn collection(
             /// ```sql
             #[doc = #sql_select_where]
             /// ```
-            pub async fn view(db: &#db_state_struct_name, #(#primary_key_idents: &#primary_key_types),*) -> Result<Self, ::rusqlite::Error> {
+            pub async fn view(db: &#db_state_struct_name, #(#primary_key_idents: &#primary_key_types),*) -> Result<Self, ::yooso_core::Error> {
                 let conn = db.0.lock()
-                    .expect("lock db mutex");
+                    .map_err(|e| ::yooso_core::Error::from(e))?;
 
                 let mut stmt = conn
-                    .prepare(#sql_select_where)?;
+                    .prepare(#sql_select_where)
+                    .map_err(|e| ::yooso_core::Error::from(e))?;
 
-                stmt.query_map(
+                let mut rows = stmt.query_map(
                     ::rusqlite::params![
                         #(#primary_key_idents_repaired),*
                     ],
@@ -334,9 +330,11 @@ pub fn collection(
                         Ok(#struct_name {
                             #(#field_ids: #select_values),*
                         })
-                    })?
-                    .next()
-                    .unwrap_or_else(|| Err(::rusqlite::Error::QueryReturnedNoRows))
+                    })
+                    .map_err(|e| ::yooso_core::Error::from(e))?;
+
+                let item = rows.next().unwrap_or(Err(::rusqlite::Error::QueryReturnedNoRows));
+                item.map_err(|e| ::yooso_core::Error::from(e))
             }
 
             /// Lists all rows in the collection's table, returning them as a vector.
@@ -357,21 +355,26 @@ pub fn collection(
             ///
             /// This method returns a vector of all rows in the collection's table, deserialized
             /// into instances of the struct. If the table is empty, this yields an empty vector.
-            pub async fn list_all(db: &#db_state_struct_name) -> ::rusqlite::Result<::std::vec::Vec<Self>> {
+            pub async fn list_all(db: &#db_state_struct_name) -> Result<::std::vec::Vec<Self>, ::yooso_core::Error> {
                 let conn = db.0.lock()
-                    .expect("lock db mutex");
+                    .map_err(|e| ::yooso_core::Error::from(e))?;
 
                 // Execute the SELECT SQL statement to retrieve all rows from the collection table.
                 let mut stmt = conn
-                    .prepare(#sql_select_all)?;
+                    .prepare(#sql_select_all)
+                    .map_err(|e| ::yooso_core::Error::from(e))?;
 
                 let rows = stmt.query_map([], |row| {
                     Ok(#struct_name {
                         #(#field_ids: #select_values),*
                     })
-                })?;
+                })
+                .map_err(|e| ::yooso_core::Error::from(e))?;
 
-                rows.collect()
+                let vec = rows.collect::<std::result::Result<Vec<_>, ::rusqlite::Error>>()
+                    .map_err(|e| ::yooso_core::Error::from(e))?;
+
+                Ok(vec)
             }
 
             /// Saves the current struct instance as a new row in the collection's
@@ -391,17 +394,17 @@ pub fn collection(
             /// If the row was inserted for the first time, this yields `1`. If a row
             /// with the same primary key already exists, this yields `0`, overriding
             /// the existing row.
-            pub async fn save(&self, db: &#db_state_struct_name) -> usize {
+            pub async fn save(&self, db: &#db_state_struct_name) -> Result<usize, ::yooso_core::Error> {
                 // Execute the INSERT SQL statement to insert a new row into the
                 // collection table. Returns the number of rows affected (should
                 // be 1 for INSERT and 0 for REPLACE).
                 // If row with same key exists, it will be overridden.
                 db.0.lock()
-                    .expect("lock db mutex")
+                    .map_err(|e| ::yooso_core::Error::from(e))?
                     .execute(#sql_insert_into, ::rusqlite::params![
                         #(#insert_values),*
                     ])
-                    .expect("insert into collection table")
+                    .map_err(|e| ::yooso_core::Error::from(e))
             }
 
             /// Deletes the row corresponding to the current struct instance from the
@@ -421,17 +424,17 @@ pub fn collection(
             /// This method returns the number of rows affected by the SQLite query.
             /// If a row was deleted, this yields `1`. If no matching row was found
             /// to delete, this yields `0`.
-            pub async fn delete(&self, db: &#db_state_struct_name) -> usize {
+            pub async fn delete(&self, db: &#db_state_struct_name) -> Result<usize, ::yooso_core::Error> {
                 // Execute the DELETE SQL statement to delete the row corresponding
                 // to the current struct instance from the collection table. Returns
                 // the number of rows affected (should be 1 if a row was deleted, or
                 // 0 if no matching row was found).
                 db.0.lock()
-                    .expect("lock db mutex")
+                    .map_err(|e| ::yooso_core::Error::from(e))?
                     .execute(#sql_delete_from, ::rusqlite::params![
                         #(#delete_values),*
                     ])
-                    .expect("delete from collection table")
+                    .map_err(|e| ::yooso_core::Error::from(e))
             }
         }
     }

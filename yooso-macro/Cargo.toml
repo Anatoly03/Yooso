@@ -9,6 +9,7 @@ proc-macro = true
 [dev-dependencies]
 rusqlite = { version = "0.31", features = ["bundled"] }
 uuid = { version = "1.23.1", features = [ "v7", "serde" ] }
+yooso-core = { path = "../yooso-core" }
 
 [dependencies]
 proc-macro2 = "1.0"
