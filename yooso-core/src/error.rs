@@ -1,6 +1,5 @@
 //! This module defines the general Yooso error type.
 
-use std::fmt;
 use std::sync::PoisonError;
 
 /// General error type for Yooso, which is used in database management as
