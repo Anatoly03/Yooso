@@ -33,50 +33,47 @@ pub struct ComponentTable {
 impl ComponentTable {
     /// If an entity with the given component ID exists in the database,
     /// returns a JSON object containing the component's data and its fields,
-    /// or [None] if no such component exists.
+    /// or an error if the component or entity is not found.
     pub async fn for_entity(
         &self,
         state: &crate::MetaDBState,
         general_state: &crate::GeneralDBState,
         id: &Uuid,
-    ) -> Option<Value> {
+    ) -> Result<Value, ::yooso_core::Error> {
         // First, we need to retrieve the component's fields from
         // the meta database. The fields are also the keys of the
         // JSON object that we return.
-        let fields = self.schema(state).await;
+        let fields = self.schema(state).await?;
 
         // Retrieves the row from the general database that corresponds
         // to this component and the given entity ID.
-        general_state
-            .0
-            .lock()
-            .unwrap()
-            .query_row(
-                &format!("SELECT * FROM {} WHERE entity_id = ?", self.component_name),
-                rusqlite::params![id.to_string()],
-                |row| {
-                    let mut obj = json!({});
+        let conn = general_state.0.lock()
+            .map_err(|e| ::yooso_core::Error::from(e))?;
+        
+        conn.query_row(
+            &format!("SELECT * FROM {} WHERE entity_id = ?", self.component_name),
+            rusqlite::params![id.to_string()],
+            |row| {
+                let mut obj = json!({});
 
-                    for (i, field) in fields.iter().enumerate() {
-                        let value = row
-                            .get_ref(i + 1)
-                            .map(sql_value_to_json)
-                            .unwrap_or(Value::Null);
-                        obj[field.field_name.clone()] = value;
-                    }
+                for (i, field) in fields.iter().enumerate() {
+                    let value = row
+                        .get_ref(i + 1)
+                        .map(sql_value_to_json)
+                        .unwrap_or(Value::Null);
+                    obj[field.field_name.clone()] = value;
+                }
 
-                    Ok(obj)
-                },
-            )
-            .ok()
+                Ok(obj)
+            },
+        )
+        .map_err(|e| ::yooso_core::Error::from(e))
     }
 
     /// Retrieves the component schema. Invokes the [ComponentFieldTable::list_by_component_id]
     /// function to get the fields of this component.
-    pub async fn schema(&self, state: &crate::MetaDBState) -> Vec<ComponentFieldTable> {
-        ComponentFieldTable::list_by_component_id(state, &self.id)
-            .await
-            .expect("failed to view component fields")
+    pub async fn schema(&self, state: &crate::MetaDBState) -> Result<Vec<ComponentFieldTable>, ::yooso_core::Error> {
+        ComponentFieldTable::list_by_component_id(state, &self.id).await
     }
 }
 

@@ -37,23 +37,27 @@ impl ComponentFieldTable {
     pub async fn list_by_component_id(
         db: &crate::MetaDBState,
         component_id: &Uuid,
-    ) -> Result<Vec<Self>, ::rusqlite::Error> {
-        let conn = db.0.lock().expect("lock db mutex");
+    ) -> Result<Vec<Self>, ::yooso_core::Error> {
+        let conn = db.0.lock()
+            .map_err(|e| ::yooso_core::Error::from(e))?;
 
-        let mut stmt = conn.prepare("SELECT * FROM fields WHERE component_id = ?")?;
+        let mut stmt = conn.prepare("SELECT * FROM fields WHERE component_id = ?")
+            .map_err(|e| ::yooso_core::Error::from(e))?;
 
         stmt.query_map(::rusqlite::params![component_id.to_string()], |row| {
             Ok(Self {
-                id: Uuid::parse_str(&row.get::<_, String>(0)?).expect("failed to parse uuid"),
+                id: Uuid::parse_str(&row.get::<_, String>(0)?).map_err(|_| ::rusqlite::Error::InvalidQuery)?,
                 component_id: Uuid::parse_str(&row.get::<_, String>(1)?)
-                    .expect("failed to parse component uuid"),
+                    .map_err(|_| ::rusqlite::Error::InvalidQuery)?,
                 field_name: row.get(2)?,
                 field_type: row.get(3)?,
                 is_system: row.get(4)?,
                 position: row.get(5)?,
                 created_at: row.get(6)?,
             })
-        })?
-        .collect::<Result<Vec<_>, _>>()
+        })
+        .map_err(|e| ::yooso_core::Error::from(e))?
+        .collect::<Result<Vec<_>, ::rusqlite::Error>>()
+        .map_err(|e| ::yooso_core::Error::from(e))
     }
 }

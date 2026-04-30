@@ -54,7 +54,7 @@ pub async fn view_entity(
         let mut obj = json!({});
 
         for (component, fields_opt) in entity_component_matrix {
-            if let Some(fields) = fields_opt {
+            if let Ok(fields) = fields_opt {
                 obj[component.component_name] = fields;
             }
         }

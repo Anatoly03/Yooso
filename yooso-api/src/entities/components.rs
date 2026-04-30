@@ -56,7 +56,15 @@ pub async fn add_component(
     // let component_name = component.component_name;
 
     // Check component schema.
-    let schema = component.schema(state).await;
+    let schema = match component.schema(state).await {
+        Ok(schema) => schema,
+        Err(err) => {
+            return Json(json! ({
+                "success": false,
+                "error": format!("failed to view component schema: {err}"),
+            }));
+        }
+    };
 
     // Generate array of field names
     let field_names = {
