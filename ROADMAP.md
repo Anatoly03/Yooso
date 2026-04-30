@@ -36,9 +36,66 @@
 
 > This is an early sketch of the roadmap. Nothing is certain in this plan.
 
-## Chapter II: Error Handling, Validation, Refactoring
+## Chapter II: Error Handling, Validation, Refactoring, Documentation
 
-- [ ] 
+- [ ] Error Handling & Validation
+  - [ ] Github CI
+  - [ ] Entities
+    - [ ] List (Entities)
+    - [ ] View (Components per Entity)
+    - [ ] Create (Entity)
+    - [ ] Remove (Entity)
+    - [ ] Patch (Components per Entity)
+      - [ ] Add (Components to Entity)
+      - [ ] View (Component Field Data of Entity)
+      - [ ] Edit (Components of Entity)
+      - [ ] Remove (Components of Entity)
+  - [ ] Components
+    - [ ] List (Components)
+    - [ ] View (Component Fields and Meta)
+    - [ ] Create Component
+      - [ ] Create Fields
+    - [ ] Patch Name and Color
+    - [ ] Remove (Component)
+    - [ ] Component Fields
+      - [ ] List
+      - [ ] Create (Patch Component)
+      - [ ] Edit Field Name (Patch Component)
+      - [ ] Remove (Patch Component)
+    - [ ] Invalid Component Field Type
+  - [ ] Storage
+    - [ ] Entity Table
+    - [ ] Component Metadata Table
+    - [ ] Component Fields Metadata Table
+    - [ ] (Generated) Component Tables
+  - [ ] `cargo fmt`
+  - [ ] `cargo clippy`
+- [ ] Refactor
+  - [ ] Centralize Field Validation (allowed field types, supported field names, duplicate/ empty checks)
+  - [ ] Move SQL construction behind tighter storage-facing helper (API handlers should not assembly them)
+  - [ ] Remove all panics, replace with error propagation and HTTP responses
+- [ ] Testing
+  - [ ] Core Testing Library
+  - [ ] Unit Testing
+- [ ] Lirbary Documentation
+  - [ ] Github CI
+  - [ ] `yooso`
+  - [ ] `yooso-api`
+  - [ ] `yooso-core`
+  - [ ] `yooso-example`
+  - [ ] `yooso-macro`
+  - [ ] `yooso-storage`
+- [ ] Client Documentation
+  - [ ] Github CI
+  - [ ] `yooso-studio`
+- [ ] Refactor
+  - [ ] Clean up `dash-case` in user interface and `snake_case` in sqlite.
+  - [ ] Error Handling in Api.
+  - [ ] Refactor Client networking to separate module.
+    - [ ] Error Handling in Client.
+    - [ ] Add 'loading' indicator to everything
+  - [ ] Use Naive UI messages for notification communication bottom right.
+    - https://www.naiveui.com/en-US/os-theme/components/message
 
 ## Chapter III: Query API
 - [ ] Pagination
@@ -51,30 +108,24 @@
   - [ ] Unique Fields (username)
   - [ ] Regular Expression String Validation
   - [ ] Integer Range
+- [ ] Unit Tests
 
 ## Chapter IV: Simple Authentication
 - [ ] `User`
 - [ ] `Superuser`
 - [ ] `PassAuth`
 - [ ] `Verified`
+- [ ] Security Analytics Tests
+  - [ ] Only authenticated superusers can call component endpoints and edit entities.
+  - [ ] Users can only read entities existing and attached components.
 
-## Chapter V: Validation & Error Handling
-- [ ] Refactor
-  - [ ] Clean up `dash-case` in user interface and `snake_case` in sqlite.
-  - [ ] Error Handling in Api.
-  - [ ] Refactor Client networking to separate module.
-    - [ ] Error Handling in Client.
-    - [ ] Add 'loading' indicator to everything
-  - [ ] Use Naive UI messages for notification communication bottom right.
-    - https://www.naiveui.com/en-US/os-theme/components/message
-
-## Chapter VI: Github CI and Benchmarking
+## Chapter V: Github CI and Benchmarking
 Introduce CI to benchmark pull request against current standard speed and start profiling.
 
-## Chapter VII: Demo
+## Chapter VI: Demo
 Since this project was inspired
 
-## Chapter VIII: Powerful Admin Panel
+## Chapter VII: Powerful Admin Panel
 The home page in the admin UI should be customizable. Boxes counting and listing some queries to provide statistics. For example: "Users: 100", "Messages: 567", etc.
 
 - [ ] Themes
@@ -87,7 +138,7 @@ The home page in the admin UI should be customizable. Boxes counting and listing
     - [ ] German
     - [ ] Chinese (use AI or find translators)
 
-## Chapter IX: Firewall Filter
+## Chapter VII: Firewall Filter
 - [ ] Use existing filters as firewall to ... entities.
   - [ ] List
   - [ ] View
