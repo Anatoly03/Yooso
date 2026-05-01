@@ -14,7 +14,7 @@ import { h, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import ViewUuid from '../ui/ViewUuid.vue';
-import EditEntityComponents from '../ui/EditEntityComponents.vue';
+import EditEntityComponents, { ComponentOption } from '../ui/EditEntityComponents.vue';
 
 export interface Row {
     id: string;
@@ -28,6 +28,7 @@ const props = defineProps<{
     data: Row[];
     'active-entity'?: string;
 }>();
+const availableComponents = ref<ComponentOption[]>([]);
 const emit = defineEmits<{
     'view-entity': [entityId: string];
     'new-entity': [];
@@ -57,6 +58,7 @@ const columns = ref([
                 key: componentRenderKey,
                 entityId: row.id,
                 components: row.components,
+                allComponents: availableComponents.value,
                 onAddComponent: async (entityId: string, componentId: string) => {
                     emit('add-component', entityId, componentId);
                 },
@@ -94,6 +96,27 @@ const columns = ref([
     },
 ]);
 
+
+async function fetchComponentOptions() {
+    try {
+        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/list');
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || 'Failed to fetch components');
+        }
+
+        availableComponents.value = result.components.map((component: any) => ({
+            id: component.id,
+            label: component.name,
+            value: component.name,
+            color: '#' + component.color.toString(16).padStart(6, '0'),
+        }));
+    } catch (error) {
+        console.error('Error fetching components:', error);
+    }
+}
+
 function entityRowProps(row: Row) {
     return {
         class: 'clickable-row',
@@ -102,6 +125,10 @@ function entityRowProps(row: Row) {
         },
     };
 }
+
+onMounted(() => {
+    fetchComponentOptions();
+});
 </script>
 
 <style lang="scss" scoped>

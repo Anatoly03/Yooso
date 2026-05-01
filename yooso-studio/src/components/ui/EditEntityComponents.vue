@@ -35,6 +35,7 @@ import { computed, h, onMounted, ref, watch } from 'vue';
 
 const props = defineProps<{
     entityId: string;
+    allComponents: ComponentOption[]
     components: { id: string; name: string; color: number; is_system: boolean; created_at: number }[];
 }>();
 
@@ -53,7 +54,6 @@ interface AutoCompleteOption {
 
 const proposeNewComponentRaw = ref<string | null>('');
 const tags = ref<string[]>([]);
-const availableComponents = ref<ComponentOption[]>([]);
 
 const proposeNewComponent = computed<string>({
     get: () => proposeNewComponentRaw.value ?? '',
@@ -70,7 +70,7 @@ const emit = defineEmits({
 
 const componentColorByName = computed(() => {
     const map = new Map<string, string>();
-    for (const component of availableComponents.value) {
+    for (const component of props.allComponents) {
         map.set(component.value.toLowerCase(), component.color);
     }
     return map;
@@ -80,7 +80,7 @@ const autoCompleteOptions = computed(() => {
     const selectedNames = new Set(tags.value.map((tag) => tag.toLowerCase()));
     const query = proposeNewComponent.value.trim().toLowerCase();
 
-    return availableComponents.value
+    return props.allComponents
         .filter((component) => !selectedNames.has(component.value.toLowerCase()))
         .filter((component) => !query || component.value.toLowerCase().includes(query))
         .map((component) => ({
@@ -112,7 +112,7 @@ function submitComponentSelection(value: string | null | undefined, submit: (val
         return;
     }
 
-    const component = availableComponents.value.find((item) => item.value.toLowerCase() === normalizedValue);
+    const component = props.allComponents.find((item) => item.value.toLowerCase() === normalizedValue);
 
     if (!component || tags.value.some((tag) => tag.toLowerCase() === normalizedValue)) {
         return;
@@ -133,30 +133,6 @@ function submitTypedComponent(submit: (value: string) => void, deactivate: () =>
     submitComponentSelection(proposeNewComponent.value, submit, deactivate);
 }
 
-async function fetchComponentOptions() {
-    try {
-        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/list');
-        const result = await response.json();
-
-        if (!result.success) {
-            throw new Error(result.message || 'Failed to fetch components');
-        }
-
-        availableComponents.value = result.components.map((component: any) => ({
-            id: component.id,
-            label: component.name,
-            value: component.name,
-            color: '#' + component.color.toString(16).padStart(6, '0'),
-        }));
-    } catch (error) {
-        console.error('Error fetching components:', error);
-    }
-}
-
-onMounted(() => {
-    fetchComponentOptions();
-});
-
 watch(
     () => props.components,
     (components) => {
@@ -171,7 +147,7 @@ function renderTag(tag: string, index: number) {
 
     const componentId =
         props.components.find((component) => component.name.toLowerCase() === normalizedTag)
-            ?.id ?? availableComponents.value.find((component) => component.value.toLowerCase() === normalizedTag)?.id;
+            ?.id ?? props.allComponents.find((component) => component.value.toLowerCase() === normalizedTag)?.id;
 
     return h(
         NTag,
