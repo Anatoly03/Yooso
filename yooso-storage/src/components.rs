@@ -127,11 +127,38 @@ impl ComponentTable {
             sql_fields.join(", ")
         );
 
+        if cfg!(debug_assertions) {
+            eprintln!("\x1b[90m{query}\x1b[0m");
+        }
+
         general_state.0
             .lock()
-            .expect("failed to acquire lock on general database")
+            .map_err(|e| yooso_core::Error::from(e))?
             .execute(&query, [])
-            .expect("failed to create component table in general database");
+            .map_err(|e| yooso_core::Error::from(e))?;
+
+        Ok(())
+    }
+
+    /// Deletes the component and the dynamic table for this component in the general database.
+    pub async fn delete_recursive(&self, state: &crate::MetaDBState, general_state: &crate::GeneralDBState) -> Result<()> {
+        // Delete the component from the meta database.
+        self.delete(state).await?;
+
+        let drop_table_query = format!("DROP TABLE {}", self.component_name);
+
+        // Drop the component's table from the general database.
+        let conn = general_state
+            .0
+            .lock()
+            .map_err(|e| yooso_core::Error::from(e))?;
+
+        if cfg!(debug_assertions) {
+            eprintln!("\x1b[90m{drop_table_query}\x1b[0m");
+        }
+
+        conn.execute(&drop_table_query, [])
+            .map_err(|e| yooso_core::Error::from(e))?;
 
         Ok(())
     }

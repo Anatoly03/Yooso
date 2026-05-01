@@ -58,7 +58,7 @@
     - [ ] View (Component Fields and Meta)
     - [x] Create Component
     - [ ] Patch Name and Color
-    - [ ] Remove (Component)
+    - [x] Remove (Component)
     - [ ] Component Fields
       - [ ] List
       - [ ] Create (Patch Component)

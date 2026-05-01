@@ -2,7 +2,7 @@
 
 use rocket::serde::json::{Json};
 use rocket::{State, get};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use yooso_storage::{ComponentTable, MetaDBState};
 use yooso_core::error::Result;
 
@@ -52,7 +52,7 @@ use yooso_core::error::Result;
 ///     ]
 /// }
 /// ```
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 pub struct ComponentListResponse {
     pub success: bool,
     pub components: Vec<ComponentTable>,
