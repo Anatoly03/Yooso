@@ -66,10 +66,16 @@ impl ComponentFieldTable {
     /// Validates the component metadata.
     pub fn validate(&self) -> Result<()> {
         let field_name = &self.field_name;
+        let field_type = &self.field_type;
 
         crate::validate::not_empty(field_name, format!("field name"))?;
         crate::validate::valid_sql_ident(field_name, format!("field `{field_name}` name"))?;
         crate::validate::not_sql_keyword(field_name, format!("field name"))?;
+
+        // TODO rewrite to proper type checking (when we have proper types)
+        crate::validate::not_empty(field_type, format!("field type"))?;
+        crate::validate::valid_sql_ident(field_type, format!("field `{field_type}` type"))?;
+        crate::validate::not_sql_keyword(field_type, format!("field type"))?;
 
         Ok(())
     }
