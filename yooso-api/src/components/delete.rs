@@ -6,6 +6,15 @@ use uuid::Uuid;
 use yooso_core::error::Result;
 use yooso_storage::{ComponentTable, GeneralDBState, MetaDBState};
 
+/// The response body for the component deletion endpoint.
+/// 
+/// # Example
+/// 
+/// ```json
+/// {
+///     "success": true
+/// }
+/// ```
 #[derive(Debug, Serialize)]
 pub struct SuccessResponse {
     pub success: bool,
