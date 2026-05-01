@@ -1,7 +1,7 @@
 use crate::collection_fields::FieldMeta;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use syn::{Fields, Ident, ItemStruct, Meta, Token, parse::Parser, punctuated::Punctuated};
+use syn::{Fields, Ident, ItemStruct, Meta, Token, parse::Parser, punctuated::Punctuated, spanned::Spanned};
 
 meta_parser!(
     /// The metadata for the [collection] macro, which contains the database and
@@ -82,6 +82,15 @@ pub fn collection(
         field
             .attrs
             .retain(|attr| !attr.meta.path().is_ident("primary"));
+    }
+
+    // Current Implementation: Panic and fail as "unsupported"
+    // Future: Consume "#[default]" attributes on fields.
+    for field in &mut strucc.fields {
+        syn::Error::new(
+            field.span(),
+            "#[default] attribute is not supported yet and is reserved for future use",
+        ).to_compile_error();
     }
 
     // Validate fields are 'named', not 'unnamed' or 'unit'.

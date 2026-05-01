@@ -15,7 +15,7 @@ use crate::macro_collection::CollectionMeta;
 ///
 /// # Example
 ///
-/// ```rust,no_run,no_test,ignore
+/// ```rust,no_run
 /// use yooso::Yooso;
 ///
 /// #[yooso::launch]
@@ -34,7 +34,7 @@ pub fn launch(_args: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```no_run
 /// use yooso_macro::database;
 ///
 /// #[database(".yooso/meta.sqlite")]
@@ -48,11 +48,12 @@ pub fn database(args: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 /// The [collection] attribute marks a struct as a table definition. The
-/// struct will be converted into an SQL-synced collection of rows.
+/// struct will be converted into an SQL-synced collection of rows. This
+/// attribute is smart enough to convert Rust types into SQL types.
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```no_run
 /// use yooso_macro::{database,collection};
 /// use uuid::Uuid;
 /// 
@@ -66,6 +67,63 @@ pub fn database(args: TokenStream, input: TokenStream) -> TokenStream {
 ///     created_at: i32,
 /// }
 /// ```
+/// 
+/// The example above will produce the table with the following schema in
+/// the `MetaDB` database (at path `.yooso/meta.sqlite`).
+/// 
+/// | CID | Name         | Type    | Not Null | Default | PK
+/// | --- | ------------ | ------- | -------- | ------- | ---
+/// | 0   | `id`         | TEXT    | YES      | NULL    | KEY
+/// | 1   | `created_at` | INTEGER | YES      | NULL    | 
+/// 
+/// # Attributes
+/// 
+/// ### `#[primary]`
+/// 
+/// Marks the primary key column of the table. This is required for all
+/// collections and must be a single field.
+/// 
+/// ### `#[unique(...)]`
+/// 
+/// Marks a unique constraint on the table. This is equivalent to
+/// [SQL indecess](https://www.sqlitetutorial.net/sqlite-index/) and can be used to
+/// enforce an invariant on the collection.
+/// 
+/// ```no_run
+/// use yooso_macro::{database,collection};
+/// use uuid::Uuid;
+/// 
+/// #[database(".yooso/meta.sqlite")]
+/// struct MetaDB;
+///
+/// #[collection(db = crate::MetaDB, table = "fields")]
+/// #[unique(component_id, field_name)]
+/// #[unique(component_id, position)]
+/// pub struct ComponentFieldTable {
+///     /// Snowflake value. This is the unique identifier of the field.
+///     #[primary] pub id: Uuid,
+///     /// The ID of the component that this field belongs to.
+///     pub component_id: Uuid,
+///     /// The name of the field.
+///     pub field_name: String,
+///     /// The order index of the field.
+///     pub position: i32,
+/// }
+/// ```
+/// 
+/// The example above will produce the table with the following schema in
+/// the `MetaDB` database (at path `.yooso/meta.sqlite`).
+/// 
+/// | CID | Name           | Type    | Not Null | Default | PK
+/// | --- | -------------- | ------- | -------- | ------- | ---
+/// | 0   | `id`           | TEXT    | YES      | NULL    | KEY
+/// | 1   | `component_id` | TEXT    | YES      | NULL    | 
+/// | 2   | `field_name`   | TEXT    | YES      | NULL    | 
+/// | 3   | `position`     | INTEGER | YES      | NULL    | 
+/// 
+/// ### `#[default(...)]`
+/// 
+/// Currently unused, reserved for future use.
 #[proc_macro_attribute]
 pub fn collection(args: TokenStream, input: TokenStream) -> TokenStream {
     let meta = parse_macro_input!(args as CollectionMeta);

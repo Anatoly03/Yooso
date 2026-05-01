@@ -78,13 +78,13 @@
 - [ ] Testing
   - [ ] Core Testing Library
   - [ ] Unit Testing
-- [ ] Lirbary Documentation
-  - [ ] Github CI
+- [ ] Library Documentation
+  - [x] Github CI
   - [ ] `yooso`
   - [ ] `yooso-api`
   - [ ] `yooso-core`
   - [x] `yooso-example`
-  - [ ] `yooso-macro`
+  - [x] `yooso-macro`
   - [ ] `yooso-storage`
 - [ ] Client Documentation
   - [ ] Github CI
