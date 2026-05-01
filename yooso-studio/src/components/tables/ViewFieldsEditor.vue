@@ -59,7 +59,7 @@ function activateCreateRow() {
     const newField: ComponentField = {
         id: undefined,
         client_key: crypto.randomUUID(),
-        name: '',
+        name: 'field_' + props.modelValue.length,
         field_type: 'text',
         is_system: false,
         created_at: Date.now(),

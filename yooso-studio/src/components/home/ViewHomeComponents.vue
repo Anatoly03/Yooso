@@ -73,7 +73,7 @@ async function openEditComponentDrawer(id: string) {
 function openCreateNewComponentDrawer() {
     editComponent.value = true;
     editComponentId.value = '';
-    editComponentName.value = 'new-component';
+    editComponentName.value = 'new_component';
     editComponentColor.value = '#C1D1E1';
     editComponentIsNew.value = true;
     editComponentFields.value = [];
