@@ -81,6 +81,7 @@ function openCreateNewComponentDrawer() {
     editComponentIsNew.value = true;
     editComponentFields.value = [];
     editComponentLoadingRef.value = false;
+    editComponentError.value = null;
 }
 
 async function refreshComponentList() {
@@ -145,6 +146,7 @@ async function createComponent() {
     }
 
     editComponent.value = false;
+    editComponentError.value = null;
     editComponentSubmittingRef.value = false;
 }
 
@@ -204,6 +206,7 @@ async function patchComponent() {
     }
 
     editComponent.value = false;
+    editComponentError.value = null;
 }
 
 async function deleteComponent(id = editComponentId.value) {
@@ -228,6 +231,7 @@ async function deleteComponent(id = editComponentId.value) {
     }
 
     editComponent.value = false;
+    editComponentError.value = null;
 }
 
 onMounted(async () => {

@@ -109,6 +109,33 @@ impl ComponentTable {
         Ok(())
     }
 
+    /// Creates the dynamic table for this component in the general database.
+    pub async fn create_dynamic_table(&self, general_state: &crate::GeneralDBState, fields: &[ComponentFieldTable]) -> Result<()> {
+        let mut sql_fields = vec!["entity_id UUID PRIMARY KEY".to_string()];
+
+        sql_fields.extend(
+            fields
+                .iter()
+                .map(|field| format!("{} {}", field.field_name, sql_type(&field.field_type))),
+        );
+
+        // TODO: use a proper SQL query builder library instead of string concatenation to
+        // prevent SQL injection and handle edge cases.
+        let query = format!(
+            "CREATE TABLE {} ({})",
+            self.component_name,
+            sql_fields.join(", ")
+        );
+
+        general_state.0
+            .lock()
+            .expect("failed to acquire lock on general database")
+            .execute(&query, [])
+            .expect("failed to create component table in general database");
+
+        Ok(())
+    }
+
     /// Retrieves the component schema. Invokes the [ComponentFieldTable::list_by_component_id]
     /// function to get the fields of this component.
     pub async fn schema(&self, state: &crate::MetaDBState) -> Result<Vec<ComponentFieldTable>> {
@@ -124,5 +151,17 @@ fn sql_value_to_json(value: ValueRef<'_>) -> Value {
         ValueRef::Real(v) => Value::from(v),
         ValueRef::Text(v) => Value::from(String::from_utf8_lossy(v).to_string()),
         ValueRef::Blob(v) => Value::from(v.to_vec()),
+    }
+}
+
+/// Helper function to create appropriate SQL type for a given field type.
+/// Types in the project are high-level abstractions and need to be mapped
+/// to actual SQL types when generating
+fn sql_type(field_type: &str) -> &str {
+    match field_type {
+        "text" => "TEXT",
+        "integer" => "INT",
+        "boolean" => "BOOLEAN",
+        _ => panic!("unsupported field type: {}", field_type),
     }
 }
