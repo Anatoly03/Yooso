@@ -20,9 +20,12 @@ impl Yooso {
         let general_db_state = GeneralDBState::default();
         let meta_db_state = MetaDBState::default();
 
-        EntityTable::create_table(&meta_db_state).await;
-        ComponentTable::create_table(&meta_db_state).await;
-        ComponentFieldTable::create_table(&meta_db_state).await;
+        EntityTable::create_table(&meta_db_state).await
+            .expect("failed to create table: `entities`");
+        ComponentTable::create_table(&meta_db_state).await
+            .expect("failed to create table: `components`");
+        ComponentFieldTable::create_table(&meta_db_state).await
+            .expect("failed to create table: `component_fields`");
 
         Self {
             rocket: rocket::build()

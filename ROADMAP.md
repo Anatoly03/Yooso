@@ -83,7 +83,7 @@
   - [ ] `yooso`
   - [ ] `yooso-api`
   - [ ] `yooso-core`
-  - [ ] `yooso-example`
+  - [x] `yooso-example`
   - [ ] `yooso-macro`
   - [ ] `yooso-storage`
 - [ ] Client Documentation

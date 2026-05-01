@@ -10,6 +10,7 @@ pub fn launch(mut function: ItemFn) -> TokenStream {
     function.sig.ident = launch_fn.clone();
 
     quote! {
+        #[doc(hidden)]
         #function
 
         fn main() {
