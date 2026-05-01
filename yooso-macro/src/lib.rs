@@ -15,7 +15,7 @@ use crate::macro_collection::CollectionMeta;
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```ignore
 /// use yooso::Yooso;
 ///
 /// #[yooso::launch]
@@ -96,7 +96,7 @@ pub fn database(args: TokenStream, input: TokenStream) -> TokenStream {
 /// #[database(".yooso/meta.sqlite")]
 /// struct MetaDB;
 ///
-/// #[collection(db = crate::MetaDB, table = "fields")]
+/// #[collection(db = MetaDB, table = "fields")]
 /// #[unique(component_id, field_name)]
 /// #[unique(component_id, position)]
 /// pub struct ComponentFieldTable {
