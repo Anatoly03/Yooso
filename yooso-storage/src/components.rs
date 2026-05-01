@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-/// Represents a table in the database that corresponds to a component in the application.
+/// Corresponds to a component in the application.
 #[collection(db = crate::MetaDB, table = "components")]
 #[unique(component_name)]
 #[derive(Default, Debug, Serialize, Deserialize)]

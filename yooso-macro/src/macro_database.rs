@@ -20,6 +20,9 @@ pub fn database(file_path: LitStr, strucc: ItemStruct) -> TokenStream {
     quote! {
         #strucc
 
+        #[doc = concat!("The state struct for [", stringify!(#ident), "], ")]
+        /// which contains the connection mutex (generated with the
+        /// [database][yooso_macro::database] macro).
         pub struct #state_ident (
             pub ::std::sync::Mutex<::rusqlite::Connection>
         );

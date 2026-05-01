@@ -1,3 +1,5 @@
+//! Macros for the Yooso project.
+
 mod collection_fields;
 #[macro_use]
 mod inner_macro_meta;

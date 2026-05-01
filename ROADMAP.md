@@ -85,7 +85,7 @@
   - [ ] `yooso-core`
   - [x] `yooso-example`
   - [x] `yooso-macro`
-  - [ ] `yooso-storage`
+  - [x] `yooso-storage`
 - [ ] Client Documentation
   - [ ] Github CI
   - [ ] `yooso-studio`

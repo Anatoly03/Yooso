@@ -1,5 +1,7 @@
-//! This is an example of a simple Yooso application. It doesn't do anything
-//! more than set up the default features, including the admin panel Yooso Studio.
+//! Example of a simple Yooso application.
+//! 
+//! It doesn't do anything more than set up the default features, including the
+//! admin panel Yooso Studio.
 //! 
 //! Below is the minimal code for the `main.rs` file to startup a Yooso application.
 //! 

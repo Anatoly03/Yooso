@@ -2,7 +2,7 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-/// Represents a table in the database that corresponds to an entity in the application.
+/// Corresponds to an entity in the application.
 #[collection(db = crate::MetaDB, table = "entities")]
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct EntityTable {

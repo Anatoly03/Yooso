@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-/// Represents a table in the database that corresponds to a component in the application.
+/// Corresponds to a field of a component in the application.
 #[collection(db = crate::MetaDB, table = "fields")]
 #[derive(Default)]
 #[unique(component_id, field_name)]

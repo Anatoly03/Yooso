@@ -30,11 +30,23 @@ pub fn collection(
     let strucc_attr = strucc.attrs;
     strucc.attrs = Vec::new();
 
+    // The name of the database struct, e.g. `MetaDB`.
+    let db_struct_name = &table_metadata.db.segments.last().unwrap().ident;
+
+    // Render the database state path without token-stream spacing, so docs
+    // show `crate::MetaDBState` instead of `crate :: MetaDBState`.
+    let db_struct_name_display = table_metadata
+        .db
+        .segments
+        .iter()
+        .map(|segment| segment.ident.to_string())
+        .collect::<Vec<_>>()
+        .join("::");
+
     // The name of the state struct is derived from the database struct by appending "State",
     // preserving Path.
     let db_state_struct_name = {
-        let db_ident = &table_metadata.db.segments.last().unwrap().ident;
-        let db_state_ident = format_ident!("{}State", db_ident);
+        let db_state_ident = format_ident!("{}State", db_struct_name);
 
         let mut db_state_path = table_metadata.db.clone();
         db_state_path.segments.pop();
@@ -300,7 +312,7 @@ pub fn collection(
                 format!(" | {cid} | `{}` | {} | {} | NULL | {pk} |",
                     field_meta.name,
                     field_meta.raw_sql_type,
-                    if field_meta.optional { "NO" } else { "YES" },
+                    if field_meta.optional { "" } else { "YES" },
                     pk = if field_meta.primary { "KEY" } else { "" },
                 )
             })
@@ -308,12 +320,14 @@ pub fn collection(
     };
 
     quote! {
+        #[doc = concat!("Abstraction of the collection table `", #table_name, "`")]
+        #[doc = concat!("in the database [", stringify!(#db_struct_name), "][", #db_struct_name_display, "].")]
         #(#strucc_attr)*
         ///
         /// # Schema
         /// 
         /// | CID | Name | Type | Required | Default | PK
-        /// | --- | ---- | ---- | -------- | ------- | --
+        /// | --- | ---- | ---- | :------: | :-----: | :-:
         #(#[doc = #field_docs])*
         #strucc
 

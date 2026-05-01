@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-/// Represents a table in the database that tracks all request and response logs. Each record
-/// corresponds to a single HTTP request and its associated response.
+/// Tracks all request and response logs. Each record corresponds to a
+/// single HTTP request and its associated response.
 #[collection(db = crate::LogDB, table = "logs")]
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct LogRecordTable {
