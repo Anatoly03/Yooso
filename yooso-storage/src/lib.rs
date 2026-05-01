@@ -1,5 +1,5 @@
 //! Abstractions of databases and collections for the Yooso project.
-//! 
+//!
 //! This module defines the databases [MetaDB], [GeneralDB], and [LogDB], as
 //! well as the tables that fill these databases.
 
@@ -10,6 +10,7 @@ mod components;
 mod entities;
 mod fields;
 mod logs;
+pub mod validate;
 
 pub use components::ComponentTable;
 pub use entities::EntityTable;

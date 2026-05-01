@@ -25,6 +25,10 @@ pub enum Error {
     /// An error originating from the Uuid library. This typically occurs
     /// during Uuid parsing.
     UuidError(uuid::Error),
+
+    /// An error originating from invalid input data, such as as invalid
+    /// component name or field metadata.
+    ValidationError(String),
 }
 
 /// A typedef of the result returned by many methods.
@@ -54,6 +58,7 @@ impl std::fmt::Display for Error {
             Error::RusqliteError(e) => write!(f, "rusqlite error: {}", e),
             Error::MutexPoisoned(s) => write!(f, "mutex poisoned: {}", s),
             Error::UuidError(e) => write!(f, "uuid error: {}", e),
+            Error::ValidationError(s) => write!(f, "validation error: {}", s),
         }
     }
 }
@@ -64,6 +69,7 @@ impl std::error::Error for Error {
             Error::RusqliteError(e) => Some(e),
             Error::UuidError(e) => Some(e),
             Error::MutexPoisoned(_) => None,
+            Error::ValidationError(_) => None,
         }
     }
 }
@@ -80,6 +86,7 @@ impl<'r> Responder<'r, 'static> for Error {
             Error::UuidError(_) => Status::BadRequest,
             Error::MutexPoisoned(_) => Status::InternalServerError,
             Error::RusqliteError(_) => Status::InternalServerError,
+            Error::ValidationError(_) => Status::BadRequest,
         };
 
         let body = ErrorResponse {

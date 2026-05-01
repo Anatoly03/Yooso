@@ -13,11 +13,12 @@
                 <n-form style="display: flex; flex-direction: column; gap: 5px">
                     <edit-component-label v-model:value="editComponentName" v-model:color="editComponentColor" />
                     <view-fields-editor v-model:loading="editComponentLoadingRef" v-model:model-value="editComponentFields" :component-id="editComponentId" :is-new-component="editComponentIsNew" />
+                    <span class="error-message" v-if="editComponentError">{{ editComponentError }}</span>
                     <n-button-group class="component-action-slot">
                         <n-button type="error" @click="deleteComponent()" v-if="!editComponentIsNew"> {{ $t('app.actions.delete') }} </n-button>
                         <n-button secondary type="default" @click="editComponent = false"> {{ $t('app.actions.cancel') }} </n-button>
-                        <n-button type="primary" @click="patchComponent" v-if="!editComponentIsNew"> {{ $t('app.actions.save') }} </n-button>
-                        <n-button type="primary" @click="createComponent" v-if="editComponentIsNew"> {{ $t('app.actions.create') }} </n-button>
+                        <n-button type="primary" :loading="editComponentSubmittingRef" @click="patchComponent" v-if="!editComponentIsNew"> {{ $t('app.actions.save') }} </n-button>
+                        <n-button type="primary" :loading="editComponentSubmittingRef" @click="createComponent" v-else> {{ $t('app.actions.create') }} </n-button>
                     </n-button-group>
                 </n-form>
             </n-drawer-content>
@@ -46,6 +47,8 @@ const editComponentFields = ref<ComponentField[]>([]);
 const editComponentIsNew = ref(false);
 const loadingRef = ref(true);
 const editComponentLoadingRef = ref(false);
+const editComponentSubmittingRef = ref(false);
+const editComponentError = ref<string | null>(null);
 const openDocumentationDrawer = ref(false);
 const data = ref<any[]>([]);
 
@@ -109,6 +112,8 @@ async function refreshComponentList() {
 }
 
 async function createComponent() {
+    editComponentSubmittingRef.value = true;
+
     try {
         const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components', {
             method: 'POST',
@@ -125,7 +130,7 @@ async function createComponent() {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to create/update component');
+            throw new Error(errorData.error || 'Failed to create/update component');
         }
 
         const result = await response.json();
@@ -134,9 +139,13 @@ async function createComponent() {
         refreshComponentList();
     } catch (error) {
         console.error('Error creating/updating component:', error);
+        editComponentError.value = error.message || String(error);
+        editComponentSubmittingRef.value = false;
+        return;
     }
 
     editComponent.value = false;
+    editComponentSubmittingRef.value = false;
 }
 
 async function viewComponent(id = editComponentId.value): Promise<any> {
@@ -145,7 +154,7 @@ async function viewComponent(id = editComponentId.value): Promise<any> {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to create/update component');
+            throw new Error(errorData.error || 'Failed to create/update component');
         }
 
         const result = await response.json();
@@ -153,12 +162,14 @@ async function viewComponent(id = editComponentId.value): Promise<any> {
         return result;
     } catch (error) {
         console.error('Error creating/updating component:', error);
+        editComponentError.value = error.message || String(error);
+        return null;
     }
-
-    return null;
 }
 
 async function patchComponent() {
+    editComponentSubmittingRef.value = true;
+
     try {
         const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components', {
             method: 'PATCH',
@@ -178,7 +189,7 @@ async function patchComponent() {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to patch component');
+            throw new Error(errorData.error || 'Failed to patch component');
         }
 
         const result = await response.json();
@@ -187,6 +198,9 @@ async function patchComponent() {
         refreshComponentList();
     } catch (error) {
         console.error('Error patching component:', error);
+        editComponentSubmittingRef.value = false;
+        editComponentError.value = error.message || String(error);
+        return;
     }
 
     editComponent.value = false;
@@ -200,7 +214,7 @@ async function deleteComponent(id = editComponentId.value) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to delete component');
+            throw new Error(errorData.error || 'Failed to delete component');
         }
 
         const result = await response.json();
@@ -209,6 +223,8 @@ async function deleteComponent(id = editComponentId.value) {
         refreshComponentList();
     } catch (error) {
         console.error('Error deleting component:', error);
+        editComponentError.value = error.message || String(error);
+        return;
     }
 
     editComponent.value = false;
@@ -253,5 +269,10 @@ onMounted(async () => {
     :deep(.n-button) {
         flex: 1 0 auto;
     }
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9em;
 }
 </style>

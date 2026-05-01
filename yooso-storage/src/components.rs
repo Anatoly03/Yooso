@@ -3,6 +3,7 @@ use rusqlite::types::ValueRef;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use uuid::Uuid;
+use yooso_core::Error::ValidationError;
 use yooso_core::error::Result;
 
 /// Corresponds to a component in the application.
@@ -84,7 +85,10 @@ impl ComponentTable {
             self.component_name, entity_id
         );
 
-        let conn = general_state.0.lock().map_err(|e| yooso_core::Error::from(e))?;
+        let conn = general_state
+            .0
+            .lock()
+            .map_err(|e| yooso_core::Error::from(e))?;
 
         if cfg!(debug_assertions) {
             eprintln!("\x1b[90m{query}\x1b[0m");
@@ -95,6 +99,15 @@ impl ComponentTable {
             .map_err(|e| yooso_core::Error::from(e))?;
 
         Ok(exists == 1)
+    }
+
+    /// Validates the component metadata.
+    pub fn validate(&self) -> Result<()> {
+        crate::validate::not_empty(&self.component_name, "component name")?;
+        crate::validate::valid_sql_ident(&self.component_name, "component name")?;
+        crate::validate::not_sql_keyword(&self.component_name, "component name")?;
+
+        Ok(())
     }
 
     /// Retrieves the component schema. Invokes the [ComponentFieldTable::list_by_component_id]

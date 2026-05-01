@@ -39,6 +39,8 @@
 ## Chapter II: Error Handling, Validation, Refactoring, Documentation
 
 - [x] Add generic Error type
+  - [ ] Add special type `Validated<T>` which is invisible to dev (methods and attributes of underlying type). Only validated input can be saved. Invalid data has to be validated first. Data retrieved from database is validated per default.
+  Validated data is immutable unless it is invalidated.
 - [x] Github CI (Tests)
 - [ ] Error Handling & Validation
   - [ ] Entities

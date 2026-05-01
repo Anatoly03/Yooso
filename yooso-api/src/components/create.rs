@@ -3,6 +3,7 @@
 use rocket::serde::json::Json;
 use rocket::{State, post};
 use serde::{Deserialize, Serialize};
+use yooso_core::error::Result;
 use yooso_core::{Component, ComponentField};
 use yooso_storage::{ComponentFieldTable, ComponentTable, GeneralDBState, MetaDBState};
 
@@ -36,28 +37,21 @@ pub async fn create_component(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,
     body: Json<CreateComponentRequest>,
-) -> Json<CreateComponentResponse> {
+) -> Result<Json<CreateComponentResponse>> {
     let uuid = uuid::Uuid::now_v7();
     let created_at = chrono::Utc::now().timestamp_millis();
-
-    // Validate request body: component name must be: non-empty,
-    // not sql keyword, unique and must match regex for valid SQL
-    // table names
-    // TODO
-
-    // Convert minus to underscore in component name to make it a
-    // valid SQL table name. We keep the `dash-case` convention for
-    // the user interface, but use `snake_case` for the database.
-    let component_name = body.name.replace('-', "_");
 
     // Create new Component
     let new_component = ComponentTable {
         id: uuid,
-        component_name: component_name,
+        component_name: body.name.clone(),
         is_system: body.is_system,
         color: body.color,
         created_at,
     };
+
+    // Validate component metadata before saving to the database.
+    new_component.validate()?;
 
     let new_fields = body
         .fields
@@ -109,7 +103,7 @@ pub async fn create_component(
         })
         .collect::<Vec<_>>();
 
-    Json(CreateComponentResponse {
+    Ok(Json(CreateComponentResponse {
         metadata: Component {
             id: new_component.id,
             name: new_component.component_name,
@@ -118,7 +112,7 @@ pub async fn create_component(
             created_at: new_component.created_at,
         },
         fields,
-    })
+    }))
 }
 
 /// Helper function to generate the SQL query for creating a component table
