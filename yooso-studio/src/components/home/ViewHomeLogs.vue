@@ -11,7 +11,18 @@
                 :show-month-labels="false"
             />
         </div>
-        
+        <ul class="view-log-entries">
+            <li v-for="log in logs" :key="log.id" class="request-log" :class="{'request-log-error': log.status.toString().charAt(0) === '5'}">
+                <span class="request-method" :class="'method-' + log.method.toLowerCase()">{{ log.method }}</span>
+                <a :href="log.href" class="request-uri" target="_blank" rel="noopener noreferrer">{{ log.uri }}</a>
+                <span
+                    class="response-status"
+                    :class="['status-' + log.status, 'status-' + log.status.toString().charAt(0) + 'xx']"
+                >
+                    {{ log.status }}
+                </span>
+            </li>
+        </ul>
     </div>
 </template>
 
@@ -43,7 +54,22 @@ onMounted(async () => {
         heatmapIndexByDay.set(timestamp, i);
     }
 
-    // TODO get response
+    const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/logs?limit=1000');
+    const json_logs = await response.json();
+    logs.value = json_logs.map((log: any) => ({
+        ...log,
+        href: import.meta.env.VITE_API_SERVER + log.request_uri,
+    }));
+
+    for (const log of json_logs) {
+        const createdMs = log.created < 1_000_000_000_000 ? log.created * 1000 : log.created;
+        const dayTimestamp = toUTCDayStartMs(createdMs);
+        const index = heatmapIndexByDay.get(dayTimestamp);
+
+        if (index === undefined) continue;
+        const current = heatmapData.value[index];
+        current.value = (current.value ?? 0) + 1;
+    }
 })
 </script>
 
@@ -139,6 +165,24 @@ onMounted(async () => {
                 text-decoration: underline;
             }
         }
+    }
+}
+
+.response-status {
+    padding: 0 5px;
+    border-radius: 5px;
+    background-color: #e0e0e0;
+
+    &.status-2xx {
+        background-color: #c8e6c9;
+    }
+
+    &.status-4xx {
+        background-color: #ffcdd2;
+    }
+
+    &.status-5xx {
+        background-color: #ff8a80;
     }
 }
 </style>

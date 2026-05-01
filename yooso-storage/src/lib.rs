@@ -4,10 +4,12 @@ extern crate yooso_macro;
 mod components;
 mod entities;
 mod fields;
+mod logs;
 
 pub use components::ComponentTable;
 pub use entities::EntityTable;
 pub use fields::ComponentFieldTable;
+pub use logs::LogRecordTable;
 
 /// Meta database for Yooso, which contains the component definitions and other
 /// system tables.
