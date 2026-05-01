@@ -1,7 +1,9 @@
 use crate::collection_fields::FieldMeta;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use syn::{Fields, Ident, ItemStruct, Meta, Token, parse::Parser, punctuated::Punctuated, spanned::Spanned};
+use syn::{
+    Fields, Ident, ItemStruct, Meta, Token, parse::Parser, punctuated::Punctuated, spanned::Spanned,
+};
 
 meta_parser!(
     /// The metadata for the [collection] macro, which contains the database and
@@ -90,7 +92,8 @@ pub fn collection(
         syn::Error::new(
             field.span(),
             "#[default] attribute is not supported yet and is reserved for future use",
-        ).to_compile_error();
+        )
+        .to_compile_error();
     }
 
     // Validate fields are 'named', not 'unnamed' or 'unit'.
@@ -151,6 +154,11 @@ pub fn collection(
 
     // Generate 'SELECT * FROM ... WHERE' syntax for the view query.
     let sql_select_where = {
+        let field_names = field_metas
+            .iter()
+            .map(|field_meta| field_meta.name.clone())
+            .collect::<Vec<_>>();
+
         let primary_keys = primary_key_idents
             .clone()
             .into_iter()
@@ -169,14 +177,23 @@ pub fn collection(
             .join(" AND ");
 
         format!(
-            "SELECT * FROM {} WHERE {}",
+            "SELECT {} FROM {} WHERE {}",
+            field_names.join(", "),
             table_name.value(),
             where_clause
         )
     };
 
     // Generate 'SELECT * FROM' syntax for the list generator.
-    let sql_select_all = format!("SELECT * FROM {}", table_name.value());
+    let sql_select_all = {
+        let field_names = field_metas
+            .iter()
+            .map(|field_meta| field_meta.name.clone())
+            .collect::<Vec<_>>();
+
+        format!("SELECT {} FROM {}", field_names.join(", "), table_name.value())
+    };
+    
 
     // Generate 'INSERT INTO' syntax for the insert generator.
     let sql_insert_into = {
@@ -306,9 +323,14 @@ pub fn collection(
                 // Execute the CREATE SQL statement to create the collection table
                 // if it doesn't exist. Returns the number of rows affected (should
                 // be 0 for CREATE TABLE).
-                db.0.lock()
-                    .map_err(|e| ::yooso_core::Error::from(e))?
-                    .execute(#sql_create_table, [])
+                let conn = db.0.lock()
+                    .map_err(|e| ::yooso_core::Error::from(e))?;
+
+                if cfg!(debug_assertions) {
+                    eprintln!("\x1b[90m{}\x1b[0m", #sql_create_table);
+                }
+
+                conn.execute(#sql_create_table, [])
                     .map_err(|e| ::yooso_core::Error::from(e))
 
                 // #[cfg(feature = "debug")]
@@ -328,6 +350,10 @@ pub fn collection(
             pub async fn view(db: &#db_state_struct_name, #(#primary_key_idents: &#primary_key_types),*) -> Result<Self, ::yooso_core::Error> {
                 let conn = db.0.lock()
                     .map_err(|e| ::yooso_core::Error::from(e))?;
+
+                if cfg!(debug_assertions) {
+                    eprintln!("\x1b[90m{}\x1b[0m", #sql_select_where);
+                }
 
                 let mut stmt = conn
                     .prepare(#sql_select_where)
@@ -370,6 +396,10 @@ pub fn collection(
                 let conn = db.0.lock()
                     .map_err(|e| ::yooso_core::Error::from(e))?;
 
+                if cfg!(debug_assertions) {
+                    eprintln!("\x1b[90m{}\x1b[0m", #sql_select_all);
+                }
+
                 // Execute the SELECT SQL statement to retrieve all rows from the collection table.
                 let mut stmt = conn
                     .prepare(#sql_select_all)
@@ -410,9 +440,14 @@ pub fn collection(
                 // collection table. Returns the number of rows affected (should
                 // be 1 for INSERT and 0 for REPLACE).
                 // If row with same key exists, it will be overridden.
-                db.0.lock()
-                    .map_err(|e| ::yooso_core::Error::from(e))?
-                    .execute(#sql_insert_into, ::rusqlite::params![
+                let conn = db.0.lock()
+                    .map_err(|e| ::yooso_core::Error::from(e))?;
+
+                if cfg!(debug_assertions) {
+                    eprintln!("\x1b[90m{}\x1b[0m", #sql_insert_into);
+                }
+
+                conn.execute(#sql_insert_into, ::rusqlite::params![
                         #(#insert_values),*
                     ])
                     .map_err(|e| ::yooso_core::Error::from(e))
@@ -440,9 +475,14 @@ pub fn collection(
                 // to the current struct instance from the collection table. Returns
                 // the number of rows affected (should be 1 if a row was deleted, or
                 // 0 if no matching row was found).
-                db.0.lock()
-                    .map_err(|e| ::yooso_core::Error::from(e))?
-                    .execute(#sql_delete_from, ::rusqlite::params![
+                let conn = db.0.lock()
+                    .map_err(|e| ::yooso_core::Error::from(e))?;
+
+                if cfg!(debug_assertions) {
+                    eprintln!("\x1b[90m{}\x1b[0m", #sql_delete_from);
+                }
+
+                conn.execute(#sql_delete_from, ::rusqlite::params![
                         #(#delete_values),*
                     ])
                     .map_err(|e| ::yooso_core::Error::from(e))
