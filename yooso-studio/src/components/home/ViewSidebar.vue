@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import type { MenuOption } from 'naive-ui';
 import { NIcon, NMenu } from 'naive-ui';
-import { FlowerOutline, HomeOutline, LeafOutline } from '@vicons/ionicons5';
+import { FlowerOutline, HomeOutline, LeafOutline, StatsChartOutline } from '@vicons/ionicons5';
 import { computed, h, onMounted, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -40,6 +40,7 @@ const menuOptions = computed(() => {
         { to: '/', key: 'home', label: t('app.menu.home'), icon: () => h(HomeOutline) },
         { to: '/entities', key: 'entities', label: t('app.menu.entities'), icon: () => h(FlowerOutline) },
         { to: '/components', key: 'components', label: t('app.menu.components'), icon: () => h(LeafOutline) },
+        { to: '/logs', key: 'logs', label: t('app.menu.logs'), icon: () => h(StatsChartOutline) },
     ];
 });
 

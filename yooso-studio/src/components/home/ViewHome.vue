@@ -23,6 +23,7 @@ import ViewSidebar from './ViewSidebar.vue';
 import ViewHomeGeneral from './ViewHomeGeneral.vue';
 import ViewHomeEntities from './ViewHomeEntities.vue';
 import ViewHomeComponents from './ViewHomeComponents.vue';
+import ViewHomeLogs from './ViewHomeLogs.vue';
 
 // State of left sidebar
 // TODO: set to true if more components flood the screen
@@ -34,6 +35,7 @@ defineOptions({
         { path: '/', component: ViewHomeGeneral },
         { path: '/entities', component: ViewHomeEntities },
         { path: '/components', component: ViewHomeComponents },
+        { path: '/logs', component: ViewHomeLogs },
     ],
 });
 </script>
