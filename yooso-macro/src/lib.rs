@@ -17,12 +17,12 @@ use crate::macro_collection::CollectionMeta;
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```no_run
 /// use yooso::Yooso;
 ///
 /// #[yooso::launch]
 /// async fn yooso() -> Yooso {
-///     Yooso::build()
+///     Yooso::build().await
 /// }
 /// ```
 #[proc_macro_attribute]
@@ -36,7 +36,7 @@ pub fn launch(_args: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```
 /// use yooso_macro::database;
 ///
 /// #[database(".yooso/meta.sqlite")]
@@ -55,7 +55,7 @@ pub fn database(args: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```
 /// use yooso_macro::{database,collection};
 /// use uuid::Uuid;
 /// 

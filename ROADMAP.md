@@ -39,8 +39,8 @@
 ## Chapter II: Error Handling, Validation, Refactoring, Documentation
 
 - [x] Add generic Error type
+- [x] Github CI (Tests)
 - [ ] Error Handling & Validation
-  - [ ] Github CI
   - [ ] Entities
     - [ ] List (Entities)
     - [ ] View (Components per Entity)
@@ -121,10 +121,24 @@
   - [ ] Users can only read entities existing and attached components.
 
 ## Chapter V: Github CI and Benchmarking
-Introduce CI to benchmark pull request against current standard speed and start profiling.
+Introduce CI to benchmark pull request against current standard speed and start profiling. This chapter should also build the first release tag of Yooso project.
+
+- [ ] Create tag `v0.0.1-preview-0`
+- [ ] Benchmarking CI
 
 ## Chapter VI: Demo
-Since this project was inspired
+Since this project was inspired by ECS, an. entity-component chat example is needed. This should be capable of submitting messages onto user profile walls, in channels, and as reply to other chat messages.
+
+- [ ] `user` (username: text)
+- [ ] `superuser`
+- [ ] `passauth` (password_hash: text)
+- [ ] `channel` (name: text)
+- [ ] `textchannel`
+- [ ] `audiochannel`
+- [ ] `message` (content: text)
+- [ ] `message_parent` (parent: relation)
+
+A conventional schema-oriented database would require joining tables and redundant columns pointing to primary keys in other tables.
 
 ## Chapter VII: Powerful Admin Panel
 The home page in the admin UI should be customizable. Boxes counting and listing some queries to provide statistics. For example: "Users: 100", "Messages: 567", etc.
@@ -196,3 +210,6 @@ Also SQL Indeces: https://sqlite.org/partialindex.html
   - [ ] Stateless app servers
   - [ ] Shared DB
   - [ ] Redis
+
+## Chapter: Collections
+There should be "abstractions" of collections which are exposed to users. For example `/auth/register` to create an entity `User`, `PassAuth(input)` or `/post/list` which queries `Post` and outputs JS objects for components, e.g. appends `{ content }` if `PostContent` is included.
