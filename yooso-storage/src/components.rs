@@ -3,6 +3,7 @@ use rusqlite::types::ValueRef;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use uuid::Uuid;
+use yooso_core::error::Result;
 
 /// Corresponds to a component in the application.
 #[collection(db = crate::MetaDB, table = "components")]
@@ -39,7 +40,7 @@ impl ComponentTable {
         state: &crate::MetaDBState,
         general_state: &crate::GeneralDBState,
         id: &Uuid,
-    ) -> Result<Value, ::yooso_core::Error> {
+    ) -> Result<Value> {
         // First, we need to retrieve the component's fields from
         // the meta database. The fields are also the keys of the
         // JSON object that we return.
@@ -47,9 +48,11 @@ impl ComponentTable {
 
         // Retrieves the row from the general database that corresponds
         // to this component and the given entity ID.
-        let conn = general_state.0.lock()
+        let conn = general_state
+            .0
+            .lock()
             .map_err(|e| ::yooso_core::Error::from(e))?;
-        
+
         conn.query_row(
             &format!("SELECT * FROM {} WHERE entity_id = ?", self.component_name),
             rusqlite::params![id.to_string()],
@@ -70,9 +73,33 @@ impl ComponentTable {
         .map_err(|e| ::yooso_core::Error::from(e))
     }
 
+    /// Wether an entity implements the current component.
+    pub async fn defined_for(
+        &self,
+        general_state: &crate::GeneralDBState,
+        entity_id: &Uuid,
+    ) -> Result<bool> {
+        let query = format!(
+            "SELECT EXISTS(SELECT 1 FROM \"{}\" WHERE entity_id = '{}' LIMIT 1)",
+            self.component_name, entity_id
+        );
+
+        let conn = general_state.0.lock().map_err(|e| yooso_core::Error::from(e))?;
+
+        if cfg!(debug_assertions) {
+            eprintln!("\x1b[90m{query}\x1b[0m");
+        }
+
+        let exists = conn
+            .query_row(&query, [], |row| row.get::<_, i64>(0))
+            .map_err(|e| yooso_core::Error::from(e))?;
+
+        Ok(exists == 1)
+    }
+
     /// Retrieves the component schema. Invokes the [ComponentFieldTable::list_by_component_id]
     /// function to get the fields of this component.
-    pub async fn schema(&self, state: &crate::MetaDBState) -> Result<Vec<ComponentFieldTable>, ::yooso_core::Error> {
+    pub async fn schema(&self, state: &crate::MetaDBState) -> Result<Vec<ComponentFieldTable>> {
         ComponentFieldTable::list_by_component_id(state, &self.id).await
     }
 }

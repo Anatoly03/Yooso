@@ -42,7 +42,7 @@
 - [x] Github CI (Tests)
 - [ ] Error Handling & Validation
   - [ ] Entities
-    - [ ] List (Entities)
+    - [x] List (Entities)
     - [ ] View (Components per Entity)
     - [x] Create (Entity)
     - [ ] Remove (Entity)

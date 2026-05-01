@@ -1,4 +1,4 @@
-//! This module defines the entity creation endpoint.
+//! Defines the entity creation endpoint.
 
 use rocket::serde::json::Json;
 use rocket::{State, post};
