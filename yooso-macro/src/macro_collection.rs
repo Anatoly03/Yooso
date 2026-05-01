@@ -27,6 +27,9 @@ pub fn collection(
     let table_name = &table_metadata.table;
     // let db_struct_name = &table_metadata.db;
 
+    let strucc_attr = strucc.attrs;
+    strucc.attrs = Vec::new();
+
     // The name of the state struct is derived from the database struct by appending "State",
     // preserving Path.
     let db_state_struct_name = {
@@ -290,7 +293,28 @@ pub fn collection(
         })
         .collect::<Vec<_>>();
 
+    let field_docs = {
+        field_metas.iter()
+            .enumerate()
+            .map(|(cid, field_meta)| {
+                format!(" | {cid} | `{}` | {} | {} | NULL | {pk} |",
+                    field_meta.name,
+                    field_meta.raw_sql_type,
+                    if field_meta.optional { "NO" } else { "YES" },
+                    pk = if field_meta.primary { "KEY" } else { "" },
+                )
+            })
+            .collect::<Vec<_>>()
+    };
+
     quote! {
+        #(#strucc_attr)*
+        ///
+        /// # Schema
+        /// 
+        /// | CID | Name | Type | Required | Default | PK
+        /// | --- | ---- | ---- | -------- | ------- | --
+        #(#[doc = #field_docs])*
         #strucc
 
         impl #struct_name {

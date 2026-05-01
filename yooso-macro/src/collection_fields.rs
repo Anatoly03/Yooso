@@ -32,6 +32,12 @@ pub(crate) struct FieldMeta {
     /// The SQL type of the field, which is derived from the Rust type. This is
     /// used in the table generator syntax.
     pub sql_type: String,
+
+    /// The SQL type of the field, without `NOT NULL`.
+    pub raw_sql_type: String,
+
+    /// If the field originates from an `Option<T>`.
+    pub optional: bool,
 }
 
 impl FieldMeta {
@@ -47,55 +53,45 @@ impl FieldMeta {
 }
 
 /// Converts a Rust type into an SQL type string. This is used for generating the
-fn rust_type_to_sql_type(ty: &syn::Type) -> String {
-    // Returns: Type string and whether it's nullable (Option<T>).
-    fn inner_rust_type_to_sql_type(ty: &syn::Type) -> (String, bool) {
-        let mut nullable = false;
-        let type_string = match ty {
-            Type::Path(type_path) => {
-                let segment = type_path.path.segments.last().unwrap();
-                match segment.ident.to_string().as_str() {
-                    "i8" | "i16" | "i32" | "i64" | "u8" | "u16" | "u32" | "u64" | "isize"
-                    | "usize" => "INTEGER".to_string(),
-                    "f32" | "f64" => "REAL".to_string(),
-                    "String" => "TEXT".to_string(),
-                    "bool" => "BOOLEAN".to_string(),
-                    "Uuid" => "TEXT".to_string(),
-                    "Option" if !segment.arguments.is_empty() => {
-                        nullable = true;
+/// Returns: Type string and whether it's nullable (Option<T>).
+fn rust_type_to_sql_type(ty: &syn::Type) -> (String, bool) {
+    let mut nullable = false;
+    let type_string = match ty {
+        Type::Path(type_path) => {
+            let segment = type_path.path.segments.last().unwrap();
+            match segment.ident.to_string().as_str() {
+                "i8" | "i16" | "i32" | "i64" | "u8" | "u16" | "u32" | "u64" | "isize"
+                | "usize" => "INTEGER".to_string(),
+                "f32" | "f64" => "REAL".to_string(),
+                "String" => "TEXT".to_string(),
+                "bool" => "BOOLEAN".to_string(),
+                "Uuid" => "TEXT".to_string(),
+                "Option" if !segment.arguments.is_empty() => {
+                    nullable = true;
 
-                        let generic_ty = match &segment.arguments {
-                            syn::PathArguments::AngleBracketed(args) if args.args.len() == 1 => {
-                                match &args.args[0] {
-                                    syn::GenericArgument::Type(inner_ty) => inner_ty,
-                                    _ => panic!(
-                                        "Unsupported generic argument in Option: {:?}",
-                                        args.args[0]
-                                    ),
-                                }
+                    let generic_ty = match &segment.arguments {
+                        syn::PathArguments::AngleBracketed(args) if args.args.len() == 1 => {
+                            match &args.args[0] {
+                                syn::GenericArgument::Type(inner_ty) => inner_ty,
+                                _ => panic!(
+                                    "Unsupported generic argument in Option: {:?}",
+                                    args.args[0]
+                                ),
                             }
-                            _ => panic!("Unsupported arguments in Option: {:?}", segment.arguments),
-                        };
+                        }
+                        _ => panic!("Unsupported arguments in Option: {:?}", segment.arguments),
+                    };
 
-                        inner_rust_type_to_sql_type(generic_ty).0
-                    }
-                    "Vec" if segment.arguments.is_empty() => "BLOB".to_string(),
-                    _ => panic!("Unsupported field type: {}", segment.ident),
+                    rust_type_to_sql_type(generic_ty).0
                 }
+                "Vec" if segment.arguments.is_empty() => "BLOB".to_string(),
+                _ => panic!("Unsupported field type: {}", segment.ident),
             }
-            _ => panic!("Unsupported field type: {:?}", ty),
-        };
+        }
+        _ => panic!("Unsupported field type: {:?}", ty),
+    };
 
-        (type_string, nullable)
-    }
-
-    let (sql_type, nullable) = inner_rust_type_to_sql_type(ty);
-
-    if nullable {
-        sql_type
-    } else {
-        format!("{} NOT NULL", sql_type)
-    }
+    (type_string, nullable)
 }
 
 impl From<Field> for FieldMeta {
@@ -106,13 +102,15 @@ impl From<Field> for FieldMeta {
             .any(|attr| attr.meta.path().is_ident("primary"));
         let name = field.ident.as_ref().unwrap().to_string();
         let ty = field.ty.clone();
-        let sql_type = rust_type_to_sql_type(&field.ty);
+        let (sql_type, optional) = rust_type_to_sql_type(&field.ty);
 
         FieldMeta {
             primary,
             name,
             ty,
-            sql_type,
+            sql_type: if optional { sql_type.clone() } else { format!("{} NOT NULL", sql_type.clone()) },
+            raw_sql_type: sql_type,
+            optional,
         }
     }
 }
