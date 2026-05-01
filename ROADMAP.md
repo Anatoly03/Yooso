@@ -34,8 +34,6 @@
   - [x] Component Fields Metadata Table
   - [x] (Generated) Component Tables
 
-> This is an early sketch of the roadmap. Nothing is certain in this plan.
-
 ## Chapter II: Error Handling, Validation, Refactoring, Documentation
 
 - [x] Add generic Error type
@@ -121,6 +119,8 @@
 - [ ] Security Analytics Tests
   - [ ] Only authenticated superusers can call component endpoints and edit entities.
   - [ ] Users can only read entities existing and attached components.
+
+> This is an early sketch of the roadmap. Nothing is certain below this comment in this plan. 
 
 ## Chapter V: Github CI and Benchmarking
 Introduce CI to benchmark pull request against current standard speed and start profiling. This chapter should also build the first release tag of Yooso project.
