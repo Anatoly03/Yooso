@@ -100,7 +100,7 @@ async function refreshComponentList() {
             // console.log(`Component: ${component.name} (${component.id}), Original Color: ${component.color}, HTML Color: ${htmlColor}`);
             return {
                 id: component.id,
-                name: component.name,
+                name: component.component_name,
                 color: htmlColor,
                 createdAt: component.created_at,
             };

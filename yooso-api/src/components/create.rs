@@ -27,6 +27,7 @@ pub struct CreateComponentField {
 /// TODO: document
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreateComponentResponse {
+    pub success: bool,
     pub metadata: Component,
     pub fields: Vec<ComponentField>,
 }
@@ -114,6 +115,7 @@ pub async fn create_component(
         .collect::<Vec<_>>();
 
     Ok(Json(CreateComponentResponse {
+        success: true,
         metadata: Component {
             id: new_component.id,
             name: new_component.component_name,

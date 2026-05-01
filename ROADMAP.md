@@ -22,7 +22,8 @@
   - [x] Component Fields
     - [x] List
     - [x] Create (Patch Component)
-    - [ ] Edit Field Name (Patch Component, Field Type Migration not supported)
+    - [x] Edit Field Name (Patch Component, Field Type Migration not supported)
+    - [ ] Edit Field Position (Redrag columns)
     - [x] Remove (Patch Component)
   - [x] Component Field Types
     - [x] String
@@ -125,26 +126,29 @@
 ## Chapter V: Github CI and Benchmarking
 Introduce CI to benchmark pull request against current standard speed and start profiling. This chapter should also build the first release tag of Yooso project.
 
-- [ ] Create tag `v0.0.1-preview-0`
+- [ ] Create pre-release tag `v0.1.0`
 - [ ] Benchmarking CI
 
 ## Chapter VI: Demo
 Since this project was inspired by ECS, an. entity-component chat example is needed. This should be capable of submitting messages onto user profile walls, in channels, and as reply to other chat messages.
 
-- [ ] `user` (username: text)
-- [ ] `superuser`
-- [ ] `passauth` (password_hash: text)
-- [ ] `channel` (name: text)
-- [ ] `textchannel`
-- [ ] `audiochannel`
-- [ ] `message` (content: text)
-- [ ] `message_parent` (parent: relation)
+- [ ] Create tag `v0.0.1-demo-0`
+- [ ] Components
+  - [ ] `user` (username: text)
+  - [ ] `superuser`
+  - [ ] `passauth` (password_hash: text)
+  - [ ] `channel` (name: text)
+  - [ ] `textchannel`
+  - [ ] `audiochannel`
+  - [ ] `message` (content: text)
+  - [ ] `message_parent` (parent: relation)
 
 A conventional schema-oriented database would require joining tables and redundant columns pointing to primary keys in other tables.
 
 ## Chapter VII: Powerful Admin Panel
 The home page in the admin UI should be customizable. Boxes counting and listing some queries to provide statistics. For example: "Users: 100", "Messages: 567", etc.
 
+- [ ] Create pre-release tag `v0.1.1`
 - [ ] Themes
   - https://www.naiveui.com/en-US/os-theme/docs/customize-theme
 - [ ] Localization
@@ -156,6 +160,7 @@ The home page in the admin UI should be customizable. Boxes counting and listing
     - [ ] Chinese (use AI or find translators)
 
 ## Chapter VII: Firewall Filter
+- [ ] Create release tag `v0.1.2`
 - [ ] Use existing filters as firewall to ... entities.
   - [ ] List
   - [ ] View
@@ -163,12 +168,13 @@ The home page in the admin UI should be customizable. Boxes counting and listing
   - [ ] Patch
   - [ ] Remove
 
-# Future Chapters (Not Sorted)
-
-## Chapter: File Storage
+## Chapter VIII: File Storage
+- [ ] Create release tag `v0.1.3`
 - [ ] Component Type: 'File'
   - Restriction by Extension `jpg`
   - Restriction by Type `img`
+
+# Future Chapters (Not Sorted)
 
 ## Chapter: In-Memory Components
 Components per default are 'stored', however there should exist 'memory' components which unlocks streaming-like field types. These are useful for data like currently-online users (erased after server restarts), or opened 'rooms' (useful in online video games) and streaming channels.
