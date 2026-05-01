@@ -3,7 +3,6 @@ use rusqlite::types::ValueRef;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use uuid::Uuid;
-use yooso_core::Error::ValidationError;
 use yooso_core::error::Result;
 
 /// Corresponds to a component in the application.
@@ -103,9 +102,9 @@ impl ComponentTable {
 
     /// Validates the component metadata.
     pub fn validate(&self) -> Result<()> {
-        crate::validate::not_empty(&self.component_name, "component name")?;
-        crate::validate::valid_sql_ident(&self.component_name, "component name")?;
-        crate::validate::not_sql_keyword(&self.component_name, "component name")?;
+        crate::validate::not_empty(&self.component_name, format!("component name"))?;
+        crate::validate::valid_sql_ident(&self.component_name, format!("component name"))?;
+        crate::validate::not_sql_keyword(&self.component_name, format!("component name"))?;
 
         Ok(())
     }

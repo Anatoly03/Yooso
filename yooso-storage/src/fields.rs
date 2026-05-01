@@ -1,4 +1,5 @@
 use uuid::Uuid;
+use yooso_core::error::Result;
 
 /// Corresponds to a field of a component in the application.
 #[collection(db = crate::MetaDB, table = "fields")]
@@ -38,15 +39,16 @@ impl ComponentFieldTable {
         db: &crate::MetaDBState,
         component_id: &Uuid,
     ) -> Result<Vec<Self>, ::yooso_core::Error> {
-        let conn = db.0.lock()
-            .map_err(|e| ::yooso_core::Error::from(e))?;
+        let conn = db.0.lock().map_err(|e| ::yooso_core::Error::from(e))?;
 
-        let mut stmt = conn.prepare("SELECT * FROM fields WHERE component_id = ?")
+        let mut stmt = conn
+            .prepare("SELECT * FROM fields WHERE component_id = ?")
             .map_err(|e| ::yooso_core::Error::from(e))?;
 
         stmt.query_map(::rusqlite::params![component_id.to_string()], |row| {
             Ok(Self {
-                id: Uuid::parse_str(&row.get::<_, String>(0)?).map_err(|_| ::rusqlite::Error::InvalidQuery)?,
+                id: Uuid::parse_str(&row.get::<_, String>(0)?)
+                    .map_err(|_| ::rusqlite::Error::InvalidQuery)?,
                 component_id: Uuid::parse_str(&row.get::<_, String>(1)?)
                     .map_err(|_| ::rusqlite::Error::InvalidQuery)?,
                 field_name: row.get(2)?,
@@ -59,5 +61,16 @@ impl ComponentFieldTable {
         .map_err(|e| ::yooso_core::Error::from(e))?
         .collect::<Result<Vec<_>, ::rusqlite::Error>>()
         .map_err(|e| ::yooso_core::Error::from(e))
+    }
+
+    /// Validates the component metadata.
+    pub fn validate(&self) -> Result<()> {
+        let field_name = &self.field_name;
+
+        crate::validate::not_empty(field_name, format!("field name"))?;
+        crate::validate::valid_sql_ident(field_name, format!("field `{field_name}` name"))?;
+        crate::validate::not_sql_keyword(field_name, format!("field name"))?;
+
+        Ok(())
     }
 }

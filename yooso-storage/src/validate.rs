@@ -5,7 +5,7 @@ use yooso_core::Error::ValidationError;
 use yooso_core::error::Result;
 
 /// Validates that the trimmed string value is not empty.
-pub fn not_empty(value: &str, field_name: &str) -> Result<()> {
+pub fn not_empty(value: &str, field_name: String) -> Result<()> {
     if value.trim().is_empty() {
         return Err(ValidationError(format!("{} cannot be empty", field_name)));
     }
@@ -16,7 +16,7 @@ pub fn not_empty(value: &str, field_name: &str) -> Result<()> {
 /// Validates that the string value is a valid SQL identifier. This is a
 /// simple regex check that allows only letters, numbers and underscores, and
 /// does not allow starting with a number.
-pub fn valid_sql_ident(value: &str, field_name: &str) -> Result<()> {
+pub fn valid_sql_ident(value: &str, field_name: String) -> Result<()> {
     let re = Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_]*$").unwrap();
 
     if !re.is_match(value) {
@@ -32,7 +32,7 @@ pub fn valid_sql_ident(value: &str, field_name: &str) -> Result<()> {
 /// Validates that the string value is not a SQL keyword. This is a simple check
 /// against a hardcoded list of common SQL keywords. This is not exhaustive, but
 /// should cover the most common cases.
-pub fn not_sql_keyword(value: &str, field_name: &str) -> Result<()> {
+pub fn not_sql_keyword(value: &str, field_name: String) -> Result<()> {
     const SQL_KEYWORDS: &[&str] = &[
         "select", "from", "where", "insert", "update", "delete", "create", "drop",
         "alter", "table", "index", "view", "trigger", "procedure", "function",

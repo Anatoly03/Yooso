@@ -53,7 +53,7 @@ pub async fn create_component(
     // Validate component metadata before saving to the database.
     new_component.validate()?;
 
-    let new_fields = body
+    let (new_fields, errors) = body
         .fields
         .iter()
         .enumerate()
@@ -63,7 +63,7 @@ pub async fn create_component(
             // the user interface, but use `snake_case` for the database.
             let field_name = field.name.replace('-', "_");
 
-            ComponentFieldTable {
+            let field = ComponentFieldTable {
                 id: uuid::Uuid::now_v7(),
                 component_id: uuid,
                 field_name,
@@ -71,15 +71,31 @@ pub async fn create_component(
                 is_system: field.is_system,
                 position: position as i32,
                 created_at,
-            }
+            };
+
+            // Validate field metadata before saving to the database.
+            field.validate()?;
+
+            Ok(field)
         })
-        .collect::<Vec<_>>();
+        .fold((vec![], vec![]), |(mut fields, mut errors), field_result| {
+            match field_result {
+                Ok(field) => fields.push(field),
+                Err(e) => errors.push(e),
+            }
+            (fields, errors)
+        });
+
+    // If there are any validation errors, return the first one.
+    if let Some(error) = errors.into_iter().next() {
+        return Err(error);
+    }
 
     // Save component and fields to the metadata database.
-    new_component.save(state).await;
+    new_component.save(state).await?;
 
     for field in &new_fields {
-        field.save(state).await;
+        field.save(state).await?;
     }
 
     // Save component schema to the general database.
