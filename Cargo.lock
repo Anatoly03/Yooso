@@ -2236,6 +2236,7 @@ name = "yooso-core"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "rocket",
  "rusqlite",
  "serde",
  "uuid",
@@ -2264,6 +2265,7 @@ dependencies = [
 name = "yooso-storage"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "rusqlite",
  "serde",
  "serde_json",

@@ -9,6 +9,7 @@ rusqlite = ["rusqlite/bundled"]
 # postgres = [] # https://docs.rs/postgres/latest/postgres/#features
 
 [dependencies]
+chrono = { version = "0.4.44", features = [ "serde" ] }
 rusqlite = { version = "0.31", optional = true, features = ["bundled"] }
 serde = "1.0.228"
 serde_json = "1.0"

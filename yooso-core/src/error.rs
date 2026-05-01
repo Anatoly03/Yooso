@@ -1,6 +1,12 @@
 //! This module defines the general Yooso error type.
 
 use std::sync::PoisonError;
+use rocket::response::{self, Responder};
+use rocket::Request;
+use rocket::http::Status;
+use rocket::serde::json::Json;
+use rocket::response::status::Custom;
+use serde::Serialize;
 
 /// General error type for Yooso, which is used in database management as
 /// well as API-level handlers.
@@ -59,5 +65,28 @@ impl std::error::Error for Error {
             Error::UuidError(e) => Some(e),
             Error::MutexPoisoned(_) => None,
         }
+    }
+}
+
+#[derive(Serialize)]
+struct ErrorResponse {
+    success: bool,
+    error: String,
+}
+
+impl<'r> Responder<'r, 'static> for Error {
+    fn respond_to(self, req: &'r Request<'_>) -> response::Result<'static> {
+        let status = match &self {
+            Error::UuidError(_) => Status::BadRequest,
+            Error::MutexPoisoned(_) => Status::InternalServerError,
+            Error::RusqliteError(_) => Status::InternalServerError,
+        };
+
+        let body = ErrorResponse {
+            success: false,
+            error: format!("{}", self),
+        };
+
+        Custom(status, Json(body)).respond_to(req)
     }
 }

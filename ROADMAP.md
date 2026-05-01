@@ -44,7 +44,7 @@
   - [ ] Entities
     - [ ] List (Entities)
     - [ ] View (Components per Entity)
-    - [ ] Create (Entity)
+    - [x] Create (Entity)
     - [ ] Remove (Entity)
     - [ ] Patch (Components per Entity)
       - [ ] Add (Components to Entity)

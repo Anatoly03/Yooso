@@ -254,6 +254,8 @@ pub fn collection(
                     {
                         let value = row.get::<_, String>(#index)?;
                         ::uuid::Uuid::parse_str(&value)
+                            // we map the error to rusqlite::Error to propagate the
+                            // error as internal server error, not invalid user input.
                             .map_err(|_| ::rusqlite::Error::InvalidQuery)?
                     }
                 }
