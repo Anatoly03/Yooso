@@ -71,6 +71,7 @@ const emit = defineEmits({
 const componentColorByName = computed(() => {
     const map = new Map<string, string>();
     for (const component of props.allComponents) {
+        console.log(component);
         map.set(component.value.toLowerCase(), component.color);
     }
     return map;

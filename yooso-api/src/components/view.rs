@@ -1,43 +1,41 @@
-//! TODO: document
+//! Defines the component view endpoint.
 
-use rocket::serde::json::{Json, Value, json};
+use rocket::serde::json::Json;
 use rocket::{State, get};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use yooso_core::error::Result;
 use yooso_core::{Component, ComponentField};
 use yooso_storage::{ComponentFieldTable, ComponentTable, MetaDBState};
 
-/// TODO: document
+/// Response structure for viewing a component.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ViewComponentResponse {
     pub metadata: Component,
     pub fields: Vec<ComponentField>,
 }
 
-/// TODO: document
-#[get("/view/<id>")]
+/// Endpoint for viewing a component by its UUID.
+/// 
+/// # Example Request
+/// 
+/// ```http
+/// GET /view/123e4567-e89b-12d3-a456-426614174000
+/// ```
+/// 
+/// # Example Response
+/// 
+/// 
+#[get("/view/<uuid>")]
 pub async fn view_component(
     state: &State<MetaDBState>,
-    id: &str,
-) -> Result<Json<ViewComponentResponse>, Json<Value>> {
-    let uuid = Uuid::parse_str(id).map_err(|err| {
-        json! ({
-            "success": false,
-            "error": format!("invalid UUID: {err}"),
-        })
-    })?;
+    uuid: &str,
+) -> Result<Json<ViewComponentResponse>> {
+    let id = Uuid::parse_str(&uuid)?;
+    let component = ComponentTable::view(state, &id).await?;
+    let fields = ComponentFieldTable::list_by_component_id(state, &component.id).await?;
 
-    let component = ComponentTable::view(state, &uuid)
-        .await
-        .expect("failed to view component");
-
-    let fields = ComponentFieldTable::list_by_component_id(state, &component.id)
-        .await
-        .expect("failed to view component fields");
-
-    // Convert underscore to minus in component name. (Convention
-    // transformation between database and user interface).
-    let name = component.component_name.replace('_', "-");
+    let name = component.component_name;
 
     Ok(Json(ViewComponentResponse {
         metadata: Component {
@@ -50,9 +48,7 @@ pub async fn view_component(
         fields: fields
             .into_iter()
             .map(|field| {
-                // Convert underscore to minus in field name. (Convention
-                // transformation between database and user interface).
-                let name = field.field_name.replace('_', "-");
+                let name = field.field_name;
 
                 ComponentField {
                     id: field.id,

@@ -366,6 +366,8 @@ async function submitAddComponent() {
             body: JSON.stringify(payload),
         });
 
+        console.log(response);
+
         const result = await response.json();
         if (!response.ok || !result.success) {
             throw new Error(result.error || result.message || 'Failed to add component to entity');

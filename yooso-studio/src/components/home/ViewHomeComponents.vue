@@ -62,6 +62,7 @@ async function openEditComponentDrawer(id: string) {
     editComponentCreatedAt.value = row.createdAt;
     editComponentIsNew.value = false;
     editComponentLoadingRef.value = true;
+    editComponentSubmittingRef.value = false;
 
     const componentData = await viewComponent(row.id);
     if (componentData) {

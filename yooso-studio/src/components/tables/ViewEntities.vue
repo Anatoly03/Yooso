@@ -108,8 +108,8 @@ async function fetchComponentOptions() {
 
         availableComponents.value = result.components.map((component: any) => ({
             id: component.id,
-            label: component.name,
-            value: component.name,
+            label: component.component_name,
+            value: component.component_name,
             color: '#' + component.color.toString(16).padStart(6, '0'),
         }));
     } catch (error) {

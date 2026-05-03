@@ -87,9 +87,7 @@ pub async fn add_component(
         let mut v = vec![format!("'{}'", entity_uuid)];
 
         for field in &schema {
-            // Convert underscore to minus in component name. (Convention
-            // transformation between database and user interface).
-            let name = field.field_name.replace('_', "-");
+            let name = field.field_name.clone();
 
             let data = match body.get(name.as_str()) {
                 Some(data) => data,
