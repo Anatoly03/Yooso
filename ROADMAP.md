@@ -54,7 +54,7 @@
       - [ ] Edit (Components of Entity)
       - [ ] Remove (Components of Entity)
   - [ ] Components
-    - [ ] List (Components)
+    - [x] List (Components)
     - [ ] View (Component Fields and Meta)
     - [x] Create Component
     - [ ] Patch Name and Color

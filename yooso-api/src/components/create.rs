@@ -1,4 +1,4 @@
-//! TODO: document
+//! Defines the component creation endpoint.
 
 use rocket::serde::json::Json;
 use rocket::{State, post};
@@ -59,15 +59,10 @@ pub async fn create_component(
         .iter()
         .enumerate()
         .map(|(position, field)| {
-            // Convert minus to underscore in field name to make it a
-            // valid SQL table name. We keep the `dash-case` convention for
-            // the user interface, but use `snake_case` for the database.
-            let field_name = field.name.replace('-', "_");
-
             let field = ComponentFieldTable {
                 id: uuid::Uuid::now_v7(),
                 component_id: uuid,
-                field_name,
+                field_name: field.name.clone(),
                 field_type: field.field_type.clone(),
                 is_system: field.is_system,
                 position: position as i32,
