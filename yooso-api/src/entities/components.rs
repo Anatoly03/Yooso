@@ -71,12 +71,7 @@ pub async fn add_component(
         let mut v = vec!["entity_id".to_string()];
 
         for field in &schema {
-            // Convert minus to underscore in field name to make it a
-            // valid SQL table name. We keep the `dash-case` convention for
-            // the user interface, but use `snake_case` for the database.
-            let field_name = field.field_name.replace('-', "_");
-
-            v.push(field_name);
+            v.push(field.field_name.clone());
         }
 
         v

@@ -320,6 +320,7 @@ pub fn collection(
     };
 
     quote! {
+        #[derive(Clone)]
         #[doc = concat!("Abstraction of the collection table `", #table_name, "`")]
         #[doc = concat!("in the database [", stringify!(#db_struct_name), "][", #db_struct_name_display, "].")]
         #(#strucc_attr)*
@@ -412,6 +413,17 @@ pub fn collection(
                 item.map_err(|e| ::yooso_core::Error::from(e))
             }
 
+            /// Syncs the current struct instance with the database by updating its fields
+            /// to match the current values in the database.
+            /// 
+            /// This downloads the database entry into the struct, overwriting all fields, opposite
+            /// of [save][Self::save] which uploads the current struct to the database.
+            pub async fn sync(&mut self, db: &#db_state_struct_name) -> Result<Self, ::yooso_core::Error> {
+                let previous = self.clone();
+                *self = Self::view(db, #(&self.#primary_key_idents),*).await?;
+                Ok(previous)
+            }
+
             /// Lists all rows in the collection's table, returning them as a vector.
             ///
             /// **This method is not optimized for large tables and should only be used for
@@ -458,6 +470,9 @@ pub fn collection(
 
             /// Saves the current struct instance as a new row in the collection's
             /// table.
+            /// 
+            /// This uploads the struct to the the database entry, opposite of [sync][Self::sync]
+            /// which downloads the database entry to the current struct.
             ///
             /// # Query
             ///

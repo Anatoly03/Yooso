@@ -110,7 +110,11 @@ impl ComponentTable {
     }
 
     /// Creates the dynamic table for this component in the general database.
-    pub async fn create_dynamic_table(&self, general_state: &crate::GeneralDBState, fields: &[ComponentFieldTable]) -> Result<()> {
+    pub async fn create_dynamic_table(
+        &self,
+        general_state: &crate::GeneralDBState,
+        fields: &[ComponentFieldTable],
+    ) -> Result<()> {
         let mut sql_fields = vec!["entity_id UUID PRIMARY KEY".to_string()];
 
         sql_fields.extend(
@@ -131,7 +135,8 @@ impl ComponentTable {
             eprintln!("\x1b[90m{query}\x1b[0m");
         }
 
-        general_state.0
+        general_state
+            .0
             .lock()
             .map_err(|e| yooso_core::Error::from(e))?
             .execute(&query, [])
@@ -141,7 +146,11 @@ impl ComponentTable {
     }
 
     /// Deletes the component and the dynamic table for this component in the general database.
-    pub async fn delete_recursive(&self, state: &crate::MetaDBState, general_state: &crate::GeneralDBState) -> Result<()> {
+    pub async fn delete_recursive(
+        &self,
+        state: &crate::MetaDBState,
+        general_state: &crate::GeneralDBState,
+    ) -> Result<()> {
         // Delete the component from the meta database.
         self.delete(state).await?;
 
@@ -159,6 +168,77 @@ impl ComponentTable {
 
         conn.execute(&drop_table_query, [])
             .map_err(|e| yooso_core::Error::from(e))?;
+
+        Ok(())
+    }
+
+    /// Rename the underlying dynamic table. On success returns a boolean whether
+    /// a name change occured.
+    pub async fn confirm_rename(
+        &self,
+        state: &crate::MetaDBState,
+        general_state: &crate::GeneralDBState,
+    ) -> Result<bool> {
+        // First retrieve the old component name from the database.
+        let old = Self::view(state, &self.id).await?;
+
+        if old.component_name == self.component_name {
+            // No name change, so we can skip the rename query.
+            return Ok(false);
+        }
+
+        // Query to rename the table in the general database.
+        let rename_table_query = format!(
+            "ALTER TABLE {} RENAME TO {}",
+            old.component_name, self.component_name
+        );
+
+        // Run the query
+        let conn = general_state
+            .0
+            .lock()
+            .map_err(|e| yooso_core::Error::from(e))?;
+
+        if cfg!(debug_assertions) {
+            eprintln!("\x1b[90m{rename_table_query}\x1b[0m");
+        }
+
+        conn.execute(&rename_table_query, [])
+            .map_err(|e| yooso_core::Error::from(e))?;
+
+        Ok(true)
+    }
+
+    /// Deletes the specified field entry.
+    pub async fn delete_field(
+        &self,
+        state: &crate::MetaDBState,
+        general_state: &crate::GeneralDBState,
+        field_id: &Uuid,
+    ) -> Result<()> {
+        let field = ComponentFieldTable::view(state, field_id).await?;
+
+        // TODO: use a proper SQL query builder library instead of string concatenation to
+        // prevent SQL injection and handle edge cases.
+        // https://database.guide/add-a-column-to-an-existing-table-in-sqlite/
+        let drop_column_query = format!(
+            "ALTER TABLE {} DROP COLUMN {}",
+            self.component_name, field.field_name
+        );
+
+        let conn = general_state
+            .0
+            .lock()
+            .map_err(|e| yooso_core::Error::from(e))?;
+
+        if cfg!(debug_assertions) {
+            eprintln!("\x1b[90m{drop_column_query}\x1b[0m");
+        }
+
+        conn.execute(&drop_column_query, [])
+            .map_err(|e| yooso_core::Error::from(e))?;
+
+        field.delete(state).await?;
 
         Ok(())
     }

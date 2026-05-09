@@ -40,14 +40,14 @@ pub async fn delete_entity(
             })?;
 
         for component in component_tables {
-            let table_name = component.component_name.replace('"', "\"\"");
+            let table_name = component.component_name.clone();
             let query = format!("DELETE FROM \"{}\" WHERE entity_id = ?", table_name);
 
             conn.execute(&query, [id.to_string()])
                 .map_err(|err| {
                     Json(json!({
                         "success": false,
-                        "message": format!("Failed to delete component data from {}: {}", component.component_name, err),
+                        "message": format!("Failed to delete component data from {}: {}", table_name, err),
                     }))
                 })?;
         }
