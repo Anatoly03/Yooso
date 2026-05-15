@@ -76,7 +76,14 @@ jobs:
         with:
           url: http://localhost:3000
           output: preview/yooso-studio.png
-          # potentially add scriptBefore here tto run on the client  
+          mode: page
+          # set viewport to high resolution with device pixel ratio 2 (retina)
+          # give the app a little time to stabilise
+          scriptBefore: |
+            (async () => {
+              await page.setViewport({ width: 1600, height: 1200, deviceScaleFactor: 2 });
+              await page.waitForTimeout(500);
+            })();
 
       - name: Upload screenshot artifact
         uses: actions/upload-artifact@v4

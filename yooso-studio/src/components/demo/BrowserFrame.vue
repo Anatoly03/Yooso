@@ -13,23 +13,31 @@
             <div class="url">
                 <span>{{ sampleUrl }}{{ $route.fullPath }}</span>
             </div>
+            <div class="buttons">
+                <n-icon><ChevronBack /></n-icon>
+                <n-icon><ChevronForward /></n-icon>
+                <n-icon><Refresh /></n-icon>
+            </div>
         </div>
         <slot></slot>
     </div>
 </template>
 
 <script setup lang="ts">
-const sampleUrl = "https://yooso.demo";
+import { NIcon } from 'naive-ui';
+import { ChevronBack, ChevronForward, Refresh } from '@vicons/ionicons5';
+
+const sampleUrl = 'https://yooso.demo';
 </script>
 
 <style lang="scss" scoped>
 .app-browser-frame {
     display: flex;
-    max-width: calc(100vw - 40px);
+    max-width: calc(100vw - 20px);
     flex-direction: column;
     width: 100%;
     height: 100%;
-    margin: 20px;
+    margin: 10px;
     border: 1px solid gray;
     border-radius: 8px;
     overflow: hidden;
@@ -37,14 +45,15 @@ const sampleUrl = "https://yooso.demo";
     .header {
         display: flex;
         align-items: center;
-        padding: 4px 12px;
+        gap: 12px;
+        padding: 6px 12px;
         background-color: #f0f0f0;
-        border-bottom: 1px solid gray;
+        border-bottom: 1px solid #d0d0d0;
 
         .buttons {
             display: flex;
             gap: 8px;
-            margin-right: 16px;
+            flex: 0 0 auto;
 
             .button {
                 width: 12px;
@@ -52,25 +61,23 @@ const sampleUrl = "https://yooso.demo";
                 border-radius: 50%;
                 background-color: gray;
 
-                &.red {
-                    background-color: #ff5f56;
-                }
-                &.yellow {
-                    background-color: #ffbd2e;
-                }
-                &.green {
-                    background-color: #27c93f;
-                }
+                &.red { background-color: #ff5f56; }
+                &.yellow { background-color: #ffbd2e; }
+                &.green { background-color: #27c93f; }
             }
         }
 
         .url {
-            flex: 1;
+            flex: 1 1 auto;
+            min-width: 0; /* allow ellipsis on overflow */
             font-size: 14px;
             color: #555;
-            padding: 2px 10px;
-            background-color: #e0e0e0;
-            border-radius: 4px;
+            padding: 4px 12px;
+            background-color: #eaeaea;
+            border-radius: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
     }
 }
