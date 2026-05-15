@@ -7,6 +7,7 @@ on:
       - yooso-*/**
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  workflow_call:
 env: 
   CARGO_TERM_COLOR: always
 

@@ -1,0 +1,101 @@
+# Upon pushing to main branch, start a workflow to serve the server and client
+# and take preview images of Yooso Studio.
+
+# See:
+# https://github.com/karol-brejna-i/webpage-screenshot-action (Take screenshot)
+# ... (Push on gh-pages branch)
+
+name: Yooso Studio Preview
+
+on:
+  push: 
+    branches: [main]
+    paths:
+      - yooso-studio/**
+      - .github/workflows/preview.yml
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: ./.github/workflows/cargo.yml
+  build-frontend:
+    runs-on: ubuntu-latest
+    name: Build Yooso Studio Frontend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+      - run: npm ci --workspace yooso-studio
+      - run: npm run build --workspace yooso-studio
+
+  preview:
+    name: Generate Yooso Studio Preview
+    needs: [build, build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+      
+      - name: Start Yooso Project (Backend)
+        run: |
+          cargo install --path yooso-example
+          yooso-example &
+          echo $! > backend.pid
+
+      - name: Start Yooso Studio (Frontend)
+        run: |
+          npx serve -s yooso-studio/dist -l 3000 &
+          echo $! > frontend.pid
+
+      - name: Wait for Backend to start
+        run: npx wait-on http://localhost:8000 --timeout 5000
+
+      - name: Wait for Client to start
+        run: npx wait-on http://localhost:3000 --timeout 5000
+
+      - name: Take Screenshot of Yooso Studio
+        uses: karol-brejna-i/webpage-screenshot-action@v1
+        with:
+          url: http://localhost:3000
+          output: preview/yooso-studio.png
+          # potentially add scriptBefore here tto run on the client  
+
+      - name: Upload screenshot artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-preview
+          path: preview/yooso-studio.png
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: preview
+
+      - name: Cleanup Active Processes
+        if: always()
+        run: |
+          if [ -f backend.pid ]; then
+            kill $(cat backend.pid) || true
+            rm backend.pid
+          fi
+
+          if [ -f frontend.pid ]; then
+            kill $(cat frontend.pid) || true
+            rm frontend.pid
+          fi
