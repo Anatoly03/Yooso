@@ -26,6 +26,7 @@ concurrency:
 jobs:
   build:
     uses: ./.github/workflows/cargo.yml
+
   build-frontend:
     runs-on: ubuntu-latest
     name: Build Yooso Studio Frontend
