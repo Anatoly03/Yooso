@@ -1,10 +1,11 @@
 //! TODO: document
 
-use rocket::serde::json::{Json, Value, json};
+use rocket::serde::json::{Json, json};
 use rocket::{State, patch};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use yooso_core::Component;
+use yooso_core::error::Result;
 use yooso_storage::{ComponentFieldTable, ComponentTable, GeneralDBState, MetaDBState};
 
 /// TODO: document
@@ -29,6 +30,28 @@ pub struct PatchFieldRequest {
     pub operation: PatchFieldOperation,
 }
 
+// #[derive(Debug, Clone, Serialize, Deserialize)]
+// #[serde(tag = "operation")]
+// pub enum PatchFieldRequest {
+//     #[serde(rename = "add")]
+//     AddField {
+//         name: String,
+//         is_system: bool,
+//         field_type: String,
+//     },
+//     #[serde(rename = "update")]
+//     UpdateField {
+//         id: Uuid,
+//         name: String,
+//         is_system: bool,
+//         field_type: String,
+//     },
+//     #[serde(rename = "remove")]
+//     DeleteField {
+//         id: Uuid,
+//     },
+// }
+
 /// TODO: document
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 pub enum PatchFieldOperation {
@@ -46,21 +69,30 @@ pub async fn update_component(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,
     body: Json<PatchComponentRequest>,
-) -> Result<Json<Component>, Json<Value>> {
-    // Convert minus to underscore in component name to make it a
-    // valid SQL table name. We keep the `dash-case` convention for
-    // the user interface, but use `snake_case` for the database.
-    let component_name = body.name.replace('-', "_");
-
+) -> Result<Json<Component>> {
     let new_component = ComponentTable {
         id: body.id,
-        component_name,
+        component_name: body.name.clone(),
         is_system: body.is_system,
         color: body.color,
         created_at: body.created_at,
     };
 
-    new_component.save(state).await;
+    new_component.validate()?;
+    new_component.save(state).await?;
+
+    // // Process Deletions
+    // for field_uuid in body
+    //     .fields
+    //     .iter()
+    //     .filter_map(|f| match f {
+    //         PatchFieldRequest::DeleteField { id } => Some(*id),
+    //         _ => None,
+    //     })
+    // {
+    //     ComponentFieldTable { id: field_uuid, ..Default::default() }
+    //         .delete(state)
+    //         .await?;
 
     // Process Deletions
     for field in body
@@ -69,11 +101,11 @@ pub async fn update_component(
         .filter(|f| f.operation == PatchFieldOperation::Remove)
     {
         ComponentFieldTable {
-            id: field.id.ok_or(json!({
-                "error": "Invalid field ID"
-            }))?,
+            id: field.id.ok_or(yooso_core::error::Error::ValidationError("Invalid field ID".into()))?,
             ..Default::default()
-        }.delete(state).await;
+        }
+        .delete(state)
+        .await?;
 
         // Alter the table in the general database to drop the column for this field.
         let alter_table_query = sql_query_alter_table_drop_column(&new_component, field.clone());
@@ -112,7 +144,9 @@ pub async fn update_component(
             is_system: field.is_system,
             position: 0, // TODO: determine position
             created_at: chrono::Utc::now().timestamp_millis(),
-        }.save(state).await;
+        }
+        .save(state)
+        .await?;
 
         // Alter the table in the general database to add the new column for this field.
         let alter_table_query = sql_query_alter_table_add_column(&new_component, field.clone());
@@ -138,7 +172,10 @@ pub async fn update_component(
 // TODO: use a proper SQL query builder library instead of string concatenation to
 // prevent SQL injection and handle edge cases.
 // https://database.guide/add-a-column-to-an-existing-table-in-sqlite/
-fn sql_query_alter_table_add_column(component: &ComponentTable, field: PatchFieldRequest) -> String {
+fn sql_query_alter_table_add_column(
+    component: &ComponentTable,
+    field: PatchFieldRequest,
+) -> String {
     format!(
         "ALTER TABLE {} ADD COLUMN {} {}",
         component.component_name,
@@ -152,11 +189,13 @@ fn sql_query_alter_table_add_column(component: &ComponentTable, field: PatchFiel
 // TODO: use a proper SQL query builder library instead of string concatenation to
 // prevent SQL injection and handle edge cases.
 // https://database.guide/add-a-column-to-an-existing-table-in-sqlite/
-fn sql_query_alter_table_drop_column(component: &ComponentTable, field: PatchFieldRequest) -> String {
+fn sql_query_alter_table_drop_column(
+    component: &ComponentTable,
+    field: PatchFieldRequest,
+) -> String {
     format!(
         "ALTER TABLE {} DROP COLUMN {}",
-        component.component_name,
-        field.name
+        component.component_name, field.name
     )
 }
 
