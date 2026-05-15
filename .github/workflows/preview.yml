@@ -51,6 +51,9 @@ jobs:
           npx serve -s yooso-studio/dist -l 3000 &
           echo $! > frontend.pid
 
+      - name: Create preview output directory (if not exists)
+        run: mkdir -p preview
+
     #   - name: Wait for Backend to start
     #     run: npx wait-on http://localhost:8000 --timeout 5000
 
