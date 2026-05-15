@@ -35,8 +35,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '22'
-      - run: npm ci --workspace yooso-studio
-      - run: npm run build --workspace yooso-studio
+      - run: npm ci
+      - run: npm run build
 
   preview:
     name: Generate Yooso Studio Preview
