@@ -115,23 +115,8 @@ async function createComponent() {
         });
 }
 
-async function viewComponent(id = editComponentId.value): Promise<any> {
-    try {
-        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/view/' + id);
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to create/update component');
-        }
-
-        const result = await response.json();
-
-        return result;
-    } catch (error: any) {
-        console.error('Error creating/updating component:', error);
-        editComponentError.value = error.message || String(error);
-        return null;
-    }
+async function viewComponent(id = editComponentId.value) {
+    return yooso.components().subscribeErrorRef(editComponentError).view(id);
 }
 
 async function patchComponent() {

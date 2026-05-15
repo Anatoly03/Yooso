@@ -4,6 +4,21 @@
 
 import Yooso from './yooso';
 
+export type Field = {
+    /**
+     * The name of the field. This is a string that must be a valid SQL identifier and not a SQL keyword.
+     */
+    name: string;
+    /**
+     * The type of the field.
+     */
+    field_type: string;
+    /**
+     * Indicates whether the field is a system field.
+     */
+    is_system: boolean;
+};
+
 /**
  * Represents a component in the Yooso system.
  */
@@ -46,20 +61,15 @@ export type CreateComponentRequest = {
     /**
      * Array of fields in the component.
      */
-    fields: {
-        /**
-         * The name of the field. This is a string that must be a valid SQL identifier and not a SQL keyword.
-         */
-        name: string;
-        /**
-         * The type of the field.
-         */
-        field_type: string;
-        /**
-         * Indicates whether the field is a system field.
-         */
-        is_system: boolean;
-    }[];
+    fields: Field[];
+};
+
+/**
+ * Represents a component with its fields in the Yooso system.
+ */
+export type ViewComponent = {
+    metadata: Component;
+    fields: Field[];
 };
 
 /**
@@ -164,6 +174,30 @@ export default class YoosoComponentManager {
         } catch (e) {
             this.setLoading(false);
             this.setError((e as Error).message || 'An unknown error occurred while creating a component');
+        }
+    }
+
+    /**
+     * Views a component by its UUID. If an error occurs, returns the empty array.
+     */
+    public async view(uuid: string): Promise<ViewComponent | null> {
+        try {
+            this.setLoading(true);
+            const response = await this.yooso.get(`/api/components/${uuid}`);
+            const result = await response.json();
+            this.setLoading(false);
+
+            if (!result.success) {
+                this.setError(result.message || 'Failed to view component');
+                return null;
+            }
+
+            this.setError(null);
+            return result.components;
+        } catch (e) {
+            this.setLoading(false);
+            this.setError((e as Error).message || 'An unknown error occurred while viewing a component');
+            return null;
         }
     }
 }
