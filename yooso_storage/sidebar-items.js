@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["validate"],"struct":["ComponentFieldTable","ComponentTable","EntityTable","GeneralDB","GeneralDBState","LogDB","LogDBState","LogRecordTable","MetaDB","MetaDBState"]};
+window.SIDEBAR_ITEMS = {"struct":["ComponentFieldTable","ComponentTable","EntityTable","GeneralDB","GeneralDBState","LogDB","LogDBState","LogRecordTable","MetaDB","MetaDBState"]};

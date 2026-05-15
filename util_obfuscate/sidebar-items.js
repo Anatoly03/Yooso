@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["OBFUSCATION_MASK"],"fn":["obfuscate"],"struct":["Obfuscated"]};

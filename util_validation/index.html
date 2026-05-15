@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A utility crate for securing code logic with unknown values and ensuring validation of data."><title>util_validation - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-b7b9f40b.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="util_validation" data-themes="" data-resource-suffix="" data-rustdoc-version="1.95.0 (59807616e 2026-04-14)" data-channel="1.95.0" data-search-js="search-63369b7b.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-170eb4bf.js" ><script src="../static.files/storage-41dd4d93.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-5013f961.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate util_validation</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../util_validation/index.html">util_<wbr>validation</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li><li><a href="#features" title="Features">Features</a></li><li><a href="#semantics" title="Semantics">Semantics</a></li></ul><h3><a href="#structs">Crate Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1>Crate <span>util_<wbr>validation</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/util_validation/lib.rs.html#1-250">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A utility crate for securing code logic with unknown values and ensuring validation
+of data.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>util_validation::{Validated, ValidationError, ValidateFrom};
+
+<span class="kw">pub struct </span>RgbColor { red: u8, green: u8, blue: u8 }
+
+<span class="kw">impl </span>ValidateFrom&lt;<span class="kw-2">&amp;</span>str&gt; <span class="kw">for </span>RgbColor {
+    <span class="kw">fn </span>validate(input: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Validated&lt;<span class="self">Self</span>&gt;, ValidationError&gt; {
+        <span class="comment">// has to start with '#' and be followed by 6 hex digits
+        </span><span class="kw">if </span>!input.starts_with(<span class="string">'#'</span>) || input.len() != <span class="number">7 </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ValidationError::new(<span class="string">"Invalid RGB color format"</span>));
+        }
+
+        <span class="comment">// Parse the hex values
+        </span><span class="kw">let </span>red = u8::from_str_radix(<span class="kw-2">&amp;</span>input[<span class="number">1</span>..<span class="number">3</span>], <span class="number">16</span>).map_err(|<span class="kw">_</span>| ValidationError::new(<span class="string">"Invalid red component"</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>green = u8::from_str_radix(<span class="kw-2">&amp;</span>input[<span class="number">3</span>..<span class="number">5</span>], <span class="number">16</span>).map_err(|<span class="kw">_</span>| ValidationError::new(<span class="string">"Invalid green component"</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>blue = u8::from_str_radix(<span class="kw-2">&amp;</span>input[<span class="number">5</span>..<span class="number">7</span>], <span class="number">16</span>).map_err(|<span class="kw">_</span>| ValidationError::new(<span class="string">"Invalid blue component"</span>))<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(Validated(RgbColor { red, green, blue }))
+    }
+}
+
+<span class="kw">fn </span>main() {
+    <span class="kw">let </span>color_str = <span class="string">"#FF5733"</span>;
+    <span class="kw">let </span>invalid_color_str = <span class="string">"FF5733"</span>;
+
+    <span class="macro">assert!</span>(RgbColor::validate(color_str).is_ok());
+    <span class="macro">assert!</span>(RgbColor::validate(invalid_color_str).is_err());
+}</code></pre></div><h2 id="features"><a class="doc-anchor" href="#features">§</a>Features</h2>
+<ul>
+<li><code>util</code>: Enables utility functions for validation, such as common validation patterns
+and helper functions.</li>
+<li><code>uuid</code>: Enables validation for UUID types. This allows you to validate UUIDs from
+strings and ensure they are in the correct format.</li>
+</ul>
+<h2 id="semantics"><a class="doc-anchor" href="#semantics">§</a>Semantics</h2>
+<p>Error messages should be short, concise and contextless. The context can be prepended
+along the stack of validation calls. The final error messages grows from the right to
+the left.</p>
+<div class="example-wrap"><pre class="language-text"><code>Error validating input: Component Name: Value must not be the SQL keyword `select`</code></pre></div>
+<p>For example the method <a href="fn.not_sql_keyword.html" title="fn util_validation::not_sql_keyword">not_sql_keyword</a> does not need to know the field name, and
+speaks with words like “value” instead of specific field names. The context should be
+added by the caller.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Validated.html" title="struct util_validation::Validated">Validated</a></dt><dd>A wrapper type that indicates that the inner value has been validated. This is
+used to ensure code logic that requires validated data can only be called with
+prior validation. Validated data is immutable, but the valid state can be dropped.</dd><dt><a class="struct" href="struct.ValidationError.html" title="struct util_validation::ValidationError">Validation<wbr>Error</a></dt><dd>An error type for validation errors. This can be used to provide more context about
+why an input validation fails.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.ValidateFrom.html" title="trait util_validation::ValidateFrom">Validate<wbr>From</a></dt><dd>A trait for types that can be validated. The <code>validate</code> method should return a
+<a href="struct.Validated.html" title="struct util_validation::Validated">Validated</a> wrapper around the original type</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.not_empty.html" title="fn util_validation::not_empty">not_<wbr>empty</a></dt><dd>Validates that the trimmed string value is not empty. This is a common
+validation pattern to assert a string is not just common whitespace.</dd><dt><a class="fn" href="fn.not_sql_keyword.html" title="fn util_validation::not_sql_keyword">not_<wbr>sql_<wbr>keyword</a></dt><dd>Validates that the string value is not a SQL keyword. This is a simple check
+against a hardcoded list of common SQL keywords. This is not exhaustive, but
+should cover the most common cases.</dd><dt><a class="fn" href="fn.valid_sql_ident.html" title="fn util_validation::valid_sql_ident">valid_<wbr>sql_<wbr>ident</a></dt><dd>Validates that the string value is a valid SQL identifier.</dd><dt><a class="fn" href="fn.validate.html" title="fn util_validation::validate">validate</a></dt><dd>A helper function to validate an input value using the <a href="trait.ValidateFrom.html" title="trait util_validation::ValidateFrom">ValidateFrom</a> trait. This
+is a convenient way to perform validation without having to directly call the trait
+method.</dd></dl></section></div></main></body></html>
