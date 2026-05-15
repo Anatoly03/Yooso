@@ -91,10 +91,11 @@
 - [ ] Client Documentation
   - [ ] Github CI
   - [ ] `yooso-studio`
+  - [ ] `yooso-js`
 - [ ] Refactor
   - [ ] Enforce `snake_case` everywhere.
   - [ ] Error Handling in Api.
-  - [ ] Refactor Client networking to separate module.
+  - [ ] Refactor Client networking to separate module: `yooso.js` 
     - [ ] Error Handling in Client.
     - [ ] Add 'loading' indicator to everything
   - [ ] Use Naive UI messages for notification communication bottom right.
