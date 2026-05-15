@@ -9,3 +9,6 @@ node_modules
 # Local
 local
 .yooso
+
+# Documentation
+docs

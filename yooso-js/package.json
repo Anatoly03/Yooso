@@ -1,0 +1,17 @@
+{
+    "name": "@yooso/yooso.js",
+    "version": "0.0.0",
+    "description": "Yooso API Bindings",
+    "typings": "dist/index.d.ts",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc",
+        "docs": "npx typedoc src"
+    },
+    "keywords": [],
+    "author": "Yooso Project",
+    "license": "ISC",
+    "files": [
+        "dist"
+    ]
+}

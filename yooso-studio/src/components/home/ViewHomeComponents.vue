@@ -29,6 +29,7 @@
 <script setup lang="ts">
 import { NButton, NButtonGroup, NForm, NDrawer, NDrawerContent } from 'naive-ui';
 import { onMounted, ref } from 'vue';
+import yooso from '../../services/yooso';
 
 import EditComponentLabel from '../ui/EditComponentLabel.vue';
 import ViewFieldsEditor, { type ComponentField } from '../tables/ViewFieldsEditor.vue';
@@ -83,69 +84,35 @@ function openCreateNewComponentDrawer() {
 }
 
 async function refreshComponentList() {
-    loadingRef.value = true;
-
-    try {
-        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/list');
-        const result = await response.json();
-
-        if (!result.success) throw new Error(result.message || 'Failed to fetch components');
-
-        // Map color to HTML approved format
-        data.value = result.components.map((component: any) => {
-            let htmlColor = '#' + component.color.toString(16).padStart(6, '0');
-
-            // console.log(`Component: ${component.name} (${component.id}), Original Color: ${component.color}, HTML Color: ${htmlColor}`);
-            return {
+    yooso
+        .components()
+        .subscribeLoadingRef(loadingRef)
+        .list()
+        .then((result) => {
+            data.value = result.map((component: any) => ({
                 id: component.id,
                 name: component.component_name,
-                color: htmlColor,
+                color: '#' + component.color.toString(16).padStart(6, '0'),
                 createdAt: component.created_at,
-            };
+            }));
         });
-    } catch (error: any) {
-        console.error('Error fetching components:', error);
-    }
-
-    loadingRef.value = false;
 }
 
 async function createComponent() {
-    editComponentSubmittingRef.value = true;
-
-    try {
-        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: editComponentName.value,
-                is_system: false,
-                fields: editComponentFields.value,
-                color: parseInt(editComponentColor.value.replace('#', ''), 16),
-            }),
+    yooso
+        .components()
+        .subscribeLoadingRef(editComponentSubmittingRef)
+        .subscribeErrorRef(editComponentError)
+        .create({
+            name: editComponentName.value,
+            is_system: false,
+            fields: editComponentFields.value,
+            color: parseInt(editComponentColor.value.replace('#', ''), 16),
+        })
+        .then(() => {
+            refreshComponentList();
+            editComponent.value = false;
         });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to create/update component');
-        }
-
-        await response.json();
-        // console.log('Component created/updated:', result);
-
-        refreshComponentList();
-    } catch (error: any) {
-        console.error('Error creating/updating component:', error);
-        editComponentError.value = error.message || String(error);
-        editComponentSubmittingRef.value = false;
-        return;
-    }
-
-    editComponent.value = false;
-    editComponentError.value = null;
-    editComponentSubmittingRef.value = false;
 }
 
 async function viewComponent(id = editComponentId.value): Promise<any> {
