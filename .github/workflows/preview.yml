@@ -37,6 +37,10 @@ jobs:
           node-version: '22'
 
       - run: npm ci
+
+      - name: "Build client dependency: yooso.js"
+        run: npm run build-library
+
       - name: Build client in demo mode
         run: npm run build --workspace=yooso-studio -- --mode demo
 

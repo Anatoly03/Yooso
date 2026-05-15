@@ -19,7 +19,7 @@ export default class Yooso {
      * The hostname of the server, trimmed of the protocol and path.
      * Resulting values are for example `yooso.com` or `localhost:8080`.
      */
-    private hostname: string = null!;
+    private hostname: string;
 
     /**
      * Creates a new Yooso instance.
@@ -44,7 +44,7 @@ export default class Yooso {
         // For special "local" hostnames, if the secure flag is not set,
         // automatically set secure flag.
         if (this.secure === null) {
-            this.secure = !(url === 'localhost' || url.startsWith('localhost:') || url === '127.0.0.1');
+            this.secure = !(url.startsWith('localhost') || url.startsWith('127.0.0.1'));
         }
 
         this.hostname = url;
