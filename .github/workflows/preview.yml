@@ -24,24 +24,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-backend:
     uses: ./.github/workflows/cargo.yml
-
   build-frontend:
-    runs-on: ubuntu-latest
-    name: Build Yooso Studio Frontend
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '22'
-      - run: npm ci
-      - run: npm run build
+    uses: ./.github/workflows/npm.yml
 
   preview:
     name: Generate Yooso Studio Preview
-    needs: [build, build-frontend]
+    needs: [build-backend, build-frontend]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,7 +39,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '22'
-      
+
       - name: Start Yooso Project (Backend)
         run: |
           cargo install --path yooso-example
@@ -61,11 +51,11 @@ jobs:
           npx serve -s yooso-studio/dist -l 3000 &
           echo $! > frontend.pid
 
-      - name: Wait for Backend to start
-        run: npx wait-on http://localhost:8000 --timeout 5000
+    #   - name: Wait for Backend to start
+    #     run: npx wait-on http://localhost:8000 --timeout 5000
 
-      - name: Wait for Client to start
-        run: npx wait-on http://localhost:3000 --timeout 5000
+    #   - name: Wait for Client to start
+    #     run: npx wait-on http://localhost:3000 --timeout 5000
 
       - name: Take Screenshot of Yooso Studio
         uses: karol-brejna-i/webpage-screenshot-action@v1

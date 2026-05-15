@@ -1,0 +1,17 @@
+name: Node Build & Test
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build Yooso Studio
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm run build
