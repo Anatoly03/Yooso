@@ -1747,6 +1747,14 @@ name = "util-obfuscate"
 version = "0.1.0"
 
 [[package]]
+name = "util-validation"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "uuid",
+]
+
+[[package]]
 name = "uuid"
 version = "1.23.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2255,6 +2263,7 @@ dependencies = [
  "rocket",
  "rocket_cors",
  "serde",
+ "util-validation",
  "uuid",
  "yooso-core",
  "yooso-storage",
@@ -2268,6 +2277,7 @@ dependencies = [
  "rocket",
  "rusqlite",
  "serde",
+ "util-validation",
  "uuid",
 ]
 
@@ -2300,6 +2310,7 @@ dependencies = [
  "rusqlite",
  "serde",
  "serde_json",
+ "util-validation",
  "uuid",
  "yooso-core",
  "yooso-macro",

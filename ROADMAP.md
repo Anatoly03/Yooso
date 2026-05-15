@@ -38,7 +38,8 @@
 ## Chapter II: Error Handling, Validation, Refactoring, Documentation
 
 - [x] Add generic Error type
-  - [ ] Add special type `Validated<T>` which is invisible to dev (methods and attributes of underlying type). Only validated input can be saved. Invalid data has to be validated first. Data retrieved from database is validated per default.
+  - [x] Add special type `Validated<T>` which is invisible to dev (methods and attributes of underlying type). Only validated input can be saved. Invalid data has to be validated first. Data retrieved from database is validated per default.
+  - [ ] Rewrite everything to use validation
   Validated data is immutable unless it is invalidated.
   - [ ] Rewrite to rusqlite query builders and remove runtime string queries.
 - [x] Github CI (Tests)

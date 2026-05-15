@@ -10,6 +10,7 @@ futures = "0.3"
 rocket = { version = "0.5.1", features = [ "json" ] }
 rocket_cors = "0.6.0"
 serde = "1.0.228"
+util-validation = { path = "../util/validation" }
 uuid = { version = "1.23.1", features = [ "v7", "serde" ] }
 yooso-core = { path = "../yooso-core" }
 yooso-storage = { path = "../yooso-storage" }

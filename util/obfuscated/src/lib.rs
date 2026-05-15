@@ -31,7 +31,7 @@
 
 use std::any::type_name;
 use std::fmt::{Debug, Display, Formatter, Result};
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 /// A constant string used for obfuscation in the [Display] implementation.
 pub const OBFUSCATION_MASK: &str = "********";
@@ -61,6 +61,15 @@ impl<T> Deref for Obfuscated<T> {
 
     fn deref(&self) -> &Self::Target {
         &self.inner_value
+    }
+}
+
+/// Implements the deref mut trait to allow mutable access to the inner value
+/// without unwrapping. This allows modifying the value while still keeping it
+/// obfuscated in debug and display output.
+impl<T> DerefMut for Obfuscated<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner_value
     }
 }
 

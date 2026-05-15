@@ -10,7 +10,6 @@ mod components;
 mod entities;
 mod fields;
 mod logs;
-pub mod validate;
 
 pub use components::ComponentTable;
 pub use entities::EntityTable;

@@ -2,6 +2,7 @@ use crate::ComponentFieldTable;
 use rusqlite::types::ValueRef;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
+use util_validation::{ValidateFrom, Validated, ValidationError};
 use uuid::Uuid;
 use yooso_core::error::Result;
 
@@ -100,20 +101,11 @@ impl ComponentTable {
         Ok(exists == 1)
     }
 
-    /// Validates the component metadata.
-    pub fn validate(&self) -> Result<()> {
-        crate::validate::not_empty(&self.component_name, format!("component name"))?;
-        crate::validate::valid_sql_ident(&self.component_name, format!("component name"))?;
-        crate::validate::not_sql_keyword(&self.component_name, format!("component name"))?;
-
-        Ok(())
-    }
-
     /// Creates the dynamic table for this component in the general database.
     pub async fn create_dynamic_table(
         &self,
         general_state: &crate::GeneralDBState,
-        fields: &[ComponentFieldTable],
+        fields: &[Validated<ComponentFieldTable>],
     ) -> Result<()> {
         let mut sql_fields = vec!["entity_id UUID PRIMARY KEY".to_string()];
 
@@ -247,6 +239,19 @@ impl ComponentTable {
     /// function to get the fields of this component.
     pub async fn schema(&self, state: &crate::MetaDBState) -> Result<Vec<ComponentFieldTable>> {
         ComponentFieldTable::list_by_component_id(state, &self.id).await
+    }
+}
+
+impl ValidateFrom<Self> for ComponentTable {
+    fn validate(input: Self) -> Result<Validated<Self>, ValidationError> {
+        util_validation::not_empty(&input.component_name)
+            .map_err(|e| e.prepend("Component Name"))?;
+        util_validation::valid_sql_ident(&input.component_name)
+            .map_err(|e| e.prepend("Component Name"))?;
+        util_validation::not_sql_keyword(&input.component_name)
+            .map_err(|e| e.prepend("Component Name"))?;
+
+        Ok(Validated(input))
     }
 }
 

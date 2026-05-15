@@ -3,6 +3,7 @@
 use rocket::serde::json::{Json, json};
 use rocket::{State, patch};
 use serde::{Deserialize, Serialize};
+use util_validation::validate;
 use uuid::Uuid;
 use yooso_core::Component;
 use yooso_core::error::Result;
@@ -70,15 +71,15 @@ pub async fn update_component(
     general_state: &State<GeneralDBState>,
     body: Json<PatchComponentRequest>,
 ) -> Result<Json<Component>> {
-    let new_component = ComponentTable {
+    let new_component = validate::<ComponentTable, _>(ComponentTable {
         id: body.id,
         component_name: body.name.clone(),
         is_system: body.is_system,
         color: body.color,
         created_at: body.created_at,
-    };
+    })
+    .map_err(|e| yooso_core::error::Error::from(e))?;
 
-    new_component.validate()?;
     new_component.save(state).await?;
 
     // // Process Deletions
@@ -101,7 +102,7 @@ pub async fn update_component(
         .filter(|f| f.operation == PatchFieldOperation::Remove)
     {
         ComponentFieldTable {
-            id: field.id.ok_or(yooso_core::error::Error::ValidationError("Invalid field ID".into()))?,
+            id: field.id.expect("error handler not implemented"),
             ..Default::default()
         }
         .delete(state)
@@ -160,7 +161,7 @@ pub async fn update_component(
 
     Ok(Json(Component {
         id: new_component.id,
-        name: new_component.component_name,
+        name: new_component.component_name.clone(),
         is_system: new_component.is_system,
         color: new_component.color,
         created_at: new_component.created_at,

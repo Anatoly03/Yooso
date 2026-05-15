@@ -14,4 +14,5 @@ chrono = { version = "0.4.44", features = [ "serde" ] }
 rocket = { version = "0.5.1", features = [ "json" ] }
 rusqlite = { version = "0.31", optional = true, features = ["bundled"] }
 serde = { version = "1.0.228", features = ["derive"] }
+util-validation = { path = "../util/validation" }
 uuid = { version = "1.23.1", features = [ "v7", "serde" ] }

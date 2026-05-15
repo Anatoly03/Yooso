@@ -1,12 +1,12 @@
 //! This module defines the general Yooso error type.
 
-use std::sync::PoisonError;
-use rocket::response::{self, Responder};
 use rocket::Request;
 use rocket::http::Status;
-use rocket::serde::json::Json;
 use rocket::response::status::Custom;
+use rocket::response::{self, Responder};
+use rocket::serde::json::Json;
 use serde::Serialize;
+use std::sync::PoisonError;
 
 /// General error type for Yooso, which is used in database management as
 /// well as API-level handlers.
@@ -28,7 +28,7 @@ pub enum Error {
 
     /// An error originating from invalid input data, such as as invalid
     /// component name or field metadata.
-    ValidationError(String),
+    ValidationError(::util_validation::ValidationError),
 }
 
 /// A typedef of the result returned by many methods.
@@ -49,6 +49,12 @@ impl<T> From<PoisonError<T>> for Error {
 impl From<uuid::Error> for Error {
     fn from(err: uuid::Error) -> Self {
         Error::UuidError(err)
+    }
+}
+
+impl From<::util_validation::ValidationError> for Error {
+    fn from(err: ::util_validation::ValidationError) -> Self {
+        Error::ValidationError(err)
     }
 }
 
@@ -80,20 +86,41 @@ struct ErrorResponse {
     error: String,
 }
 
+impl From<&::util_validation::ValidationError> for ErrorResponse {
+    fn from(err: &::util_validation::ValidationError) -> Self {
+        ErrorResponse {
+            success: false,
+            error: err.to_string(),
+        }
+    }
+}
+
+impl From<&str> for ErrorResponse {
+    fn from(err: &str) -> Self {
+        ErrorResponse {
+            success: false,
+            error: err.to_string(),
+        }
+    }
+}
+
 impl<'r> Responder<'r, 'static> for Error {
     fn respond_to(self, req: &'r Request<'_>) -> response::Result<'static> {
-        let status = match &self {
-            Error::UuidError(_) => Status::BadRequest,
-            Error::MutexPoisoned(_) => Status::InternalServerError,
-            Error::RusqliteError(_) => Status::InternalServerError,
-            Error::ValidationError(_) => Status::BadRequest,
-        };
-
-        let body = ErrorResponse {
-            success: false,
-            error: format!("{}", self),
-        };
-
-        Custom(status, Json(body)).respond_to(req)
+        match &self {
+            // For validation errors, we return a 400 Bad Request with the error
+            // message in the body. The error message is safe to expose to the client
+            // since it is directly related to the clients' input.
+            Error::ValidationError(e) => {
+                let body: ErrorResponse = e.into();
+                Custom(Status::BadRequest, Json(body)).respond_to(req)
+            }
+            // Return a generic 500 error for all other error types and hide error
+            // message from the client. (It could be sensitive information helping
+            // an attacker to exploit the server)
+            _ => {
+                let body: ErrorResponse = "Internal server error".into();
+                Custom(Status::InternalServerError, Json(body)).respond_to(req)
+            }
+        }
     }
 }
