@@ -1,0 +1,1 @@
+rd_("eyoosoiyooso_apijyooso_coremyooso_examplekyooso_macromyooso_storage")

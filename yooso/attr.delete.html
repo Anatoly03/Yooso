@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Attribute to generate a `Route` and associated metadata."><title>delete in yooso - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-b7b9f40b.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="yooso" data-themes="" data-resource-suffix="" data-rustdoc-version="1.95.0 (59807616e 2026-04-14)" data-channel="1.95.0" data-search-js="search-63369b7b.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-170eb4bf.js" ><script src="../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-5013f961.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc attr"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">delete</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../yooso/index.html">yooso</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">delete</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#grammar" title="Grammar">Grammar</a></li><li><a href="#typing-requirements" title="Typing Requirements">Typing Requirements</a></li><li><a href="#semantics" title="Semantics">Semantics</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate yooso</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">yooso</a></div><h1>Attribute Macro <span class="attr">delete</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="https://api.rocket.rs/v0.5/src/rocket_codegen/lib.rs.html#275">Source</a> </span></div><pre class="rust item-decl"><code>#[delete]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Attribute to generate a <a href="attr.route.html"><code>Route</code></a> and associated metadata.</p>
+<p>This and all other route attributes can only be applied to free
+functions:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[get(<span class="string">"/"</span>)]
+</span><span class="kw">fn </span>index() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+    <span class="string">"Hello, world!"
+</span>}</code></pre></div>
+<p>There are 7 method-specific route attributes:</p>
+<ul>
+<li><a href="attr.get.html"><code>get</code></a> - <code>GET</code> specific route</li>
+<li><a href="attr.put.html"><code>put</code></a> - <code>PUT</code> specific route</li>
+<li><a href="attr.post.html"><code>post</code></a> - <code>POST</code> specific route</li>
+<li><a href="attr.delete.html"><code>delete</code></a> - <code>DELETE</code> specific route</li>
+<li><a href="attr.head.html"><code>head</code></a> - <code>HEAD</code> specific route</li>
+<li><a href="attr.options.html"><code>options</code></a> - <code>OPTIONS</code> specific route</li>
+<li><a href="attr.patch.html"><code>patch</code></a> - <code>PATCH</code> specific route</li>
+</ul>
+<p>Additionally, <a href="attr.route.html"><code>route</code></a> allows the method and uri to be explicitly
+specified:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[route(GET, uri = <span class="string">"/"</span>)]
+</span><span class="kw">fn </span>index() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+    <span class="string">"Hello, world!"
+</span>}</code></pre></div><h2 id="grammar"><a class="doc-anchor" href="#grammar">§</a>Grammar</h2>
+<p>The grammar for all method-specific route attributes is defined as:</p>
+<div class="example-wrap"><pre class="language-text"><code>route := &#39;&quot;&#39; uri (&#39;?&#39; query)? &#39;&quot;&#39; (&#39;,&#39; parameter)*
+
+uri := (&#39;/&#39; segment)*
+
+query := segment (&#39;&amp;&#39; segment)*
+
+segment := URI_SEG
+         | SINGLE_PARAM
+         | TRAILING_PARAM
+
+parameter := &#39;rank&#39; &#39;=&#39; INTEGER
+           | &#39;format&#39; &#39;=&#39; &#39;&quot;&#39; MEDIA_TYPE &#39;&quot;&#39;
+           | &#39;data&#39; &#39;=&#39; &#39;&quot;&#39; SINGLE_PARAM &#39;&quot;&#39;
+
+SINGLE_PARAM := &#39;&lt;&#39; IDENT &#39;&gt;&#39;
+TRAILING_PARAM := &#39;&lt;&#39; IDENT &#39;..&gt;&#39;
+
+URI_SEG := valid, non-percent-encoded HTTP URI segment
+MEDIA_TYPE := valid HTTP media type or known shorthand
+
+INTEGER := unsigned integer, as defined by Rust
+IDENT := valid identifier, as defined by Rust</code></pre></div>
+<p>The generic route attribute is defined as:</p>
+<div class="example-wrap"><pre class="language-text"><code>generic-route := METHOD &#39;,&#39; &#39;uri&#39; &#39;=&#39; route</code></pre></div><h2 id="typing-requirements"><a class="doc-anchor" href="#typing-requirements">§</a>Typing Requirements</h2>
+<p>Every identifier, except for <code>_</code>, that appears in a dynamic
+parameter (<code>SINGLE_PARAM</code> or <code>TRAILING_PARAM</code>) must appear as an
+argument to the function. For example, the following route requires
+the decorated function to have the arguments <code>foo</code>, <code>baz</code>, <code>msg</code>,
+<code>rest</code>, and <code>form</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[get(<span class="string">"/&lt;foo&gt;/bar/&lt;baz..&gt;?&lt;msg&gt;&amp;closed&amp;&lt;rest..&gt;"</span>, data = <span class="string">"&lt;form&gt;"</span>)]</span></code></pre></div>
+<p>The type of each function argument corresponding to a dynamic
+parameter is required to implement one of Rocket’s guard traits. The
+exact trait that is required to be implemented depends on the kind
+of dynamic parameter (<code>SINGLE</code> or <code>TRAILING</code>) and where in the route
+attribute the parameter appears. The table below summarizes trait
+requirements:</p>
+<div><table><thead><tr><th>position</th><th>kind</th><th>trait</th></tr></thead><tbody>
+<tr><td>path</td><td><code>&lt;ident&gt;</code></td><td><a href="../rocket/request/trait.FromParam.html"><code>FromParam</code></a></td></tr>
+<tr><td>path</td><td><code>&lt;ident..&gt;</code></td><td><a href="../rocket/request/trait.FromSegments.html"><code>FromSegments</code></a></td></tr>
+<tr><td>query</td><td><code>&lt;ident&gt;</code></td><td><a href="../rocket/form/trait.FromForm.html"><code>FromForm</code></a></td></tr>
+<tr><td>query</td><td><code>&lt;ident..&gt;</code></td><td><a href="../rocket/form/trait.FromForm.html"><code>FromForm</code></a></td></tr>
+<tr><td>data</td><td><code>&lt;ident&gt;</code></td><td><a href="../rocket/data/trait.FromData.html"><code>FromData</code></a></td></tr>
+</tbody></table>
+</div>
+<p>The type of each function argument that <em>does not</em> have a
+corresponding dynamic parameter is required to implement the
+<a href="../rocket/request/trait.FromRequest.html"><code>FromRequest</code></a> trait.</p>
+<p>A route argument declared a <code>_</code> must <em>not</em> appear in the function
+argument list and has no typing requirements.</p>
+<p>The return type of the decorated function must implement the
+<a href="../rocket/response/trait.Responder.html"><code>Responder</code></a> trait.</p>
+<h2 id="semantics"><a class="doc-anchor" href="#semantics">§</a>Semantics</h2>
+<p>The attribute generates three items:</p>
+<ol>
+<li>
+<p>A route <a href="../rocket/route/trait.Handler.html"><code>Handler</code></a>.</p>
+<p>The generated handler validates and generates all arguments for
+the generated function according to the trait that their type
+must implement. The order in which arguments are processed is:</p>
+<ol>
+<li>
+<p>Request guards from left to right.</p>
+<p>If a request guard fails, the request is forwarded if the
+<a href="../rocket/outcome/enum.Outcome.html"><code>Outcome</code></a> is <code>Forward</code> or failed if the <a href="../rocket/outcome/enum.Outcome.html"><code>Outcome</code></a> is
+<code>Error</code>. See <a href="../rocket/request/trait.FromRequest.html#outcomes"><code>FromRequest</code> Outcomes</a> for further detail.</p>
+</li>
+<li>
+<p>Path and query guards in an unspecified order. If a path
+or query guard fails, the request is forwarded.</p>
+</li>
+<li>
+<p>Data guard, if any.</p>
+<p>If a data guard fails, the request is forwarded if the
+<a href="../rocket/outcome/enum.Outcome.html"><code>Outcome</code></a> is <code>Forward</code> or failed if the <a href="../rocket/outcome/enum.Outcome.html"><code>Outcome</code></a> is
+<code>Error</code>. See <a href="../rocket/data/trait.FromData.html"><code>FromData</code></a> for further detail.</p>
+</li>
+</ol>
+<p>If all validation succeeds, the decorated function is called.
+The returned value is used to generate a <a href="../rocket/struct.Response.html"><code>Response</code></a> via the
+type’s <a href="../rocket/response/trait.Responder.html"><code>Responder</code></a> implementation.</p>
+</li>
+<li>
+<p>A static structure used by <a href="macro.routes.html"><code>routes!</code></a> to generate a <a href="attr.route.html"><code>Route</code></a>.</p>
+<p>The static structure (and resulting <a href="attr.route.html"><code>Route</code></a>) is populated
+with the name (the function’s name), path, query, rank, and
+format from the route attribute. The handler is set to the
+generated handler.</p>
+</li>
+<li>
+<p>A macro used by <a href="macro.uri.html"><code>uri!</code></a> to type-check and generate an
+<a href="../rocket/http/uri/struct.Origin.html"><code>Origin</code></a>.</p>
+</li>
+</ol>
+</div></details></section></div></main></body></html>
