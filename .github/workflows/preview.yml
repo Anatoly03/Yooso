@@ -37,7 +37,8 @@ jobs:
           node-version: '22'
 
       - run: npm ci
-      - run: npm run build
+      - name: Build client in demo mode
+        run: npm run build --workspace=yooso-studio -- --mode demo
 
       - name: Cache Rust dependencies for preview backend
         uses: actions/cache@v4
