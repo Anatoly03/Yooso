@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { NButton, NDataTable } from 'naive-ui';
-import { h, onMounted, ref } from 'vue';
+import { h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import ViewUuid from '../ui/ViewUuid.vue';

@@ -12,11 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import { CalendarNumberOutline, KeyOutline, MailOutline, Snow, Text, Toggle } from "@vicons/ionicons5"
+import { Text, Toggle } from "@vicons/ionicons5"
 import { BookNumber16Regular } from "@vicons/fluent"
 import type { SelectRenderLabel, SelectRenderTag } from "naive-ui"
-import { NSelect, NText, NIcon } from "naive-ui"
-import { h, PropType, ref } from "vue"
+import { NSelect, NIcon } from "naive-ui"
+import { h } from "vue"
 import { useI18n } from "vue-i18n"
 
 const i18n = useI18n();
@@ -75,9 +75,9 @@ const options = [
     // },
 ]
 
-const modelValue = ref(
-    options.find((o) => o.value === props.modelValue)?.value ?? "text",
-)
+// const modelValue = ref(
+//     options.find((o) => o.value === props.modelValue)?.value ?? "text",
+// )
 
 const renderSingleSelectTag: SelectRenderTag = ({ option }) => {
     return h(

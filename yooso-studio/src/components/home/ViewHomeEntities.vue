@@ -45,8 +45,7 @@
 
 <script setup lang="ts">
 import { NButton, NButtonGroup, NCard, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NInputNumber, NSwitch } from 'naive-ui';
-import { computed, h, onMounted, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { computed, onMounted, ref } from 'vue';
 
 import ViewEntities from '../tables/ViewEntities.vue';
 import ViewUuid from '../ui/ViewUuid.vue';
@@ -135,7 +134,7 @@ async function refreshEntityList() {
         }));
 
         console.log('Fetched entities:', result.entities);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching entities:', error);
     }
 
@@ -158,11 +157,11 @@ async function createEntity() {
             throw new Error(errorData.message || 'Failed to create/update entity');
         }
 
-        const result = await response.json();
+        await response.json();
         // console.log('Entity created/updated:', result);
 
         refreshEntityList();
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error creating/updating entity:', error);
     }
 }
@@ -287,7 +286,7 @@ async function openComponentDrawer(entityId: string, componentId: string, isEdit
 
             addComponentData.value = normalizeEditComponentData(result.fields, existingValues);
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching component details:', error);
         addComponentEntityId.value = '';
         addComponentId.value = '';
@@ -320,7 +319,7 @@ async function removeComponent(entityId: string, componentId: string) {
         if (!response.ok || !result.success) {
             throw new Error(result.error || result.message || 'Failed to remove component from entity');
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error removing component from entity:', error);
     }
 
@@ -342,7 +341,7 @@ async function deleteEntity(entityId: string) {
         if (!response.ok || !result.success) {
             throw new Error(result.message || result.error || 'Failed to delete entity');
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error deleting entity:', error);
     }
 
@@ -374,7 +373,7 @@ async function submitAddComponent() {
         }
 
         addComponentDrawer.value = false;
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error adding component to entity:', error);
     }
 

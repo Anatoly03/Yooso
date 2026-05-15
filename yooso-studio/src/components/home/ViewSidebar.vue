@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import type { MenuOption } from 'naive-ui';
-import { NIcon, NMenu } from 'naive-ui';
+import { NMenu } from 'naive-ui';
 import { FlowerOutline, HomeOutline, LeafOutline, StatsChartOutline } from '@vicons/ionicons5';
 import { computed, h, onMounted, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';

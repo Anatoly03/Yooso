@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { NDrawer, NDrawerContent, NLayout, NLayoutContent, NLayoutSider, NTab, NTabs } from 'naive-ui';
+import { NDrawer, NDrawerContent, NTab, NTabs } from 'naive-ui';
 import { computed, ref } from 'vue';
 
 import ViewAPIInput from './ViewAPIInput.vue';
@@ -38,7 +38,7 @@ import ViewAPIOutput from './ViewAPIOutput.vue';
 import ViewAPIRoute from './ViewAPIRoute.vue';
 
 const currentTab = ref('create');
-const props = defineProps<{ show: boolean }>();
+defineProps<{ show: boolean }>();
 const emit = defineEmits<{ 'update:show': [value: boolean] }>();
 
 const httpMethod = computed(() => {

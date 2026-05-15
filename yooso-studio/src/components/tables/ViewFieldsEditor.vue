@@ -16,7 +16,7 @@
 import type { DataTableColumns } from 'naive-ui';
 import { NButton, NDataTable, NIcon } from 'naive-ui';
 import { computed, h, nextTick, onMounted, ref } from 'vue';
-import { ArrowUndoCircleOutline, TrashBin, ReloadCircleOutline } from '@vicons/ionicons5';
+import { TrashBin } from '@vicons/ionicons5';
 import { DismissCircle20Regular } from '@vicons/fluent';
 import InputSpan from '../ui/InputSpan.vue';
 import FieldType from '../ui/FieldType.vue';
@@ -80,7 +80,7 @@ const fieldColumns: DataTableColumns<FieldRow> = [
         title: '',
         key: 'drag',
         width: 30,
-        render: (row) => h('span', { class: 'drag-handle', title: i18n.t('app.actions.drag-order') }, '::'),
+        render: (_) => h('span', { class: 'drag-handle', title: i18n.t('app.actions.drag-order') }, '::'),
     },
     {
         title: i18n.t('app.keywords.field'),

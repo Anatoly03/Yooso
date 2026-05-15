@@ -26,11 +26,11 @@ const props = defineProps<{
     collapsed: boolean;
 }>();
 
-type LanguageOption = {
-    value: string;
-    label: string;
-    disabled?: boolean;
-};
+// type LanguageOption = {
+//     value: string;
+//     label: string;
+//     disabled?: boolean;
+// };
 
 const dropdownOptions = computed<DropdownOption[]>(() =>
     localesMeta.map((option) => ({

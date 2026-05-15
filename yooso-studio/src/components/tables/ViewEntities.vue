@@ -112,7 +112,7 @@ async function fetchComponentOptions() {
             value: component.component_name,
             color: '#' + component.color.toString(16).padStart(6, '0'),
         }));
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching components:', error);
     }
 }

@@ -27,17 +27,14 @@
 </template>
 
 <script setup lang="ts">
-import { NButton, NButtonGroup, NDataTable, NForm, NFormItem, NLayout, NPopover, NDrawer, NDrawerContent, DataTableCreateSummary, FormRules } from 'naive-ui';
-import { h, onMounted, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { NButton, NButtonGroup, NForm, NDrawer, NDrawerContent } from 'naive-ui';
+import { onMounted, ref } from 'vue';
 
 import EditComponentLabel from '../ui/EditComponentLabel.vue';
 import ViewFieldsEditor, { type ComponentField } from '../tables/ViewFieldsEditor.vue';
-import ViewUuid from '../ui/ViewUuid.vue';
 import ViewComponents from '../tables/ViewComponents.vue';
 import ViewComponentDocumentation from '../docs/ViewComponentDocumentation.vue';
 
-const i18n = useI18n();
 const editComponent = ref(false);
 const editComponentId = ref('');
 const editComponentName = ref('');
@@ -106,7 +103,7 @@ async function refreshComponentList() {
                 createdAt: component.created_at,
             };
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching components:', error);
     }
 
@@ -135,11 +132,11 @@ async function createComponent() {
             throw new Error(errorData.error || 'Failed to create/update component');
         }
 
-        const result = await response.json();
+        await response.json();
         // console.log('Component created/updated:', result);
 
         refreshComponentList();
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error creating/updating component:', error);
         editComponentError.value = error.message || String(error);
         editComponentSubmittingRef.value = false;
@@ -163,7 +160,7 @@ async function viewComponent(id = editComponentId.value): Promise<any> {
         const result = await response.json();
 
         return result;
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error creating/updating component:', error);
         editComponentError.value = error.message || String(error);
         return null;
@@ -195,11 +192,11 @@ async function patchComponent() {
             throw new Error(errorData.error || 'Failed to patch component');
         }
 
-        const result = await response.json();
+        await response.json();
         // console.log('Component patched:', result);
 
         refreshComponentList();
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error patching component:', error);
         editComponentSubmittingRef.value = false;
         editComponentError.value = error.message || String(error);
@@ -221,11 +218,11 @@ async function deleteComponent(id = editComponentId.value) {
             throw new Error(errorData.error || 'Failed to delete component');
         }
 
-        const result = await response.json();
+        await response.json();
         // console.log('Component deleted:', result);
 
         refreshComponentList();
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error deleting component:', error);
         editComponentError.value = error.message || String(error);
         return;

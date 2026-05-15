@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { NAutoComplete, NButton, NDynamicTags, NIcon, NInput, NTag } from 'naive-ui';
 import { Add } from '@vicons/ionicons5';
-import { computed, h, onMounted, ref, watch } from 'vue';
+import { computed, h, ref, watch } from 'vue';
 
 const props = defineProps<{
     entityId: string;
@@ -62,11 +62,11 @@ const proposeNewComponent = computed<string>({
     },
 });
 
-const emit = defineEmits({
-    'add-component': (entityId: string, componentId: string) => true,
-    'edit-component': (entityId: string, componentId: string) => true,
-    'remove-component': (entityId: string, componentId: string) => true,
-});
+const emit = defineEmits<{
+    (e: 'add-component', entityId: string, componentId: string): true,
+    (e: 'edit-component', entityId: string, componentId: string): true,
+    (e: 'remove-component', entityId: string, componentId: string): true,
+}>();
 
 const componentColorByName = computed(() => {
     const map = new Map<string, string>();
@@ -107,7 +107,7 @@ function renderOptionLabel(option: AutoCompleteOption) {
     );
 }
 
-function submitComponentSelection(value: string | null | undefined, submit: (value: string) => void, deactivate: () => void) {
+function submitComponentSelection(value: string | null | undefined, _submit: (value: string) => void, deactivate: () => void) {
     const normalizedValue = (value ?? '').trim().toLowerCase();
     if (!normalizedValue) {
         return;

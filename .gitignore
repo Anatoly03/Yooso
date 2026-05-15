@@ -4,6 +4,7 @@ target
 # Node.js
 dist
 node_modules
+*.tsbuildinfo
 
 # Local
 local
