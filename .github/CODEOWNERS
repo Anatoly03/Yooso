@@ -1,0 +1,13 @@
+
+# Yooso Studio
+yooso/studio/ @frontend-team
+*.vue @frontend-team
+
+# Backend
+yooso-api/ @backend-team
+yooso-core/ @backend-team
+yooso-macro/ @wizard
+yooso-studio/ @backend-team
+
+# Infrastructure
+/.github/workflows/ @wizard

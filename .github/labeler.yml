@@ -1,0 +1,18 @@
+# devops
+technical:
+  - '.github/**'
+
+# yooso.js library
+yooso-backend:
+  - 'yooso-api/**'
+  - 'yooso-core/**'
+  - 'yooso-macro/**'
+  - 'yooso-storage/**'
+
+# yooso.js library
+yooso-js:
+  - 'yooso-js/**'
+
+# yooso-studio client application
+yooso-studio:
+  - 'yooso-studio/**'
