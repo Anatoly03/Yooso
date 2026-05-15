@@ -1,3 +1,11 @@
 [workspace]
-resolver="2"
-members = ["yooso", "yooso-api","yooso-core", "yooso-example", "yooso-macro", "yooso-storage"]
+resolver = "2"
+version = "0.0.0"
+members = [
+    "yooso",
+    "yooso-api",
+    "yooso-core",
+    "yooso-example",
+    "yooso-macro",
+    "yooso-storage"
+]

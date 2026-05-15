@@ -2234,7 +2234,7 @@ dependencies = [
 
 [[package]]
 name = "yooso"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "rocket",
  "yooso-api",
@@ -2244,7 +2244,7 @@ dependencies = [
 
 [[package]]
 name = "yooso-api"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "chrono",
  "futures",
@@ -2258,7 +2258,7 @@ dependencies = [
 
 [[package]]
 name = "yooso-core"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "chrono",
  "rocket",
@@ -2269,14 +2269,14 @@ dependencies = [
 
 [[package]]
 name = "yooso-example"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "yooso",
 ]
 
 [[package]]
 name = "yooso-macro"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2289,7 +2289,7 @@ dependencies = [
 
 [[package]]
 name = "yooso-storage"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "chrono",
  "regex",
