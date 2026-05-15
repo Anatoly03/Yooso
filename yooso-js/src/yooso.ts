@@ -89,23 +89,23 @@ export default class Yooso {
      * @param path The path to the resource, starting with a slash.
      * @param body The body of the request, an object that will be stringified to JSON.
      * @returns A promise resolving to the response.
-     * 
+     *
      * ### Headers
-     * 
+     *
      * ```yaml
      * Content-Type: application/json
      * ```
      */
     public post(path: `/${string}`, body: object): Promise<Response>;
-    
+
     /**
      * Posts a resource to the Yooso server.
      * @param path The path to the resource, starting with a slash.
      * @param body The body of the request, a plain string.
      * @returns A promise resolving to the response.
-     * 
+     *
      * ### Headers
-     * 
+     *
      * ```yaml
      * Content-Type: text/plain
      * ```
@@ -121,6 +121,54 @@ export default class Yooso {
             },
             body: typeof body === 'string' ? body : JSON.stringify(body),
         });
+    }
+
+    /**
+     * Patches a JSON resource to the Yooso server.
+     * @param path The path to the resource, starting with a slash.
+     * @param body The body of the request, an object that will be stringified to JSON.
+     * @returns A promise resolving to the response.
+     *
+     * ### Headers
+     *
+     * ```yaml
+     * Content-Type: application/json
+     * ```
+     */
+    public patch(path: `/${string}`, body: object): Promise<Response>;
+
+    /**
+     * Patches a resource on the Yooso server.
+     * @param path The path to the resource, starting with a slash.
+     * @param body The body of the request, a plain string.
+     * @returns A promise resolving to the response.
+     *
+     * ### Headers
+     *
+     * ```yaml
+     * Content-Type: text/plain
+     * ```
+     */
+    public patch(path: `/${string}`, body: RequestInit['body']): Promise<Response>;
+
+    // implementation
+    public patch(path: `/${string}`, body: any): Promise<Response> {
+        return this.fetch(path, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': typeof body === 'string' ? 'text/plain' : 'application/json',
+            },
+            body: typeof body === 'string' ? body : JSON.stringify(body),
+        });
+    }
+
+    /**
+     * Deletes a resource on the Yooso server.
+     * @param path The path to the resource, starting with a slash.
+     * @returns A promise resolving to the response.
+     */
+    public delete(path: `/${string}`): Promise<Response> {
+        return this.fetch(path, { method: 'DELETE' });
     }
 
     /**

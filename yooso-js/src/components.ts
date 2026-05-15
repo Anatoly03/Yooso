@@ -200,4 +200,30 @@ export default class YoosoComponentManager {
             return null;
         }
     }
+
+    // TODO PATCH /api/components/:uuid
+
+    /**
+     * Deletes a component by its UUID. If an error occurs, returns false.
+     */
+    public async delete(uuid: string): Promise<boolean> {
+        try {
+            this.setLoading(true);
+            const response = await this.yooso.delete(`/api/components/${uuid}`);
+            const result = await response.json();
+            this.setLoading(false);
+
+            if (!result.success) {
+                this.setError(result.message || 'Failed to delete component');
+                return false;
+            }
+
+            this.setError(null);
+            return true;
+        } catch (e) {
+            this.setLoading(false);
+            this.setError((e as Error).message || 'An unknown error occurred while deleting a component');
+            return false;
+        }
+    }
 }

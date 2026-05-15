@@ -160,28 +160,13 @@ async function patchComponent() {
 }
 
 async function deleteComponent(id = editComponentId.value) {
-    try {
-        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/components/' + id, {
-            method: 'DELETE',
+    yooso
+        .components()
+        .subscribeErrorRef(editComponentError)
+        .delete(id)
+        .then(() => {
+            refreshComponentList();
         });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to delete component');
-        }
-
-        await response.json();
-        // console.log('Component deleted:', result);
-
-        refreshComponentList();
-    } catch (error: any) {
-        console.error('Error deleting component:', error);
-        editComponentError.value = error.message || String(error);
-        return;
-    }
-
-    editComponent.value = false;
-    editComponentError.value = null;
 }
 
 onMounted(async () => {
