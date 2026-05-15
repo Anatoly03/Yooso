@@ -128,6 +128,7 @@ Introduce CI to benchmark pull request against current standard speed and start 
 
 - [ ] Create pre-release tag `v0.1.0`
 - [ ] Benchmarking CI
+- [ ] Look into issue with preview workflow: Generated preview is blurry and the resolution adjusting script does not work.
 
 ## Chapter VI: Demo
 Since this project was inspired by ECS, an. entity-component chat example is needed. This should be capable of submitting messages onto user profile walls, in channels, and as reply to other chat messages.

@@ -206,12 +206,34 @@ pub fn collection(
             .map(|field_meta| field_meta.name.clone())
             .collect::<Vec<_>>();
 
-        format!("SELECT {} FROM {}", field_names.join(", "), table_name.value())
+        format!(
+            "SELECT {} FROM {}",
+            field_names.join(", "),
+            table_name.value()
+        )
     };
-    
 
     // Generate 'INSERT INTO' syntax for the insert generator.
     let sql_insert_into = {
+        let field_names = fields
+            .iter()
+            .map(|field| field.ident.as_ref().unwrap().to_string())
+            .collect::<Vec<_>>();
+
+        let indeces = (0..field_names.len())
+            .map(|i| format!("${}", i + 1))
+            .collect::<Vec<_>>();
+
+        format!(
+            "INSERT INTO {} ({}) VALUES ({})",
+            table_name.value(),
+            field_names.join(", "),
+            indeces.join(", ")
+        )
+    };
+
+    // Generate 'INSERT OR REPLACE INTO' syntax for the insert generator.
+    let sql_insert_or_replace_into = {
         let field_names = fields
             .iter()
             .map(|field| field.ident.as_ref().unwrap().to_string())
@@ -306,10 +328,12 @@ pub fn collection(
         .collect::<Vec<_>>();
 
     let field_docs = {
-        field_metas.iter()
+        field_metas
+            .iter()
             .enumerate()
             .map(|(cid, field_meta)| {
-                format!(" | {cid} | `{}` | {} | {} | NULL | {pk} |",
+                format!(
+                    " | {cid} | `{}` | {} | {} | NULL | {pk} |",
                     field_meta.name,
                     field_meta.raw_sql_type,
                     if field_meta.optional { "" } else { "YES" },
@@ -326,7 +350,7 @@ pub fn collection(
         #(#strucc_attr)*
         ///
         /// # Schema
-        /// 
+        ///
         /// | CID | Name | Type | Required | Default | PK
         /// | --- | ---- | ---- | :------: | :-----: | :-:
         #(#[doc = #field_docs])*
@@ -415,7 +439,7 @@ pub fn collection(
 
             /// Syncs the current struct instance with the database by updating its fields
             /// to match the current values in the database.
-            /// 
+            ///
             /// This downloads the database entry into the struct, overwriting all fields, opposite
             /// of [save][Self::save] which uploads the current struct to the database.
             pub async fn sync(&mut self, db: &#db_state_struct_name) -> Result<Self, ::yooso_core::Error> {
@@ -468,11 +492,9 @@ pub fn collection(
                 Ok(vec)
             }
 
-            /// Saves the current struct instance as a new row in the collection's
-            /// table.
-            /// 
-            /// This uploads the struct to the the database entry, opposite of [sync][Self::sync]
-            /// which downloads the database entry to the current struct.
+            /// Creates and saves the current struct instance as a new row in the collection's
+            /// table. This uploads the struct to the the database entry, opposite of
+            /// [sync][Self::sync] which downloads the database entry to the current struct.
             ///
             /// # Query
             ///
@@ -485,10 +507,9 @@ pub fn collection(
             /// # Returns
             ///
             /// This method returns the number of rows affected by the SQLite query.
-            /// If the row was inserted for the first time, this yields `1`. If a row
-            /// with the same primary key already exists, this yields `0`, overriding
-            /// the existing row.
-            pub async fn save(&self, db: &#db_state_struct_name) -> Result<usize, ::yooso_core::Error> {
+            /// This row will be inserted for the first time, so this should always yield `1`.
+            /// If a row with the same primary key already exists, this will return an error.
+            pub async fn create(&self, db: &#db_state_struct_name) -> Result<usize, ::yooso_core::Error> {
                 // Execute the INSERT SQL statement to insert a new row into the
                 // collection table. Returns the number of rows affected (should
                 // be 1 for INSERT and 0 for REPLACE).
@@ -501,6 +522,44 @@ pub fn collection(
                 }
 
                 conn.execute(#sql_insert_into, ::rusqlite::params![
+                        #(#insert_values),*
+                    ])
+                    .map_err(|e| ::yooso_core::Error::from(e))
+            }
+
+            /// Saves the current struct instance as a new row in the collection's
+            /// table.
+            ///
+            /// This uploads the struct to the the database entry, opposite of [sync][Self::sync]
+            /// which downloads the database entry to the current struct.
+            ///
+            /// # Query
+            ///
+            /// This method will execute the following SQL query.
+            ///
+            /// ```sql
+            #[doc = #sql_insert_or_replace_into]
+            /// ```
+            ///
+            /// # Returns
+            ///
+            /// This method returns the number of rows affected by the SQLite query.
+            /// If the row was inserted for the first time, this yields `1`. If a row
+            /// with the same primary key already exists, this yields `0`, overriding
+            /// the existing row.
+            pub async fn save(&self, db: &#db_state_struct_name) -> Result<usize, ::yooso_core::Error> {
+                // Execute the INSERT OR REPLACE SQL statement to insert a new row into the
+                // collection table. Returns the number of rows affected (should
+                // be 1 for INSERT and 0 for REPLACE).
+                // If row with same key exists, it will be overridden.
+                let conn = db.0.lock()
+                    .map_err(|e| ::yooso_core::Error::from(e))?;
+
+                if cfg!(debug_assertions) {
+                    eprintln!("\x1b[90m{}\x1b[0m", #sql_insert_or_replace_into);
+                }
+
+                conn.execute(#sql_insert_or_replace_into, ::rusqlite::params![
                         #(#insert_values),*
                     ])
                     .map_err(|e| ::yooso_core::Error::from(e))
