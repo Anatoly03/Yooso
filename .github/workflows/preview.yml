@@ -29,7 +29,7 @@ jobs:
   build-frontend:
     uses: ./.github/workflows/npm.yml
 
-  preview:
+  create-preview:
     name: Generate Yooso Studio Preview
     needs: [build-backend, build-frontend]
     runs-on: ubuntu-latest
@@ -106,3 +106,15 @@ jobs:
             kill $(cat frontend.pid) || true
             rm frontend.pid
           fi
+
+  deploy-preview:
+    runs-on: ubuntu-latest
+    needs: create-preview
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy-preview.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy-preview
+        uses: actions/deploy-pages@v4
+
