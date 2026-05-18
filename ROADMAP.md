@@ -45,7 +45,7 @@
 - [x] Github CI (Tests)
 - [ ] Error Handling & Validation
   - [ ] Entities
-    - [x] List (Entities)
+    - [ ] List (Entities)
     - [ ] View (Components per Entity)
     - [x] Create (Entity)
     - [ ] Remove (Entity)
@@ -55,11 +55,11 @@
       - [ ] Edit (Components of Entity)
       - [ ] Remove (Components of Entity)
   - [ ] Components
-    - [x] List (Components)
+    - [ ] List (Components)
     - [ ] View (Component Fields and Meta)
-    - [x] Create Component
+    - [ ] Create Component
     - [ ] Patch Name and Color
-    - [x] Remove (Component)
+    - [ ] Remove (Component)
     - [ ] Component Fields
       - [ ] List
       - [ ] Create (Patch Component)

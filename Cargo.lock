@@ -2263,6 +2263,7 @@ dependencies = [
  "rocket",
  "rocket_cors",
  "serde",
+ "serde_json",
  "util-validation",
  "uuid",
  "yooso-core",

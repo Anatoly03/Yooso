@@ -3,10 +3,14 @@
 mod components;
 mod entities;
 mod logs;
+mod success;
 
 use rocket::{Build, Ignite, Rocket};
 use rocket_cors::{Cors, CorsOptions};
-use yooso_storage::{ComponentFieldTable, ComponentTable, EntityTable, GeneralDBState, LogDBState, LogRecordTable, MetaDBState};
+use yooso_storage::{
+    ComponentFieldTable, ComponentTable, EntityTable, GeneralDBState, LogDBState, LogRecordTable,
+    MetaDBState,
+};
 
 /// TODO: document
 pub struct Yooso {
@@ -22,13 +26,17 @@ impl Yooso {
         let meta_db_state = MetaDBState::default();
         let log_db_state = LogDBState::default();
 
-        EntityTable::create_table(&meta_db_state).await
+        EntityTable::create_table(&meta_db_state)
+            .await
             .expect("failed to create table: `entities`");
-        ComponentTable::create_table(&meta_db_state).await
+        ComponentTable::create_table(&meta_db_state)
+            .await
             .expect("failed to create table: `components`");
-        ComponentFieldTable::create_table(&meta_db_state).await
+        ComponentFieldTable::create_table(&meta_db_state)
+            .await
             .expect("failed to create table: `component_fields`");
-        LogRecordTable::create_table(&log_db_state).await
+        LogRecordTable::create_table(&log_db_state)
+            .await
             .expect("failed to create table: `logs`");
 
         Self {
@@ -40,7 +48,7 @@ impl Yooso {
                 .mount("/api/entities", crate::entities::routes())
                 .mount("/api/logs", crate::logs::routes())
                 .attach(Self::cors_config())
-                .attach(logs::LogFairing)
+                .attach(logs::LogFairing),
         }
     }
 
