@@ -7,12 +7,17 @@
 
 name: Yooso Studio Preview
 
+# TODO remove this
 on:
-  push: 
-    branches: [main]
-    paths:
-      - yooso-studio/**
-      - .github/workflows/preview.yml
+  workflow_dispatch:
+
+# TODO enable on push to main (disabled temporarily to avoid spamming gh-pages with preview images during development)
+# on:
+#   push: 
+#     branches: [main]
+#     paths:
+#       - yooso-studio/**
+#       - .github/workflows/preview.yml
 
 permissions:
   contents: write
