@@ -157,9 +157,7 @@ async function createEntity() {
             throw new Error(errorData.message || 'Failed to create/update entity');
         }
 
-        await response.json();
-        // console.log('Entity created/updated:', result);
-
+        console.log('Entity created:', await response.text());
         refreshEntityList();
     } catch (error: any) {
         console.error('Error creating/updating entity:', error);

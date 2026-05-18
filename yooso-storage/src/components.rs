@@ -33,6 +33,24 @@ pub struct ComponentRecord {
 }
 
 impl ComponentRecord {
+    /// Removes the entity with the given ID from this component's dynamic table
+    /// in the general database.
+    pub async fn remove_entity(
+        &self,
+        general_state: &crate::GeneralDBState,
+        id: &Uuid,
+    ) -> Result<()> {
+        let table_name = &self.component_name;
+        let conn = general_state.0.lock()?;
+        let query = format!("DELETE FROM \"{table_name}\" WHERE entity_id = ?",);
+
+        #[cfg(debug_assertions)]
+        eprintln!("\x1b[90m{query}\x1b[0m");
+
+        conn.execute(&query, [id.to_string()])?;
+        Ok(())
+    }
+
     /// If an entity with the given component ID exists in the database,
     /// returns a JSON object containing the component's data and its fields,
     /// or an error if the component or entity is not found.

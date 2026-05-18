@@ -1,39 +1,35 @@
-//! TODO: document
+//! Defines the entity deletion endpoint.
 
-use rocket::serde::json::{Json, Value, json};
 use rocket::{State, delete};
 use uuid::Uuid;
-use yooso_core::error::Result;
+use yooso_core::Result;
 use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 
-/// TODO: document
+/// The endpoint for deleting an entity.
+///
+/// # Example Request
+///
+/// ```http
+/// DELETE /api/entities/019dd39a-5605-7743-b916-4067af05d0ef
+/// ```
+///
+/// # Example Response
+///
+/// ```http
+/// 200 OK
+/// ```
 #[delete("/<uuid>")]
 pub async fn delete_entity(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,
     uuid: &str,
-) -> Result<Json<Value>> {
+) -> Result<()> {
     let id = Uuid::parse_str(&uuid)?;
-    let component_tables = ComponentRecord::list_all(state).await?;
-
-    {
-        let conn = general_state
-            .0
-            .lock()
-            .map_err(|e| yooso_core::Error::from(e))?;
-
-        for component in component_tables {
-            let table_name = component.component_name.clone();
-            let query = format!("DELETE FROM \"{}\" WHERE entity_id = ?", table_name);
-
-            conn.execute(&query, [id.to_string()])
-                .map_err(|e| yooso_core::Error::from(e))?;
-        }
-    }
-
     EntityRecord::delete(state, id).await?;
 
-    Ok(Json(json!({
-        "success": true,
-    })))
+    for component in ComponentRecord::list_all(state).await? {
+        component.remove_entity(&general_state, &id).await?;
+    }
+
+    Ok(())
 }
