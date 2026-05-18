@@ -89,6 +89,13 @@ jobs:
               await page.waitForTimeout(500);
             })();
 
+      - name: Resize Preview Images
+        uses: gonzalonaveira/gh-image-resizing@master
+        with:
+          IMAGES_MAX_WIDTH: "500"
+          IMAGES_FORMATS: "jpg, jpge, png" 
+          IMAGES_DIRECTORIES: "preview"
+
       - name: Upload screenshot artifact
         uses: actions/upload-artifact@v4
         with:
