@@ -4,7 +4,6 @@ use yooso_core::error::Result;
 
 /// Corresponds to a field of a component in the application.
 #[collection(db = crate::MetaDB, table = "fields")]
-#[derive(Default)]
 #[unique(component_id, field_name)]
 #[unique(component_id, position)]
 pub struct ComponentFieldTable {

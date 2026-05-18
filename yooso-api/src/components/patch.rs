@@ -101,12 +101,8 @@ pub async fn update_component(
         .iter()
         .filter(|f| f.operation == PatchFieldOperation::Remove)
     {
-        ComponentFieldTable {
-            id: field.id.expect("error handler not implemented"),
-            ..Default::default()
-        }
-        .delete(state)
-        .await?;
+        ComponentFieldTable::delete(state, field.id.expect("error handler not implemented"))
+            .await?;
 
         // Alter the table in the general database to drop the column for this field.
         let alter_table_query = sql_query_alter_table_drop_column(&new_component, field.clone());

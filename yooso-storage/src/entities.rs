@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 /// Corresponds to an entity in the application.
 #[collection(db = crate::MetaDB, table = "entities")]
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct EntityTable {
     /// Snowflake value. This is the unique identifier of the entity.
     #[primary]

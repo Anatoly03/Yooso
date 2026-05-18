@@ -253,13 +253,12 @@ pub fn collection(
 
     // Generate 'DELETE FROM ... WHERE' syntax for the delete generator.
     let sql_delete_from = {
-        let primary_keys = primary_key_idents.clone();
-
-        if primary_keys.is_empty() {
+        if primary_key_idents.is_empty() {
             panic!("#[collection] must have at least one #[primary] field");
         }
 
-        let where_clause = primary_keys
+        // example: "DELETE FROM table_name WHERE id = $1 AND other_id = $2"
+        let where_clause = primary_key_idents
             .iter()
             .enumerate()
             .map(|(i, key)| format!("{} = ${}", key, i + 1))
@@ -293,6 +292,18 @@ pub fn collection(
         })
         .collect::<Vec<_>>();
 
+    // example: [ `id: Uuid`, `other_id: String`, ... ] 
+    let delete_args = field_metas
+        .iter()
+        .filter(|field_meta| field_meta.primary)
+        .map(|field_meta| {
+            let ident = format_ident!("{}", field_meta.name);
+            let ty = field_meta.ty.clone();
+            quote! { #ident: #ty }
+        })
+        .collect::<Vec<_>>();
+
+    // example: [ `id.to_string()`, `other_id`, ... ] 
     let delete_values = field_metas
         .iter()
         .filter(|field_meta| field_meta.primary)
@@ -300,9 +311,9 @@ pub fn collection(
             let ident = format_ident!("{}", field_meta.name);
             match &field_meta.ty {
                 syn::Type::Path(type_path) if type_path.path.is_ident("Uuid") => {
-                    quote! { self.#ident.to_string() }
+                    quote! { #ident.to_string() }
                 }
-                _ => quote! { self.#ident.clone() },
+                _ => quote! { #ident },
             }
         })
         .collect::<Vec<_>>();
@@ -344,9 +355,9 @@ pub fn collection(
     };
 
     quote! {
-        #[derive(Clone)]
         #[doc = concat!("Abstraction of the collection table `", #table_name, "`")]
         #[doc = concat!("in the database [", stringify!(#db_struct_name), "][", #db_struct_name_display, "].")]
+        #[derive(Clone)]
         #(#strucc_attr)*
         ///
         /// # Schema
@@ -389,14 +400,13 @@ pub fn collection(
                 let conn = db.0.lock()
                     .map_err(|e| ::yooso_core::Error::from(e))?;
 
-                if cfg!(debug_assertions) {
-                    eprintln!("\x1b[90m{}\x1b[0m", #sql_create_table);
-                }
+                #[cfg(debug_assertions)]
+                eprintln!("\x1b[90m{}\x1b[0m", #sql_create_table);
 
                 conn.execute(#sql_create_table, [])
                     .map_err(|e| ::yooso_core::Error::from(e))
 
-                // #[cfg(feature = "debug")]
+                // #[cfg(debug_assertions)]
                 // assert_eq!(..., 0, "CREATE TABLE should not affect any rows");
             }
 
@@ -582,7 +592,7 @@ pub fn collection(
             /// This method returns the number of rows affected by the SQLite query.
             /// If a row was deleted, this yields `1`. If no matching row was found
             /// to delete, this yields `0`.
-            pub async fn delete(&self, db: &#db_state_struct_name) -> Result<usize, ::yooso_core::Error> {
+            pub async fn delete(db: &#db_state_struct_name, #(#delete_args),*) -> Result<usize, ::yooso_core::Error> {
                 // Execute the DELETE SQL statement to delete the row corresponding
                 // to the current struct instance from the collection table. Returns
                 // the number of rows affected (should be 1 if a row was deleted, or
@@ -595,9 +605,9 @@ pub fn collection(
                 }
 
                 conn.execute(#sql_delete_from, ::rusqlite::params![
-                        #(#delete_values),*
-                    ])
-                    .map_err(|e| ::yooso_core::Error::from(e))
+                    #(#delete_values),*
+                ])
+                .map_err(|e| ::yooso_core::Error::from(e))
             }
         }
     }

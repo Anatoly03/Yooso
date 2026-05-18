@@ -9,7 +9,7 @@ use yooso_core::error::Result;
 /// Corresponds to a component in the application.
 #[collection(db = crate::MetaDB, table = "components")]
 #[unique(component_name)]
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ComponentTable {
     /// Snowflake value. This is the unique identifier of the component.
     #[primary]
@@ -144,7 +144,7 @@ impl ComponentTable {
         general_state: &crate::GeneralDBState,
     ) -> Result<()> {
         // Delete the component from the meta database.
-        self.delete(state).await?;
+        Self::delete(state, self.id).await?;
 
         let drop_table_query = format!("DROP TABLE {}", self.component_name);
 
@@ -230,7 +230,7 @@ impl ComponentTable {
         conn.execute(&drop_column_query, [])
             .map_err(|e| yooso_core::Error::from(e))?;
 
-        field.delete(state).await?;
+        ComponentFieldTable::delete(state, field.id).await?;
 
         Ok(())
     }

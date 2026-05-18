@@ -4,7 +4,7 @@ use uuid::Uuid;
 /// Tracks all request and response logs. Each record corresponds to a
 /// single HTTP request and its associated response.
 #[collection(db = crate::LogDB, table = "logs")]
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct LogRecordTable {
     /// Snowflake value. This is the unique identifier of the entity.
     #[primary]
