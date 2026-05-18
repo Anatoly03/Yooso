@@ -3,7 +3,9 @@
 
 use rocket::serde::json::{Json, Value, json};
 use rocket::{State, delete, post};
+use util_validation::ValidationError;
 use uuid::Uuid;
+use yooso_core::error::Result;
 use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 
 /// TODO: document
@@ -14,57 +16,19 @@ pub async fn add_component(
     id: &str,
     component_id: &str,
     body: Json<Value>,
-) -> Json<Value> {
-    let entity_uuid = match Uuid::parse_str(id) {
-        Ok(uuid) => uuid,
-        Err(err) => {
-            return Json(json! ({
-                "success": false,
-                "error": format!("invalid entity UUID: {err}"),
-            }));
-        }
-    };
-
-    let component_uuid = match Uuid::parse_str(component_id) {
-        Ok(uuid) => uuid,
-        Err(err) => {
-            return Json(json! ({
-                "success": false,
-                "error": format!("invalid component UUID: {err}"),
-            }));
-        }
-    };
+) -> Result<Json<Value>> {
+    let entity_uuid = Uuid::parse_str(id)?;
+    let component_uuid = Uuid::parse_str(component_id)?;
 
     // Check that the entity exists.
-    if let Err(err) = EntityRecord::view(state, &entity_uuid).await {
-        return Json(json! ({
-            "success": false,
-            "error": format!("failed to view entity: {err}"),
-        }));
-    }
+    EntityRecord::view(state, &entity_uuid).await?;
 
     // Check that the component exists.
-    let component = match ComponentRecord::view(state, &component_uuid).await {
-        Ok(component) => component,
-        Err(err) => {
-            return Json(json! ({
-                "success": false,
-                "error": format!("failed to view component: {err}"),
-            }));
-        }
-    };
+    let component = ComponentRecord::view(state, &component_uuid).await?;
     // let component_name = component.component_name;
 
     // Check component schema.
-    let schema = match component.schema(state).await {
-        Ok(schema) => schema,
-        Err(err) => {
-            return Json(json! ({
-                "success": false,
-                "error": format!("failed to view component schema: {err}"),
-            }));
-        }
-    };
+    let schema = component.schema(state).await?;
 
     // Generate array of field names
     let field_names = {
@@ -84,61 +48,34 @@ pub async fn add_component(
         for field in &schema {
             let name = field.field_name.clone();
 
-            let data = match body.get(name.as_str()) {
-                Some(data) => data,
-                None => {
-                    return Json(json! ({
-                        "success": false,
-                        "error": format!("missing field: {}", name),
-                    }));
-                }
-            };
+            let data = body
+                .get(name.as_str())
+                .ok_or(ValidationError::new(format!("missing field: {}", name)))?;
 
             match field.field_type.as_str() {
                 "text" => {
-                    let value = match data.as_str() {
-                        Some(value) => value,
-                        None => {
-                            return Json(json! ({
-                                "success": false,
-                                "error": format!("field {} should be a string", field.field_name),
-                            }));
-                        }
-                    };
-
+                    let value = data.as_str().ok_or(ValidationError::new(format!(
+                        "field {} should be a string",
+                        field.field_name
+                    )))?;
                     v.push(format!("'{}'", value.replace("'", "''")));
-                },
+                }
                 "number" | "integer" => {
-                    let value = match data.as_f64() {
-                        Some(value) => value,
-                        None => {
-                            return Json(json! ({
-                                "success": false,
-                                "error": format!("field {} should be a number", field.field_name),
-                            }));
-                        }
-                    };
-
+                    let value = data.as_f64().ok_or(ValidationError::new(format!(
+                        "field {} should be a number",
+                        field.field_name
+                    )))?;
                     v.push(value.to_string());
-                },
+                }
                 "boolean" => {
-                    let value = match data.as_bool() {
-                        Some(value) => value,
-                        None => {
-                            return Json(json! ({
-                                "success": false,
-                                "error": format!("field {} should be a boolean", field.field_name),
-                            }));
-                        }
-                    };
-
+                    let value = data.as_bool().ok_or(ValidationError::new(format!(
+                        "field {} should be a boolean",
+                        field.field_name
+                    )))?;
                     v.push(value.to_string());
-                },
-                _ => {
-                    return Json(json! ({
-                        "success": false,
-                        "error": format!("unsupported field type: {}", field.field_type),
-                    }));
+                }
+                ft => {
+                    return Err(ValidationError::new(format!("unknown field type: {ft}")))?;
                 }
             }
         }
@@ -150,28 +87,16 @@ pub async fn add_component(
     // TODO refactor sql queries into storage layer
     let query = format!(
         "INSERT OR REPLACE INTO {} ({}) VALUES ({})",
-        component.component_name, field_names.join(", "), field_values.join(", ")
+        component.component_name,
+        field_names.join(", "),
+        field_values.join(", ")
     );
 
     // Execute query
-    let conn = match general_state.0.lock() {
-        Ok(conn) => conn,
-        Err(err) => {
-            return Json(json! ({
-                "success": false,
-                "error": format!("failed to lock db: {err}"),
-            }));
-        }
-    };
+    let conn = general_state.0.lock()?;
+    conn.execute(&query, [])?;
 
-    if let Err(err) = conn.execute(&query, []) {
-        return Json(json! ({
-            "success": false,
-            "error": format!("failed to execute query: {err}"),
-        }));
-    }
-
-    Json(json!({ "success": true }))
+    Ok(Json(json!({ "success": true })))
 }
 
 /// TODO: document
@@ -201,7 +126,7 @@ pub async fn remove_component(
             }));
         }
     };
-    
+
     // Check that the component exists.
     let component = match ComponentRecord::view(state, &component_uuid).await {
         Ok(component) => component,
@@ -214,7 +139,6 @@ pub async fn remove_component(
     };
     // let component_name = component.component_name;
 
-    
     // Create SQL query (insert row into component table with entity as key)
     // TODO refactor sql queries into storage layer
     let query = format!(

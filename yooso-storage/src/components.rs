@@ -154,9 +154,8 @@ impl ComponentRecord {
             .lock()
             .map_err(|e| yooso_core::Error::from(e))?;
 
-        if cfg!(debug_assertions) {
-            eprintln!("\x1b[90m{drop_table_query}\x1b[0m");
-        }
+        #[cfg(debug_assertions)]
+        eprintln!("\x1b[90m{drop_table_query}\x1b[0m");
 
         conn.execute(&drop_table_query, [])
             .map_err(|e| yooso_core::Error::from(e))?;

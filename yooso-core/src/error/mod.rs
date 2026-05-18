@@ -114,6 +114,13 @@ impl<'r> Responder<'r, 'static> for Error {
                 let body: ErrorResponse = e.into();
                 Custom(Status::BadRequest, Json(body)).respond_to(req)
             }
+            // Uuid parsing errors typically occur when the client provides an invalid
+            // UUID string. We return a 400 Bad Request with a generic error message since
+            // the error is related to client input.
+            Error::UuidError(_) => {
+                let body: ErrorResponse = "Invalid UUID format".into();
+                Custom(Status::BadRequest, Json(body)).respond_to(req)
+            }
             // Return a generic 500 error for all other error types and hide error
             // message from the client. (It could be sensitive information helping
             // an attacker to exploit the server)

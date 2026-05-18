@@ -14,7 +14,7 @@ use yooso_storage::{EntityRecord, MetaDBState};
 /// POST /api/entities/
 /// ```
 ///
-/// # Example Response (Success)
+/// # Example Response
 ///
 /// ```json
 /// {

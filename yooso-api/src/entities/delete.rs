@@ -13,7 +13,7 @@ pub async fn delete_entity(
     general_state: &State<GeneralDBState>,
     uuid: &str,
 ) -> Result<Json<Value>> {
-    let id = Uuid::parse_str(&uuid).map_err(|e| yooso_core::Error::from(e))?;
+    let id = Uuid::parse_str(&uuid)?;
     let component_tables = ComponentRecord::list_all(state).await?;
 
     {
