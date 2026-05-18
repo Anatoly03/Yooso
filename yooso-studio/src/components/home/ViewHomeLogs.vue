@@ -160,6 +160,10 @@ onMounted(async () => {
             flex: 1;
             text-decoration: none;
             color: inherit;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            
 
             &:hover {
                 text-decoration: underline;

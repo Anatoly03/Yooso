@@ -9,5 +9,12 @@ yooso-core/ @backend-team
 yooso-macro/ @wizard
 yooso-studio/ @backend-team
 
+# Libraries
+yooso-lib-cs/ @csharp-team
+yooso-lib-go/ @golang-team
+yooso-lib-js/ @frontend-team @javascript-team
+yooso-lib-py/ @python-team
+yooso-lib-rs/ @rust-team @backend-team
+
 # Infrastructure
 /.github/workflows/ @wizard
