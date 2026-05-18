@@ -1,4 +1,4 @@
-use crate::ComponentFieldTable;
+use crate::ComponentFieldRecord;
 use rusqlite::types::ValueRef;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -10,7 +10,7 @@ use yooso_core::error::Result;
 #[collection(db = crate::MetaDB, table = "components")]
 #[unique(component_name)]
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ComponentTable {
+pub struct ComponentRecord {
     /// Snowflake value. This is the unique identifier of the component.
     #[primary]
     pub id: Uuid,
@@ -32,7 +32,7 @@ pub struct ComponentTable {
     pub created_at: i64,
 }
 
-impl ComponentTable {
+impl ComponentRecord {
     /// If an entity with the given component ID exists in the database,
     /// returns a JSON object containing the component's data and its fields,
     /// or an error if the component or entity is not found.
@@ -105,7 +105,7 @@ impl ComponentTable {
     pub async fn create_dynamic_table(
         &self,
         general_state: &crate::GeneralDBState,
-        fields: &[Validated<ComponentFieldTable>],
+        fields: &[Validated<ComponentFieldRecord>],
     ) -> Result<()> {
         let mut sql_fields = vec!["entity_id UUID PRIMARY KEY".to_string()];
 
@@ -208,7 +208,7 @@ impl ComponentTable {
         general_state: &crate::GeneralDBState,
         field_id: &Uuid,
     ) -> Result<()> {
-        let field = ComponentFieldTable::view(state, field_id).await?;
+        let field = ComponentFieldRecord::view(state, field_id).await?;
 
         // TODO: use a proper SQL query builder library instead of string concatenation to
         // prevent SQL injection and handle edge cases.
@@ -230,19 +230,19 @@ impl ComponentTable {
         conn.execute(&drop_column_query, [])
             .map_err(|e| yooso_core::Error::from(e))?;
 
-        ComponentFieldTable::delete(state, field.id).await?;
+        ComponentFieldRecord::delete(state, field.id).await?;
 
         Ok(())
     }
 
-    /// Retrieves the component schema. Invokes the [ComponentFieldTable::list_by_component_id]
+    /// Retrieves the component schema. Invokes the [ComponentFieldRecord::list_by_component_id]
     /// function to get the fields of this component.
-    pub async fn schema(&self, state: &crate::MetaDBState) -> Result<Vec<ComponentFieldTable>> {
-        ComponentFieldTable::list_by_component_id(state, &self.id).await
+    pub async fn schema(&self, state: &crate::MetaDBState) -> Result<Vec<ComponentFieldRecord>> {
+        ComponentFieldRecord::list_by_component_id(state, &self.id).await
     }
 }
 
-impl ValidateFrom<Self> for ComponentTable {
+impl ValidateFrom<Self> for ComponentRecord {
     fn validate(input: Self) -> Result<Validated<Self>, ValidationError> {
         util_validation::not_empty(&input.component_name)
             .map_err(|e| e.prepend("Component Name"))?;

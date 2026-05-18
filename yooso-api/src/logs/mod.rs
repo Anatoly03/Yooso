@@ -1,6 +1,6 @@
 use rocket::{State, get, serde::json::Json};
 use uuid::Uuid;
-use yooso_storage::{LogDBState, LogRecordTable};
+use yooso_storage::{LogDBState, LogRecord};
 
 mod fairing;
 
@@ -8,7 +8,7 @@ mod fairing;
 pub struct LogFairing;
 
 #[get("/?<limit>")]
-pub fn list_logs(db: &State<LogDBState>, limit: Option<u32>) -> Json<Vec<LogRecordTable>> {
+pub fn list_logs(db: &State<LogDBState>, limit: Option<u32>) -> Json<Vec<LogRecord>> {
     let limit = limit.unwrap_or(200).min(500) as i64;
     let conn = db.0.lock().expect("lock sqlite db");
     let mut stmt = conn
@@ -22,7 +22,7 @@ pub fn list_logs(db: &State<LogDBState>, limit: Option<u32>) -> Json<Vec<LogReco
 
     let rows = stmt
         .query_map([limit], |row| {
-            Ok(LogRecordTable {
+            Ok(LogRecord {
                 id: Uuid::parse_str(&row.get::<_, String>(0)?)
                     .expect("parse log record id (invariant assumes stored Uuid is always valid)"),
                 created_at: row.get(1)?,

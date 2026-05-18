@@ -8,7 +8,7 @@ mod success;
 use rocket::{Build, Ignite, Rocket};
 use rocket_cors::{Cors, CorsOptions};
 use yooso_storage::{
-    ComponentFieldTable, ComponentTable, EntityTable, GeneralDBState, LogDBState, LogRecordTable,
+    ComponentFieldRecord, ComponentRecord, EntityRecord, GeneralDBState, LogDBState, LogRecord,
     MetaDBState,
 };
 
@@ -26,16 +26,16 @@ impl Yooso {
         let meta_db_state = MetaDBState::default();
         let log_db_state = LogDBState::default();
 
-        EntityTable::create_table(&meta_db_state)
+        EntityRecord::create_table(&meta_db_state)
             .await
             .expect("failed to create table: `entities`");
-        ComponentTable::create_table(&meta_db_state)
+        ComponentRecord::create_table(&meta_db_state)
             .await
             .expect("failed to create table: `components`");
-        ComponentFieldTable::create_table(&meta_db_state)
+        ComponentFieldRecord::create_table(&meta_db_state)
             .await
             .expect("failed to create table: `component_fields`");
-        LogRecordTable::create_table(&log_db_state)
+        LogRecord::create_table(&log_db_state)
             .await
             .expect("failed to create table: `logs`");
 

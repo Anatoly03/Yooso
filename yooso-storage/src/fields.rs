@@ -6,7 +6,7 @@ use yooso_core::error::Result;
 #[collection(db = crate::MetaDB, table = "fields")]
 #[unique(component_id, field_name)]
 #[unique(component_id, position)]
-pub struct ComponentFieldTable {
+pub struct ComponentFieldRecord {
     /// Snowflake value. This is the unique identifier of the field.
     #[primary]
     pub id: Uuid,
@@ -33,7 +33,7 @@ pub struct ComponentFieldTable {
     pub created_at: i64,
 }
 
-impl ComponentFieldTable {
+impl ComponentFieldRecord {
     /// Lists all components for a given component ID.
     pub async fn list_by_component_id(
         db: &crate::MetaDBState,
@@ -64,7 +64,7 @@ impl ComponentFieldTable {
     }
 }
 
-impl ValidateFrom<Self> for ComponentFieldTable {
+impl ValidateFrom<Self> for ComponentFieldRecord {
     fn validate(input: Self) -> Result<Validated<Self>, ValidationError> {
         let field_name = &input.field_name;
         let field_type = &input.field_type;

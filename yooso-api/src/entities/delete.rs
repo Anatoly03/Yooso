@@ -4,7 +4,7 @@ use rocket::serde::json::{Json, Value, json};
 use rocket::{State, delete};
 use uuid::Uuid;
 use yooso_core::error::Result;
-use yooso_storage::{ComponentTable, EntityTable, GeneralDBState, MetaDBState};
+use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 
 /// TODO: document
 #[delete("/<uuid>")]
@@ -14,7 +14,7 @@ pub async fn delete_entity(
     uuid: &str,
 ) -> Result<Json<Value>> {
     let id = Uuid::parse_str(&uuid).map_err(|e| yooso_core::Error::from(e))?;
-    let component_tables = ComponentTable::list_all(state).await?;
+    let component_tables = ComponentRecord::list_all(state).await?;
 
     {
         let conn = general_state
@@ -31,7 +31,7 @@ pub async fn delete_entity(
         }
     }
 
-    EntityTable::delete(state, id).await?;
+    EntityRecord::delete(state, id).await?;
 
     Ok(Json(json!({
         "success": true,

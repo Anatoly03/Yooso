@@ -63,7 +63,7 @@ pub fn database(args: TokenStream, input: TokenStream) -> TokenStream {
 /// struct MetaDB;
 ///
 /// #[collection(db = MetaDB, table = "entities")]
-/// struct EntityTable {
+/// struct EntityRecord {
 ///     #[primary]
 ///     id: Uuid,
 ///     created_at: i32,
@@ -101,7 +101,7 @@ pub fn database(args: TokenStream, input: TokenStream) -> TokenStream {
 /// #[collection(db = MetaDB, table = "fields")]
 /// #[unique(component_id, field_name)]
 /// #[unique(component_id, position)]
-/// pub struct ComponentFieldTable {
+/// pub struct ComponentFieldRecord {
 ///     /// Snowflake value. This is the unique identifier of the field.
 ///     #[primary] pub id: Uuid,
 ///     /// The ID of the component that this field belongs to.

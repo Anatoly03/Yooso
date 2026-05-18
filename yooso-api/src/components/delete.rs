@@ -4,7 +4,7 @@ use rocket::{State, delete, serde::json::Json};
 use serde::Serialize;
 use uuid::Uuid;
 use yooso_core::error::Result;
-use yooso_storage::{ComponentTable, GeneralDBState, MetaDBState};
+use yooso_storage::{ComponentRecord, GeneralDBState, MetaDBState};
 
 /// The response body for the component deletion endpoint.
 /// 
@@ -44,7 +44,7 @@ pub async fn delete_component(
     let id = Uuid::parse_str(&uuid)?;
 
     // Find the component table corresponding to the given UUID.
-    let component = ComponentTable::view(state, &id).await?;
+    let component = ComponentRecord::view(state, &id).await?;
 
     // Recursively delete the component and all of its fields from the database.
     component.delete_recursive(state, general_state).await?;

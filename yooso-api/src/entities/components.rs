@@ -4,7 +4,7 @@
 use rocket::serde::json::{Json, Value, json};
 use rocket::{State, delete, post};
 use uuid::Uuid;
-use yooso_storage::{ComponentTable, EntityTable, GeneralDBState, MetaDBState};
+use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 
 /// TODO: document
 #[post("/<id>/component/<component_id>", data = "<body>")]
@@ -36,7 +36,7 @@ pub async fn add_component(
     };
 
     // Check that the entity exists.
-    if let Err(err) = EntityTable::view(state, &entity_uuid).await {
+    if let Err(err) = EntityRecord::view(state, &entity_uuid).await {
         return Json(json! ({
             "success": false,
             "error": format!("failed to view entity: {err}"),
@@ -44,7 +44,7 @@ pub async fn add_component(
     }
 
     // Check that the component exists.
-    let component = match ComponentTable::view(state, &component_uuid).await {
+    let component = match ComponentRecord::view(state, &component_uuid).await {
         Ok(component) => component,
         Err(err) => {
             return Json(json! ({
@@ -203,7 +203,7 @@ pub async fn remove_component(
     };
     
     // Check that the component exists.
-    let component = match ComponentTable::view(state, &component_uuid).await {
+    let component = match ComponentRecord::view(state, &component_uuid).await {
         Ok(component) => component,
         Err(err) => {
             return Json(json! ({

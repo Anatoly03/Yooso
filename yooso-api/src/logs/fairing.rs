@@ -3,7 +3,7 @@ use rocket::fairing::{Fairing, Info, Kind};
 use rocket::{Request, Response};
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use uuid::Uuid;
-use yooso_storage::LogRecordTable;
+use yooso_storage::LogRecord;
 
 #[rocket::async_trait]
 impl Fairing for LogFairing {
@@ -48,7 +48,7 @@ impl Fairing for LogFairing {
             return;
         };
 
-        let _ = LogRecordTable {
+        let _ = LogRecord {
             id: Uuid::now_v7(),
             created_at,
             duration_ns,

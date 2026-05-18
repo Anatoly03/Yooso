@@ -5,7 +5,7 @@ use uuid::Uuid;
 /// Corresponds to an entity in the application.
 #[collection(db = crate::MetaDB, table = "entities")]
 #[derive(Debug, Serialize, Deserialize)]
-pub struct EntityTable {
+pub struct EntityRecord {
     /// Snowflake value. This is the unique identifier of the entity.
     #[primary]
     pub id: Uuid,
@@ -15,10 +15,10 @@ pub struct EntityTable {
     pub created_at: i64,
 }
 
-impl EntityTable {
-    /// Creates a new `EntityTable` instance with a new v7 UUID and the current
+impl EntityRecord {
+    /// Creates a new [EntityRecord] instance with a new v7 UUID and the current
     /// timestamp. This will not save the entity to the database. To save the
-    /// entity, refer to [EntityTable::save].
+    /// entity, refer to [EntityRecord::save].
     /// 
     /// Probability theory guarantees that this will be unique across all entities
     /// created in the system, even across multiple instances of the application

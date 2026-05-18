@@ -4,7 +4,7 @@ use rocket::serde::json::{Json, Value, json};
 use rocket::{State, get};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use yooso_storage::{ComponentTable, GeneralDBState, MetaDBState};
+use yooso_storage::{ComponentRecord, GeneralDBState, MetaDBState};
 
 /// TODO: document
 #[derive(Debug, Serialize, Deserialize)]
@@ -30,7 +30,7 @@ pub async fn view_entity(
 
     // Scan every component table in the meta database to find all
     // components that belong to this entity.
-    let component_tables = ComponentTable::list_all(state)
+    let component_tables = ComponentRecord::list_all(state)
         .await
         .expect("failed to list components");
 

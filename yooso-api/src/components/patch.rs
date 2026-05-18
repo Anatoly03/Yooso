@@ -7,7 +7,7 @@ use util_validation::validate;
 use uuid::Uuid;
 use yooso_core::Component;
 use yooso_core::error::Result;
-use yooso_storage::{ComponentFieldTable, ComponentTable, GeneralDBState, MetaDBState};
+use yooso_storage::{ComponentFieldRecord, ComponentRecord, GeneralDBState, MetaDBState};
 
 /// TODO: document
 #[derive(Debug, Serialize, Deserialize)]
@@ -71,7 +71,7 @@ pub async fn update_component(
     general_state: &State<GeneralDBState>,
     body: Json<PatchComponentRequest>,
 ) -> Result<Json<Component>> {
-    let new_component = validate::<ComponentTable, _>(ComponentTable {
+    let new_component = validate::<ComponentRecord, _>(ComponentRecord {
         id: body.id,
         component_name: body.name.clone(),
         is_system: body.is_system,
@@ -91,7 +91,7 @@ pub async fn update_component(
     //         _ => None,
     //     })
     // {
-    //     ComponentFieldTable { id: field_uuid, ..Default::default() }
+    //     ComponentFieldRecord { id: field_uuid, ..Default::default() }
     //         .delete(state)
     //         .await?;
 
@@ -101,7 +101,7 @@ pub async fn update_component(
         .iter()
         .filter(|f| f.operation == PatchFieldOperation::Remove)
     {
-        ComponentFieldTable::delete(state, field.id.expect("error handler not implemented"))
+        ComponentFieldRecord::delete(state, field.id.expect("error handler not implemented"))
             .await?;
 
         // Alter the table in the general database to drop the column for this field.
@@ -133,7 +133,7 @@ pub async fn update_component(
         .iter()
         .filter(|f| f.operation == PatchFieldOperation::Add)
     {
-        ComponentFieldTable {
+        ComponentFieldRecord {
             id: Uuid::now_v7(),
             component_id: new_component.id,
             field_name: field.name.clone(),
@@ -170,7 +170,7 @@ pub async fn update_component(
 // prevent SQL injection and handle edge cases.
 // https://database.guide/add-a-column-to-an-existing-table-in-sqlite/
 fn sql_query_alter_table_add_column(
-    component: &ComponentTable,
+    component: &ComponentRecord,
     field: PatchFieldRequest,
 ) -> String {
     format!(
@@ -187,7 +187,7 @@ fn sql_query_alter_table_add_column(
 // prevent SQL injection and handle edge cases.
 // https://database.guide/add-a-column-to-an-existing-table-in-sqlite/
 fn sql_query_alter_table_drop_column(
-    component: &ComponentTable,
+    component: &ComponentRecord,
     field: PatchFieldRequest,
 ) -> String {
     format!(

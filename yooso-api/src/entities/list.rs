@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use yooso_core::Component;
 use yooso_core::error::Result;
-use yooso_storage::{ComponentTable, EntityTable, GeneralDBState, MetaDBState};
+use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 
 /// The response body for the entity listing endpoint.
 /// 
@@ -152,8 +152,8 @@ pub async fn list_entities(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,
 ) -> Result<Json<ComponentListResponse>> {
-    let entities = EntityTable::list_all(state).await?;
-    let component_tables = ComponentTable::list_all(state).await?;
+    let entities = EntityRecord::list_all(state).await?;
+    let component_tables = ComponentRecord::list_all(state).await?;
     let mut response_entities = Vec::with_capacity(entities.len());
 
     for entity in entities {

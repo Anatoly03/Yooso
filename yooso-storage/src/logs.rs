@@ -5,7 +5,7 @@ use uuid::Uuid;
 /// single HTTP request and its associated response.
 #[collection(db = crate::LogDB, table = "logs")]
 #[derive(Debug, Serialize, Deserialize)]
-pub struct LogRecordTable {
+pub struct LogRecord {
     /// Snowflake value. This is the unique identifier of the entity.
     #[primary]
     pub id: Uuid,
@@ -46,7 +46,7 @@ pub struct LogRecordTable {
     pub status: u16,
 }
 
-impl LogRecordTable {
+impl LogRecord {
     /// Converts the duration from nanoseconds to a milliseconds floating-point
     /// number for easier readability.
     pub fn duration_ms(&self) -> f64 {

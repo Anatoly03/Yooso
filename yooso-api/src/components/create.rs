@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use util_validation::validate;
 use yooso_core::error::Result;
 use yooso_core::{Component, ComponentField};
-use yooso_storage::{ComponentFieldTable, ComponentTable, GeneralDBState, MetaDBState};
+use yooso_storage::{ComponentFieldRecord, ComponentRecord, GeneralDBState, MetaDBState};
 
 /// TODO: document
 #[derive(Debug, Serialize, Deserialize)]
@@ -43,7 +43,7 @@ pub async fn create_component(
     let uuid = uuid::Uuid::now_v7();
     let created_at = chrono::Utc::now().timestamp_millis();
 
-    let new_component = validate::<ComponentTable, _>(ComponentTable {
+    let new_component = validate::<ComponentRecord, _>(ComponentRecord {
         id: uuid,
         component_name: body.name.clone(),
         is_system: body.is_system,
@@ -57,7 +57,7 @@ pub async fn create_component(
         .iter()
         .enumerate()
         .map(|(position, field)| {
-            let field = validate::<ComponentFieldTable, _>(ComponentFieldTable {
+            let field = validate::<ComponentFieldRecord, _>(ComponentFieldRecord {
                 id: uuid::Uuid::now_v7(),
                 component_id: uuid,
                 field_name: field.name.clone(),

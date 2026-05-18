@@ -3,7 +3,7 @@
 use crate::success::Success;
 use rocket::{State, post};
 use yooso_core::error::Result;
-use yooso_storage::{EntityTable, MetaDBState};
+use yooso_storage::{EntityRecord, MetaDBState};
 
 /// The endpoint for creating a new entity. This will generate a new entity with
 /// a new v7 UUID and the current timestamp.
@@ -14,7 +14,7 @@ use yooso_storage::{EntityTable, MetaDBState};
 /// POST /api/entities/
 /// ```
 ///
-/// # Example Response
+/// # Example Response (Success)
 ///
 /// ```json
 /// {
@@ -26,8 +26,8 @@ use yooso_storage::{EntityTable, MetaDBState};
 /// }
 /// ```
 #[post("/")]
-pub async fn create_entity(state: &State<MetaDBState>) -> Result<Success<EntityTable>> {
-    let entity = EntityTable::create_new();
+pub async fn create_entity(state: &State<MetaDBState>) -> Result<Success<EntityRecord>> {
+    let entity = EntityRecord::create_new();
     entity.save(state).await?;
     Ok(Success(entity))
 }

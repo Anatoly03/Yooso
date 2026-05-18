@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use yooso_core::error::Result;
 use yooso_core::{Component, ComponentField};
-use yooso_storage::{ComponentFieldTable, ComponentTable, MetaDBState};
+use yooso_storage::{ComponentFieldRecord, ComponentRecord, MetaDBState};
 
 /// Response structure for viewing a component.
 #[derive(Debug, Serialize, Deserialize)]
@@ -32,8 +32,8 @@ pub async fn view_component(
     uuid: &str,
 ) -> Result<Json<ViewComponentResponse>> {
     let id = Uuid::parse_str(&uuid)?;
-    let component = ComponentTable::view(state, &id).await?;
-    let fields = ComponentFieldTable::list_by_component_id(state, &component.id).await?;
+    let component = ComponentRecord::view(state, &id).await?;
+    let fields = ComponentFieldRecord::list_by_component_id(state, &component.id).await?;
 
     let name = component.component_name;
 

@@ -3,7 +3,7 @@
 use rocket::serde::json::{Json};
 use rocket::{State, get};
 use serde::{Serialize};
-use yooso_storage::{ComponentTable, MetaDBState};
+use yooso_storage::{ComponentRecord, MetaDBState};
 use yooso_core::error::Result;
 
 /// The response body for the component listing endpoint.
@@ -55,7 +55,7 @@ use yooso_core::error::Result;
 #[derive(Debug, Serialize)]
 pub struct ComponentListResponse {
     pub success: bool,
-    pub components: Vec<ComponentTable>,
+    pub components: Vec<ComponentRecord>,
 }
 
 /// The endpoint for listing components. This will retrieve all entities from
@@ -115,7 +115,7 @@ pub struct ComponentListResponse {
 pub async fn list_components(
     state: &State<MetaDBState>,
 ) -> Result<Json<ComponentListResponse>> {
-    let components = ComponentTable::list_all(state).await?;
+    let components = ComponentRecord::list_all(state).await?;
 
     Ok(Json(ComponentListResponse {
         success: true,
