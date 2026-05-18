@@ -3,6 +3,7 @@
  */
 
 import YoosoComponentManager from './components';
+import YoosoEntityManager from './entities';
 
 /**
  * The Yooso instance communicates with a Yooso server and provides bindings to
@@ -85,6 +86,13 @@ export default class Yooso {
     }
 
     /**
+     * Posts an empty JSON resource to the Yooso server.
+     * @param path The path to the resource, starting with a slash.
+     * @returns A promise resolving to the response.
+     */
+    public post(path: `/${string}`): Promise<Response>;
+
+    /**
      * Posts a JSON resource to the Yooso server.
      * @param path The path to the resource, starting with a slash.
      * @param body The body of the request, an object that will be stringified to JSON.
@@ -113,13 +121,18 @@ export default class Yooso {
     public post(path: `/${string}`, body: RequestInit['body']): Promise<Response>;
 
     // implementation
-    public post(path: `/${string}`, body: any): Promise<Response> {
+    public post(path: `/${string}`, body?: any): Promise<Response> {
+        let headers: any = {};
+
+        if (body !== undefined) {
+            headers['Content-Type'] = typeof body === 'string' ? 'text/plain' : 'application/json';
+            body = typeof body === 'string' ? body : JSON.stringify(body);
+        }
+
         return this.fetch(path, {
             method: 'POST',
-            headers: {
-                'Content-Type': typeof body === 'string' ? 'text/plain' : 'application/json',
-            },
-            body: typeof body === 'string' ? body : JSON.stringify(body),
+            headers,
+            body,
         });
     }
 
@@ -177,5 +190,13 @@ export default class Yooso {
      */
     public components() {
         return new YoosoComponentManager(this);
+    }
+
+    /**
+     * Creates a new Yooso entity manager.
+     * @returns {YoosoEntityManager}
+     */
+    public entities() {
+        return new YoosoEntityManager(this);
     }
 }

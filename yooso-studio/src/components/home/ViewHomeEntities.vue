@@ -1,6 +1,16 @@
 <template>
     <div class="view-entities-home">
-        <view-entities :loading="loadingRef" :data="data" :active-entity="addComponentEntityId" @view-entity="console.log" @new-entity="createEntity" @add-component="openAddComponentDrawer" @edit-component="openEditComponentDrawer" @remove-component="removeComponent" @delete-entity="deleteEntity" />
+        <view-entities
+            :loading="loadingRef"
+            :data="data"
+            :active-entity="addComponentEntityId"
+            @view-entity="console.log"
+            @new-entity="createEntity"
+            @add-component="openAddComponentDrawer"
+            @edit-component="openEditComponentDrawer"
+            @remove-component="removeComponent"
+            @delete-entity="deleteEntity"
+        />
         <!-- <n-data-table remote :loading="loadingRef" :bordered="false" :columns="columns" :data="data" /> -->
         <n-drawer v-model:show="addComponentDrawer" :default-width="612" :min-width="416" placement="right" resizable>
             <n-drawer-content :title="(addComponentIsEdit ? $t('app.edit.component') : $t('app.add.component')) + ': ' + addComponentName">
@@ -46,6 +56,7 @@
 <script setup lang="ts">
 import { NButton, NButtonGroup, NCard, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NInputNumber, NSwitch } from 'naive-ui';
 import { computed, onMounted, ref } from 'vue';
+import yooso from '../../services/yooso';
 
 import ViewEntities from '../tables/ViewEntities.vue';
 import ViewUuid from '../ui/ViewUuid.vue';
@@ -142,26 +153,13 @@ async function refreshEntityList() {
 }
 
 async function createEntity() {
-    loadingRef.value = true;
-
-    try {
-        const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/entities', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+    yooso
+        .entities()
+        .subscribeLoadingRef(loadingRef)
+        .create()
+        .then(() => {
+            refreshEntityList();
         });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to create/update entity');
-        }
-
-        console.log('Entity created:', await response.text());
-        refreshEntityList();
-    } catch (error: any) {
-        console.error('Error creating/updating entity:', error);
-    }
 }
 
 function createDefaultComponentData(fields: any[]) {
@@ -330,20 +328,12 @@ async function deleteEntity(entityId: string) {
         return;
     }
 
-    try {
-        const response = await fetch(import.meta.env.VITE_API_SERVER + `/api/entities/${entityId}`, {
-            method: 'DELETE',
+    yooso
+        .entities()
+        .delete(entityId)
+        .then(() => {
+            refreshEntityList();
         });
-
-        const result = await response.json();
-        if (!response.ok || !result.success) {
-            throw new Error(result.message || result.error || 'Failed to delete entity');
-        }
-    } catch (error: any) {
-        console.error('Error deleting entity:', error);
-    }
-
-    await refreshEntityList();
 }
 
 async function submitAddComponent() {
