@@ -4,8 +4,8 @@
 <a href=#4 id=4 data-nosnippet>4</a>
 <a href=#5 id=5 data-nosnippet>5</a><span class="doccomment">/// Corresponds to an entity in the application.
 <a href=#6 id=6 data-nosnippet>6</a></span><span class="attr">#[collection(db = <span class="kw">crate</span>::MetaDB, table = <span class="string">"entities"</span>)]
-<a href=#7 id=7 data-nosnippet>7</a>#[derive(Default, Debug, Serialize, Deserialize)]
-<a href=#8 id=8 data-nosnippet>8</a></span><span class="kw">pub struct </span>EntityTable {
+<a href=#7 id=7 data-nosnippet>7</a>#[derive(Debug, Serialize, Deserialize)]
+<a href=#8 id=8 data-nosnippet>8</a></span><span class="kw">pub struct </span>EntityRecord {
 <a href=#9 id=9 data-nosnippet>9</a>    <span class="doccomment">/// Snowflake value. This is the unique identifier of the entity.
 <a href=#10 id=10 data-nosnippet>10</a>    </span><span class="attr">#[primary]
 <a href=#11 id=11 data-nosnippet>11</a>    </span><span class="kw">pub </span>id: Uuid,
@@ -15,11 +15,11 @@
 <a href=#15 id=15 data-nosnippet>15</a>    </span><span class="kw">pub </span>created_at: i64,
 <a href=#16 id=16 data-nosnippet>16</a>}
 <a href=#17 id=17 data-nosnippet>17</a>
-<a href=#18 id=18 data-nosnippet>18</a><span class="kw">impl </span>EntityTable {
-<a href=#19 id=19 data-nosnippet>19</a>    <span class="doccomment">/// Creates a new `EntityTable` instance with a new v7 UUID and the current
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">impl </span>EntityRecord {
+<a href=#19 id=19 data-nosnippet>19</a>    <span class="doccomment">/// Creates a new [EntityRecord] instance with a new v7 UUID and the current
 <a href=#20 id=20 data-nosnippet>20</a>    /// timestamp. This will not save the entity to the database. To save the
-<a href=#21 id=21 data-nosnippet>21</a>    /// entity, refer to [EntityTable::save].
-<a href=#22 id=22 data-nosnippet>22</a>    /// 
+<a href=#21 id=21 data-nosnippet>21</a>    /// entity, refer to [EntityRecord::save].
+<a href=#22 id=22 data-nosnippet>22</a>    ///
 <a href=#23 id=23 data-nosnippet>23</a>    /// Probability theory guarantees that this will be unique across all entities
 <a href=#24 id=24 data-nosnippet>24</a>    /// created in the system, even across multiple instances of the application
 <a href=#25 id=25 data-nosnippet>25</a>    /// running concurrently.
