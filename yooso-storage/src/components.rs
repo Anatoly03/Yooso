@@ -162,7 +162,7 @@ impl ComponentRecord {
         general_state: &crate::GeneralDBState,
     ) -> Result<()> {
         // Delete the component from the meta database.
-        Self::delete(state, self.id).await?;
+        Self::delete(state, &self.id).await?;
 
         let drop_table_query = format!("DROP TABLE {}", self.component_name);
 
@@ -247,7 +247,7 @@ impl ComponentRecord {
         conn.execute(&drop_column_query, [])
             .map_err(|e| yooso_core::Error::from(e))?;
 
-        ComponentFieldRecord::delete(state, field.id).await?;
+        ComponentFieldRecord::delete(state, &field.id).await?;
 
         Ok(())
     }

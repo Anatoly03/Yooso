@@ -3,6 +3,8 @@ use util_validation::{ValidateFrom, Validated, ValidationError};
 use uuid::Uuid;
 use yooso_core::error::Result;
 
+use crate::ComponentRecord;
+
 /// Corresponds to a field of a component in the application.
 #[collection(db = crate::MetaDB, table = "fields")]
 #[unique(component_id, field_name)]
@@ -63,6 +65,32 @@ impl ComponentFieldRecord {
         .map_err(|e| ::yooso_core::Error::from(e))?
         .collect::<Result<Vec<_>, ::rusqlite::Error>>()
         .map_err(|e| ::yooso_core::Error::from(e))
+    }
+
+    /// Deletes the field recursively.
+    pub async fn delete_recursively(
+        db: &crate::MetaDBState,
+        general_db: &crate::GeneralDBState,
+        component_id: Uuid,
+        field_id: Uuid,
+    ) -> Result<()> {
+        let field = Self::view(db, &field_id).await?;
+        let component = ComponentRecord::view(db, &component_id).await?;
+        let _ = Self::delete(db, &field_id).await?;
+
+        let field_name = &field.field_name;
+        let component_name = &component.component_name;
+
+        let conn = general_db.0.lock()?;
+        let query = format!("ALTER TABLE {component_name} DROP COLUMN {field_name}");
+
+        if cfg!(debug_assertions) {
+            eprintln!("\x1b[90m{query}\x1b[0m");
+        }
+
+        conn.execute(&query, [])?;
+
+        Ok(())
     }
 }
 

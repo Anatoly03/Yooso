@@ -313,7 +313,7 @@ pub fn collection(
         .map(|field_meta| {
             let ident = format_ident!("{}", field_meta.name);
             let ty = field_meta.ty.clone();
-            quote! { #ident: #ty }
+            quote! { #ident: &#ty }
         })
         .collect::<Vec<_>>();
 
