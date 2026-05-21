@@ -121,7 +121,7 @@ pub async fn list_components(
         page: (page.unwrap_or(1) as usize).max(1), // ensure page is at least 1
         per_page: (per_page.unwrap_or(25) as usize).min(100), // cap per_page at 100 to prevent abuse
     };
-    let components = ComponentRecord::list(state, &pagination).await?;
+    let components = ComponentRecord::list(state, pagination.per_page, pagination.page).await?;
 
     Ok(Json(ComponentListResponse {
         success: true,

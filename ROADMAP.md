@@ -38,9 +38,8 @@
 ## Chapter II: Error Handling, Validation, Refactoring, Documentation
 
 - [x] Add generic Error type
-- [ ] Add special type `Validated<T>` which is invisible to dev (methods and attributes of underlying type). Only validated input can be saved. Invalid data has to be validated first. Data retrieved from database is validated per default.
-- [ ] Rewrite everything to use validation
-  Validated data is immutable unless it is invalidated.
+- [x] Add special type `Validated<T>` which is invisible to dev (methods and attributes of underlying type). Only validated input can be saved. Invalid data has to be validated first. Data retrieved from database is validated per default.
+- [ ] Rewrite everything to use validation. Validated data is immutable unless it is invalidated.
 - [ ] Rewrite to rusqlite query builders and remove runtime string queries. 
 - [x] Github CI (Tests)
 - [ ] HTTP-code based API handling.
@@ -63,6 +62,9 @@
     - [x] View (Component Fields and Meta)
     - [x] Create Component
     - [ ] Patch Name and Color
+      - [ ] Add Field
+      - [ ] Update Field
+      - [x] Remove Field
     - [x] Remove (Component)
     - [ ] Component Fields
       - [ ] List
@@ -98,7 +100,7 @@
   - [ ] `yooso-studio`
   - [ ] `yooso-js`
 - [ ] Refactor
-  - [ ] Enforce `snake_case` everywhere.
+  - [x] Enforce `snake_case` everywhere.
   - [ ] Error Handling in Api.
   - [ ] Refactor Client networking to separate module: `yooso.js` 
     - [ ] Error Handling in Client.

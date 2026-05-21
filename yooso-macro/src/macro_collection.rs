@@ -535,7 +535,7 @@ pub fn collection(
             ///
             /// This method returns a vector of all rows in the collection's table, deserialized
             /// into instances of the struct. If the table is empty, this yields an empty vector.
-            pub async fn list(db: &#db_state_struct_name, pagination: &super::Pagination) -> Result<::std::vec::Vec<Self>, ::yooso_core::Error> {
+            pub async fn list(db: &#db_state_struct_name, per_page: usize, page: usize) -> Result<::std::vec::Vec<Self>, ::yooso_core::Error> {
                 let conn = db.0.lock()
                     .map_err(|e| ::yooso_core::Error::from(e))?;
 
@@ -550,8 +550,8 @@ pub fn collection(
 
                 let rows = stmt.query_map(
                     ::rusqlite::params![
-                        pagination.per_page,
-                        (pagination.page - 1) * pagination.per_page
+                        per_page,
+                        (page - 1) * per_page,
                     ],
                     |row| {
                         Ok(#struct_name {

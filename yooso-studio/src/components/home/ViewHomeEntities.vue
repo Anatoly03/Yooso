@@ -176,12 +176,10 @@ function createDefaultComponentData(fields: any[]) {
 
 function normalizeEditComponentData(fields: any[], existingValues: Record<string, any>) {
     return fields.reduce((acc: Record<string, any>, field: any) => {
-        const snakeCaseFieldName = field.name.replace(/-/g, '_');
-
         if (existingValues[field.name] !== undefined) {
             acc[field.name] = existingValues[field.name];
-        } else if (existingValues[snakeCaseFieldName] !== undefined) {
-            acc[field.name] = existingValues[snakeCaseFieldName];
+        } else if (existingValues[field.name] !== undefined) {
+            acc[field.name] = existingValues[field.name];
         } else if (field.field_type === 'boolean') {
             acc[field.name] = false;
         } else if (field.field_type === 'number' || field.field_type === 'integer') {

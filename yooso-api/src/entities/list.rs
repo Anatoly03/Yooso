@@ -159,7 +159,7 @@ pub async fn list_entities(
         page: (page.unwrap_or(1) as usize).max(1), // ensure page is at least 1
         per_page: (per_page.unwrap_or(25) as usize).min(100), // cap per_page at 100 to prevent abuse
     };
-    let entities = EntityRecord::list(state, &pagination).await?;
+    let entities = EntityRecord::list(state, pagination.per_page, pagination.page).await?;
 
     let component_tables = ComponentRecord::list_all(state).await?;
     let mut response_entities = Vec::with_capacity(entities.len());
