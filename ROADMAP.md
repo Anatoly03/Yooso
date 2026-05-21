@@ -48,7 +48,7 @@
   - [ ] Entities
     - [ ] List (Entities)
       - [x] Pagination
-    - [ ] View (Components per Entity)
+    - [x] View (Components per Entity)
     - [x] Create (Entity)
     - [x] Remove (Entity)
     - [ ] Patch (Components per Entity)

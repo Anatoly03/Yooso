@@ -1,68 +1,70 @@
-//! TODO: document
+//! Defines the entity viewing endpoint.
 
 use rocket::serde::json::{Json, Value, json};
 use rocket::{State, get};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use yooso_storage::{ComponentRecord, GeneralDBState, MetaDBState};
+use yooso_core::error::Result;
+use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 
-/// TODO: document
+/// The response for viewing an new entity. This will yield entity metadata and all
+/// of the components that belong to this entity. The "components" field is a JSON
+/// object where the component name is mapped as key to the component field values.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ViewEntityResponse {
     pub id: Uuid,
-    // pub created_at: i64,
+    pub created_at: i64,
     pub components: Value,
 }
 
-/// TODO: document
+/// The endpoint for viewing an new entity.
+///
+/// # Example Request
+///
+/// ```http
+/// GET /api/entities/view/019e2bb7-1fc2-7e73-9df5-5a74537e0bcd
+/// ```
+///
+/// # Example Response
+///
+/// ```http
+/// 200 OK
+///
+/// {
+///   "id": "019e2bb7-1fc2-7e73-9df5-5a74537e0bcd",
+///   "created_at": 1778849882050,
+///   "components": {
+///     "new_component": {
+///       "field_0": "value1",
+///       "field_1": 123,
+///       "field_2": true
+///     }
+///   }
+/// }
+/// ```
 #[get("/view/<id>")]
 pub async fn view_entity(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,
     id: &str,
-) -> Result<Json<ViewEntityResponse>, Json<Value>> {
-    let uuid = Uuid::parse_str(id).map_err(|err| {
-        json! ({
-            "success": false,
-            "error": format!("invalid UUID: {err}"),
-        })
-    })?;
+) -> Result<Json<ViewEntityResponse>> {
+    let uuid = Uuid::parse_str(id)?;
+    let entity = EntityRecord::view(state, &uuid).await?;
 
-    // Scan every component table in the meta database to find all
-    // components that belong to this entity.
-    let component_tables = ComponentRecord::list_all(state)
-        .await
-        .expect("failed to list components");
+    // Scan every possible component and retrieve the fields for this entity.
+    let component_tables = ComponentRecord::list_all(state).await?;
+    let mut matrix = json!({});
 
-    let entity_component_matrix = {
-        let mut v = vec![];
-
-        for component in component_tables {
-            let fields_opt = component.for_entity(state, general_state, &uuid).await;
-
-            v.push((component, fields_opt));
+    for component in component_tables {
+        match component.for_entity(state, general_state, &uuid).await {
+            Ok(field) => matrix[component.component_name] = field,
+            _ => continue,
         }
-
-        v
-    };
-
-    // Generate the JSON object that we return. The keys of the "components" field
-    // are the component names, and the values are the JSON objects that we get from
-    // the operatiton above.
-    let components = {
-        let mut obj = json!({});
-
-        for (component, fields_opt) in entity_component_matrix {
-            if let Ok(fields) = fields_opt {
-                obj[component.component_name] = fields;
-            }
-        }
-
-        obj
-    };
+    }
 
     Ok(Json(ViewEntityResponse {
         id: uuid,
-        components,
+        created_at: entity.created_at,
+        components: matrix,
     }))
 }
