@@ -60,8 +60,9 @@ fn rust_type_to_sql_type(ty: &syn::Type) -> (String, bool) {
         Type::Path(type_path) => {
             let segment = type_path.path.segments.last().unwrap();
             match segment.ident.to_string().as_str() {
-                "i8" | "i16" | "i32" | "i64" | "u8" | "u16" | "u32" | "u64" | "isize"
-                | "usize" => "INTEGER".to_string(),
+                "i8" | "i16" | "i32" | "i64" | "u8" | "u16" | "u32" | "u64" | "isize" | "usize" => {
+                    "INTEGER".to_string()
+                }
                 "f32" | "f64" => "REAL".to_string(),
                 "String" => "TEXT".to_string(),
                 "bool" => "BOOLEAN".to_string(),
@@ -108,7 +109,11 @@ impl From<Field> for FieldMeta {
             primary,
             name,
             ty,
-            sql_type: if optional { sql_type.clone() } else { format!("{} NOT NULL", sql_type.clone()) },
+            sql_type: if optional {
+                sql_type.clone()
+            } else {
+                format!("{} NOT NULL", sql_type.clone())
+            },
             raw_sql_type: sql_type,
             optional,
         }

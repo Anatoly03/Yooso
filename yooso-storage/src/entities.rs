@@ -19,7 +19,7 @@ impl EntityRecord {
     /// Creates a new [EntityRecord] instance with a new v7 UUID and the current
     /// timestamp. This will not save the entity to the database. To save the
     /// entity, refer to [EntityRecord::save].
-    /// 
+    ///
     /// Probability theory guarantees that this will be unique across all entities
     /// created in the system, even across multiple instances of the application
     /// running concurrently.

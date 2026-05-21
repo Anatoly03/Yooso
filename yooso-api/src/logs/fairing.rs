@@ -28,20 +28,13 @@ impl Fairing for LogFairing {
         let method = request.method().as_str().to_string();
         let uri = request.uri().to_string();
         let status = response.status().code;
-        let referer = request
-            .headers()
-            .get_one("Referer")
-            .map(|s| s.to_string());
+        let referer = request.headers().get_one("Referer").map(|s| s.to_string());
         let user_agent = request
             .headers()
             .get_one("User-Agent")
             .map(|s| s.to_string());
-        let client_ip = request
-            .client_ip()
-            .map(|ip| ip.to_string());
-        let remote_ip = request
-            .remote()
-            .map(|ip| ip.to_string());
+        let client_ip = request.client_ip().map(|ip| ip.to_string());
+        let remote_ip = request.remote().map(|ip| ip.to_string());
 
         let Some(state) = request.rocket().state::<yooso_storage::LogDBState>() else {
             eprintln!("LogFairing: missing LogDBState, cannot log request");
@@ -60,6 +53,7 @@ impl Fairing for LogFairing {
             remote_ip,
             status,
         }
-        .save(state).await;
+        .save(state)
+        .await;
     }
 }

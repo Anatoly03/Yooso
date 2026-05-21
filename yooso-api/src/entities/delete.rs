@@ -27,7 +27,7 @@ pub async fn delete_entity(
     // If uuid is not valid, return 400 Bad Request.
     let id = Uuid::parse_str(&uuid)?;
     let rows = EntityRecord::delete(state, id).await?;
-    
+
     // If no entity was affected, return 404 Not Found.
     if rows == 0 {
         return Ok(Status::NotFound);

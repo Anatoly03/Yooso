@@ -38,8 +38,7 @@ pub async fn view_entity(
         let mut v = vec![];
 
         for component in component_tables {
-            let fields_opt = component.for_entity(state, general_state, &uuid)
-                .await;
+            let fields_opt = component.for_entity(state, general_state, &uuid).await;
 
             v.push((component, fields_opt));
         }

@@ -38,17 +38,17 @@
 //!   and helper functions.
 //! - `uuid`: Enables validation for UUID types. This allows you to validate UUIDs from
 //!   strings and ensure they are in the correct format.
-//! 
+//!
 //! # Semantics
-//! 
+//!
 //! Error messages should be short, concise and contextless. The context can be prepended
 //! along the stack of validation calls. The final error messages grows from the right to
 //! the left.
-//! 
+//!
 //! ```text
 //! Error validating input: Component Name: Value must not be the SQL keyword `select`
 //! ```
-//! 
+//!
 //! For example the method [not_sql_keyword] does not need to know the field name, and
 //! speaks with words like "value" instead of specific field names. The context should be
 //! added by the caller.

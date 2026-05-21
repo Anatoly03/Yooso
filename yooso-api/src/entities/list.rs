@@ -10,9 +10,9 @@ use yooso_core::error::Result;
 use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 
 /// The response body for the entity listing endpoint.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```json
 /// {
 ///     "success": true,
@@ -66,9 +66,9 @@ pub struct ComponentListResponse {
 
 /// Represents a single entity in the response of the entity listing endpoint.
 /// Contains the entity's ID, creation timestamp, and a list of its components.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```json
 /// {
 ///     "id": "019dab9a-7863-7823-a92d-51659c8f57ec",
@@ -93,15 +93,15 @@ pub struct EntityResponse {
 
 /// The endpoint for listing entities. This will retrieve all entities from
 /// the database.
-/// 
+///
 /// # Example Request
-/// 
+///
 /// ```http
 /// GET /api/entities/list
 /// ```
-/// 
+///
 /// # Example Response
-/// 
+///
 /// ```json
 /// {
 ///     "success": true,

@@ -18,10 +18,10 @@ pub fn launch(mut function: ItemFn) -> TokenStream {
         #(#original_fn_attr)*
         ///
         /// # Macro Expansion
-        /// 
+        ///
         /// The function marked with [yooso::launch] will be renamed internally
         /// to `__yooso_launch_yooso` and wrapped into an async [main] function.
-        /// 
+        ///
         /// ```no_run
         #[doc = concat!(stringify!(#original_fn_vis fn main()), " {")]
         ///     ::yooso::rocket::tokio::runtime::Builder

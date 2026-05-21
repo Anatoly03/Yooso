@@ -292,7 +292,7 @@ pub fn collection(
         })
         .collect::<Vec<_>>();
 
-    // example: [ `id: Uuid`, `other_id: String`, ... ] 
+    // example: [ `id: Uuid`, `other_id: String`, ... ]
     let delete_args = field_metas
         .iter()
         .filter(|field_meta| field_meta.primary)
@@ -303,7 +303,7 @@ pub fn collection(
         })
         .collect::<Vec<_>>();
 
-    // example: [ `id.to_string()`, `other_id`, ... ] 
+    // example: [ `id.to_string()`, `other_id`, ... ]
     let delete_values = field_metas
         .iter()
         .filter(|field_meta| field_meta.primary)

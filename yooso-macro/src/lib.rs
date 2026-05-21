@@ -58,7 +58,7 @@ pub fn database(args: TokenStream, input: TokenStream) -> TokenStream {
 /// ```
 /// use yooso_macro::{database,collection};
 /// use uuid::Uuid;
-/// 
+///
 /// #[database(".yooso/meta.sqlite")]
 /// struct MetaDB;
 ///
@@ -69,32 +69,32 @@ pub fn database(args: TokenStream, input: TokenStream) -> TokenStream {
 ///     created_at: i32,
 /// }
 /// ```
-/// 
+///
 /// The example above will produce the table with the following schema in
 /// the `MetaDB` database (at path `.yooso/meta.sqlite`).
-/// 
+///
 /// | CID | Name         | Type    | Not Null | Default | PK
 /// | --- | ------------ | ------- | -------- | ------- | ---
 /// | 0   | `id`         | TEXT    | YES      | NULL    | KEY
-/// | 1   | `created_at` | INTEGER | YES      | NULL    | 
-/// 
+/// | 1   | `created_at` | INTEGER | YES      | NULL    |
+///
 /// # Attributes
-/// 
+///
 /// ### `#[primary]`
-/// 
+///
 /// Marks the primary key column of the table. This is required for all
 /// collections and must be a single field.
-/// 
+///
 /// ### `#[unique(...)]`
-/// 
+///
 /// Marks a unique constraint on the table. This is equivalent to
 /// [SQL indecess](https://www.sqlitetutorial.net/sqlite-index/) and can be used to
 /// enforce an invariant on the collection.
-/// 
+///
 /// ```no_run
 /// use yooso_macro::{database,collection};
 /// use uuid::Uuid;
-/// 
+///
 /// #[database(".yooso/meta.sqlite")]
 /// struct MetaDB;
 ///
@@ -112,26 +112,28 @@ pub fn database(args: TokenStream, input: TokenStream) -> TokenStream {
 ///     pub position: i32,
 /// }
 /// ```
-/// 
+///
 /// The example above will produce the table with the following schema in
 /// the `MetaDB` database (at path `.yooso/meta.sqlite`).
-/// 
+///
 /// | CID | Name           | Type    | Not Null | Default | PK
 /// | --- | -------------- | ------- | -------- | ------- | ---
 /// | 0   | `id`           | TEXT    | YES      | NULL    | KEY
-/// | 1   | `component_id` | TEXT    | YES      | NULL    | 
-/// | 2   | `field_name`   | TEXT    | YES      | NULL    | 
-/// | 3   | `position`     | INTEGER | YES      | NULL    | 
-/// 
+/// | 1   | `component_id` | TEXT    | YES      | NULL    |
+/// | 2   | `field_name`   | TEXT    | YES      | NULL    |
+/// | 3   | `position`     | INTEGER | YES      | NULL    |
+///
 /// ### `#[default(...)]`
-/// 
+///
 /// Currently unused, reserved for future use.
 #[proc_macro_attribute]
 pub fn collection(args: TokenStream, input: TokenStream) -> TokenStream {
     let meta = parse_macro_input!(args as CollectionMeta);
     let mut item = parse_macro_input!(input as syn::ItemStruct);
     let unique_attributes = consume_attributes_by_name(&mut item.attrs, "unique")
-        .iter().map(|f| f.meta.clone()).collect::<Vec<_>>();
+        .iter()
+        .map(|f| f.meta.clone())
+        .collect::<Vec<_>>();
 
     macro_collection::collection(meta, item, unique_attributes).into()
 }
