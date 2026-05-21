@@ -12,7 +12,6 @@ use yooso_storage::{ComponentRecord, MetaDBState, Pagination};
 ///
 /// ```json
 /// {
-///     "success": true,
 ///     "components": [
 ///         {
 ///             "id": "019dab99-a5c4-7b50-a748-3152cacaa0b5",
@@ -54,7 +53,6 @@ use yooso_storage::{ComponentRecord, MetaDBState, Pagination};
 /// ```
 #[derive(Debug, Serialize)]
 pub struct ComponentListResponse {
-    pub success: bool,
     pub components: Vec<ComponentRecord>,
 }
 
@@ -71,7 +69,6 @@ pub struct ComponentListResponse {
 ///
 /// ```json
 /// {
-///     "success": true,
 ///     "components": [
 ///         {
 ///             "id": "019dab99-a5c4-7b50-a748-3152cacaa0b5",
@@ -124,7 +121,6 @@ pub async fn list_components(
     let components = ComponentRecord::list(state, pagination.per_page, pagination.page).await?;
 
     Ok(Json(ComponentListResponse {
-        success: true,
         components,
     }))
 }

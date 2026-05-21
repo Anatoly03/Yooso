@@ -43,7 +43,9 @@
 - [ ] Rewrite to rusqlite query builders and remove runtime string queries. 
 - [x] Github CI (Tests)
 - [ ] HTTP-code based API handling.
-  - [ ] Remove `success` field from all responses.
+  - [x] Remove `success` field from all responses.
+    - [x] On the server
+    - [ ] On the client
 - [ ] Error Handling & Validation (Rust)
   - [ ] Entities
     - [ ] List (Entities)

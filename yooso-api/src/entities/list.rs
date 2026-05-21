@@ -15,7 +15,6 @@ use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState, 
 ///
 /// ```json
 /// {
-///     "success": true,
 ///     "entities": [
 ///         {
 ///             "id": "019dab4e-4cee-7071-80a6-6cb89e5ee03c",
@@ -105,7 +104,8 @@ pub struct EntityResponse {
 ///
 /// ```json
 /// {
-///     "success": true,
+///     "page": 1,
+///     "per_page": 25,
 ///     "entities": [
 ///         {
 ///             "id": "019dab4e-4cee-7071-80a6-6cb89e5ee03c",

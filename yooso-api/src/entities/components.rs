@@ -1,10 +1,11 @@
 //! This module manages entity-component relations.
 //! TODO: document
 
-use rocket::serde::json::{Json, Value, json};
+use rocket::serde::json::{Json, Value};
 use rocket::{State, delete, post};
 use util_validation::ValidationError;
 use uuid::Uuid;
+use yooso_core::Error;
 use yooso_core::error::Result;
 use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 
@@ -16,7 +17,7 @@ pub async fn add_component(
     id: &str,
     component_id: &str,
     body: Json<Value>,
-) -> Result<Json<Value>> {
+) -> Result<()> {
     let entity_uuid = Uuid::parse_str(id)?;
     let component_uuid = Uuid::parse_str(component_id)?;
 
@@ -96,7 +97,7 @@ pub async fn add_component(
     let conn = general_state.0.lock()?;
     conn.execute(&query, [])?;
 
-    Ok(Json(json!({ "success": true })))
+    Ok(())
 }
 
 /// TODO: document
@@ -106,37 +107,14 @@ pub async fn remove_component(
     general_state: &State<GeneralDBState>,
     id: &str,
     component_id: &str,
-) -> Json<Value> {
-    let entity_uuid = match Uuid::parse_str(id) {
-        Ok(uuid) => uuid,
-        Err(err) => {
-            return Json(json! ({
-                "success": false,
-                "error": format!("invalid entity UUID: {err}"),
-            }));
-        }
-    };
-
-    let component_uuid = match Uuid::parse_str(component_id) {
-        Ok(uuid) => uuid,
-        Err(err) => {
-            return Json(json! ({
-                "success": false,
-                "error": format!("invalid component UUID: {err}"),
-            }));
-        }
-    };
+) -> Result<()> {
+    let entity_uuid = Uuid::parse_str(id)?;
+    let component_uuid = Uuid::parse_str(component_id)?;
 
     // Check that the component exists.
-    let component = match ComponentRecord::view(state, &component_uuid).await {
-        Ok(component) => component,
-        Err(err) => {
-            return Json(json! ({
-                "success": false,
-                "error": format!("failed to view component: {err}"),
-            }));
-        }
-    };
+    let component = ComponentRecord::view(state, &component_uuid)
+        .await
+        .map_err(|_| Error::NotFound)?;
     // let component_name = component.component_name;
 
     // Create SQL query (insert row into component table with entity as key)
@@ -147,22 +125,8 @@ pub async fn remove_component(
     );
 
     // Execute query
-    let conn = match general_state.0.lock() {
-        Ok(conn) => conn,
-        Err(err) => {
-            return Json(json! ({
-                "success": false,
-                "error": format!("failed to lock db: {err}"),
-            }));
-        }
-    };
+    let conn = general_state.0.lock()?;
+    conn.execute(&query, [])?;
 
-    if let Err(err) = conn.execute(&query, []) {
-        return Json(json! ({
-            "success": false,
-            "error": format!("failed to execute query: {err}"),
-        }));
-    }
-
-    Json(json!({ "success": true }))
+    Ok(())
 }
