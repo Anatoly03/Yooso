@@ -5,9 +5,7 @@
             :data="data"
             @view-component="openEditComponentDrawer"
             @new-component="openCreateNewComponentDrawer"
-            @view-documentation="openDocumentationDrawer = true"
         />
-        <view-component-documentation v-model:show="openDocumentationDrawer" />
         <n-drawer v-model:show="editComponent" :default-width="612" :min-width="416" placement="right" resizable>
             <n-drawer-content :title="editComponentIsNew ? $t('app.create.component') : $t('app.actions.edit') + ': ' + editComponentName">
                 <n-form style="display: flex; flex-direction: column; gap: 5px">
@@ -34,7 +32,6 @@ import yooso from '../../services/yooso';
 import EditComponentLabel from '../ui/EditComponentLabel.vue';
 import ViewFieldsEditor, { type ComponentField } from '../tables/ViewFieldsEditor.vue';
 import ViewComponents from '../tables/ViewComponents.vue';
-import ViewComponentDocumentation from '../docs/ViewComponentDocumentation.vue';
 
 const editComponent = ref(false);
 const editComponentId = ref('');
@@ -47,7 +44,6 @@ const loadingRef = ref(true);
 const editComponentLoadingRef = ref(false);
 const editComponentSubmittingRef = ref(false);
 const editComponentError = ref<string | null>(null);
-const openDocumentationDrawer = ref(false);
 const data = ref<any[]>([]);
 
 async function openEditComponentDrawer(id: string) {

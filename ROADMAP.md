@@ -43,6 +43,8 @@
   Validated data is immutable unless it is invalidated.
 - [ ] Rewrite to rusqlite query builders and remove runtime string queries. 
 - [x] Github CI (Tests)
+- [ ] HTTP-code based API handling.
+  - [ ] Remove `success` field from all responses.
 - [ ] Error Handling & Validation
   - [ ] Entities
     - [ ] List (Entities)
@@ -154,6 +156,7 @@ The home page in the admin UI should be customizable. Boxes counting and listing
 - [ ] Create pre-release tag `v0.1.1`
 - [ ] Themes
   - https://www.naiveui.com/en-US/os-theme/docs/customize-theme
+- [ ] API Documentation in-app
 - [ ] Localization
   - https://vue-i18n.intlify.dev/guide/essentials/pluralization.html
   - [x] Technical Support for Localization (Ability to Select Locale)
