@@ -1,6 +1,6 @@
 //! TODO: document
 
-use rocket::serde::json::{Json, json};
+use rocket::serde::json::Json;
 use rocket::{State, patch};
 use serde::{Deserialize, Serialize};
 use util_validation::validate;

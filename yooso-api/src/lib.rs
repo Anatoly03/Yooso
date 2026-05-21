@@ -3,7 +3,6 @@
 mod components;
 mod entities;
 mod logs;
-mod success;
 
 use rocket::{Build, Ignite, Rocket};
 use rocket_cors::{Cors, CorsOptions};

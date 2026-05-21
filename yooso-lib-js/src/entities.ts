@@ -64,7 +64,6 @@ export default class YoosoEntityManager {
 
     // TODO list entities
 
-
     /**
      * Creates a new entity on the Yooso server.
      */

@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use util_validation::{ValidateFrom, Validated, ValidationError};
 use uuid::Uuid;
 use yooso_core::error::Result;
@@ -6,6 +7,7 @@ use yooso_core::error::Result;
 #[collection(db = crate::MetaDB, table = "fields")]
 #[unique(component_id, field_name)]
 #[unique(component_id, position)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ComponentFieldRecord {
     /// Snowflake value. This is the unique identifier of the field.
     #[primary]
@@ -69,8 +71,7 @@ impl ValidateFrom<Self> for ComponentFieldRecord {
         let field_name = &input.field_name;
         let field_type = &input.field_type;
 
-        util_validation::not_empty(field_name)
-            .map_err(|e| e.prepend("Field name"))?;
+        util_validation::not_empty(field_name).map_err(|e| e.prepend("Field name"))?;
         util_validation::valid_sql_ident(field_name)
             .map_err(|e| e.prepend(format!("Field `{field_name}`")))?;
         util_validation::not_sql_keyword(field_name)

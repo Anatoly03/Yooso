@@ -1,9 +1,8 @@
 //! Defines the component deletion endpoint.
 
-use crate::success::SuccessUnit;
 use rocket::{State, delete};
 use uuid::Uuid;
-use yooso_core::error::Result;
+use yooso_core::{Error, error::Result};
 use yooso_storage::{ComponentRecord, GeneralDBState, MetaDBState};
 
 /// The endpoint for deleting a component. Finds the component record corresponding to
@@ -18,19 +17,20 @@ use yooso_storage::{ComponentRecord, GeneralDBState, MetaDBState};
 ///
 /// # Example Response
 ///
-/// ```json
-/// {
-///     "success": true
-/// }
+/// ```http
+/// 200 OK
 /// ```
 #[delete("/<uuid>")]
 pub async fn delete_component(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,
     uuid: &str,
-) -> Result<SuccessUnit> {
+) -> Result<()> {
     let id = Uuid::parse_str(&uuid)?;
-    let component = ComponentRecord::view(state, &id).await?;
+    let component = ComponentRecord::view(state, &id)
+        .await
+        .map_err(|_| Error::NotFound)?;
     component.delete_recursive(state, general_state).await?;
-    Ok(SuccessUnit)
+
+    Ok(())
 }

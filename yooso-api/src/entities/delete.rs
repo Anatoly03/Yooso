@@ -1,6 +1,6 @@
 //! Defines the entity deletion endpoint.
 
-use rocket::{State, delete};
+use rocket::{State, delete, http::Status};
 use uuid::Uuid;
 use yooso_core::Result;
 use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
@@ -23,13 +23,20 @@ pub async fn delete_entity(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,
     uuid: &str,
-) -> Result<()> {
+) -> Result<Status> {
+    // If uuid is not valid, return 400 Bad Request.
     let id = Uuid::parse_str(&uuid)?;
-    EntityRecord::delete(state, id).await?;
-
-    for component in ComponentRecord::list_all(state).await? {
-        component.remove_entity(&general_state, &id).await?;
+    let rows = EntityRecord::delete(state, id).await?;
+    
+    // If no entity was affected, return 404 Not Found.
+    if rows == 0 {
+        return Ok(Status::NotFound);
     }
 
-    Ok(())
+    // Delete entity recursively (delete from all components).
+    for component in ComponentRecord::list_all(state).await? {
+        let _ = component.remove_entity(&general_state, &id).await;
+    }
+
+    Ok(Status::Ok)
 }

@@ -1,15 +1,15 @@
 //! Defines the component listing endpoint.
 
-use rocket::serde::json::{Json};
+use rocket::serde::json::Json;
 use rocket::{State, get};
-use serde::{Serialize};
-use yooso_storage::{ComponentRecord, MetaDBState};
+use serde::Serialize;
 use yooso_core::error::Result;
+use yooso_storage::{ComponentRecord, MetaDBState};
 
 /// The response body for the component listing endpoint.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```json
 /// {
 ///     "success": true,
@@ -60,15 +60,15 @@ pub struct ComponentListResponse {
 
 /// The endpoint for listing components. This will retrieve all entities from
 /// the database.
-/// 
+///
 /// # Example Request
-/// 
+///
 /// ```http
 /// GET /api/components/list
 /// ```
-/// 
+///
 /// # Example Response
-/// 
+///
 /// ```json
 /// {
 ///     "success": true,
@@ -112,9 +112,7 @@ pub struct ComponentListResponse {
 /// }
 /// ```
 #[get("/list")]
-pub async fn list_components(
-    state: &State<MetaDBState>,
-) -> Result<Json<ComponentListResponse>> {
+pub async fn list_components(state: &State<MetaDBState>) -> Result<Json<ComponentListResponse>> {
     let components = ComponentRecord::list_all(state).await?;
 
     Ok(Json(ComponentListResponse {

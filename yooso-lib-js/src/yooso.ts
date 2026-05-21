@@ -22,6 +22,8 @@ export default class Yooso {
      */
     private hostname: string;
 
+    // private hostpath: string = '/';
+
     /**
      * Creates a new Yooso instance.
      * @param url The URL of the Yooso server.
@@ -39,6 +41,7 @@ export default class Yooso {
         // Remove path (everything after first flash)
         let slashIndex = url.indexOf('/');
         if (slashIndex !== -1) {
+            // this.hostpath = url.substring(slashIndex);
             url = url.substring(0, slashIndex);
         }
 
@@ -60,6 +63,14 @@ export default class Yooso {
     }
 
     /**
+     * @returns The socket host URL, including protocol, but without path. For
+     * example, `wss://yooso.com` or `ws://localhost:8080`.
+     */
+    public get socket(): string {
+        return (this.secure ? 'wss://' : 'ws://') + this.hostname;
+    }
+
+    /**
      * Fetches a resource from the Yooso server. Wraps around {@link fetch} and
      * prepends the host URL to the path.
      *
@@ -75,6 +86,16 @@ export default class Yooso {
 
         return response;
     }
+
+    // /**
+    //  * Establishes a WebSocket connection to the Yooso server. The returned socket is
+    //  * already connected and ready to use.
+    //  */
+    // public connect(path: `/${string}`): WebSocket {
+    //     const socket = new WebSocket(this.socket + path);
+    //     socket.binaryType = 'arraybuffer';
+    //     return socket;
+    // }
 
     /**
      * Fetches a resource from the Yooso server.
