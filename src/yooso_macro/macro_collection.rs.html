@@ -313,7 +313,7 @@
 <a href=#313 id=313 data-nosnippet>313</a>        .map(|field_meta| {
 <a href=#314 id=314 data-nosnippet>314</a>            <span class="kw">let </span>ident = <span class="macro">format_ident!</span>(<span class="string">"{}"</span>, field_meta.name);
 <a href=#315 id=315 data-nosnippet>315</a>            <span class="kw">let </span>ty = field_meta.ty.clone();
-<a href=#316 id=316 data-nosnippet>316</a>            <span class="macro">quote!</span> { #ident: #ty }
+<a href=#316 id=316 data-nosnippet>316</a>            <span class="macro">quote!</span> { #ident: <span class="kw-2">&amp;</span>#ty }
 <a href=#317 id=317 data-nosnippet>317</a>        })
 <a href=#318 id=318 data-nosnippet>318</a>        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 <a href=#319 id=319 data-nosnippet>319</a>
@@ -535,7 +535,7 @@
 <a href=#535 id=535 data-nosnippet>535</a>            ///
 <a href=#536 id=536 data-nosnippet>536</a>            /// This method returns a vector of all rows in the collection's table, deserialized
 <a href=#537 id=537 data-nosnippet>537</a>            /// into instances of the struct. If the table is empty, this yields an empty vector.
-<a href=#538 id=538 data-nosnippet>538</a>            </span><span class="kw">pub async fn </span>list(db: <span class="kw-2">&amp;</span>#db_state_struct_name, pagination: <span class="kw-2">&amp;</span><span class="kw">super</span>::Pagination) -&gt; <span class="prelude-ty">Result</span>&lt;::std::vec::Vec&lt;<span class="self">Self</span>&gt;, ::yooso_core::Error&gt; {
+<a href=#538 id=538 data-nosnippet>538</a>            </span><span class="kw">pub async fn </span>list(db: <span class="kw-2">&amp;</span>#db_state_struct_name, per_page: usize, page: usize) -&gt; <span class="prelude-ty">Result</span>&lt;::std::vec::Vec&lt;<span class="self">Self</span>&gt;, ::yooso_core::Error&gt; {
 <a href=#539 id=539 data-nosnippet>539</a>                <span class="kw">let </span>conn = db.<span class="number">0</span>.lock()
 <a href=#540 id=540 data-nosnippet>540</a>                    .map_err(|e| ::yooso_core::Error::from(e))<span class="question-mark">?</span>;
 <a href=#541 id=541 data-nosnippet>541</a>
@@ -550,8 +550,8 @@
 <a href=#550 id=550 data-nosnippet>550</a>
 <a href=#551 id=551 data-nosnippet>551</a>                <span class="kw">let </span>rows = stmt.query_map(
 <a href=#552 id=552 data-nosnippet>552</a>                    <span class="macro">::rusqlite::params!</span>[
-<a href=#553 id=553 data-nosnippet>553</a>                        pagination.per_page,
-<a href=#554 id=554 data-nosnippet>554</a>                        (pagination.page - <span class="number">1</span>) * pagination.per_page
+<a href=#553 id=553 data-nosnippet>553</a>                        per_page,
+<a href=#554 id=554 data-nosnippet>554</a>                        (page - <span class="number">1</span>) * per_page,
 <a href=#555 id=555 data-nosnippet>555</a>                    ],
 <a href=#556 id=556 data-nosnippet>556</a>                    |row| {
 <a href=#557 id=557 data-nosnippet>557</a>                        <span class="prelude-val">Ok</span>(#struct_name {
