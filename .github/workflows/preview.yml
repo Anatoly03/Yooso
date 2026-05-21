@@ -50,7 +50,7 @@ jobs:
         run: npm run build --workspace=yooso-studio -- --mode demo
 
       - name: Cache Rust dependencies for preview backend
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
