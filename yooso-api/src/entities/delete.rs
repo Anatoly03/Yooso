@@ -25,7 +25,7 @@ pub async fn delete_entity(
     uuid: &str,
 ) -> Result<Status> {
     // If uuid is not valid, return 400 Bad Request.
-    let id = Uuid::parse_str(&uuid)?;
+    let id = Uuid::parse_str(uuid)?;
     let rows = EntityRecord::delete(state, id).await?;
 
     // If no entity was affected, return 404 Not Found.
@@ -35,7 +35,7 @@ pub async fn delete_entity(
 
     // Delete entity recursively (delete from all components).
     for component in ComponentRecord::list_all(state).await? {
-        let _ = component.remove_entity(&general_state, &id).await;
+        let _ = component.remove_entity(general_state, &id).await;
     }
 
     Ok(Status::Ok)

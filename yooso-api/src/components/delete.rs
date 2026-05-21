@@ -26,7 +26,7 @@ pub async fn delete_component(
     general_state: &State<GeneralDBState>,
     uuid: &str,
 ) -> Result<()> {
-    let id = Uuid::parse_str(&uuid)?;
+    let id = Uuid::parse_str(uuid)?;
     let component = ComponentRecord::view(state, &id)
         .await
         .map_err(|_| Error::NotFound)?;

@@ -54,7 +54,7 @@ pub async fn view_component(
     state: &State<MetaDBState>,
     uuid: &str,
 ) -> Result<Json<ViewComponentResponse>> {
-    let id = Uuid::parse_str(&uuid)?;
+    let id = Uuid::parse_str(uuid)?;
     let metadata = ComponentRecord::view(state, &id)
         .await
         .map_err(|_| Error::Code(Status::NotFound))?;
