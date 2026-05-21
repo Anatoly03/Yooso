@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use yooso_core::Component;
 use yooso_core::error::Result;
-use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
+use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState, Pagination};
 
 /// The response body for the entity listing endpoint.
 ///
@@ -60,7 +60,8 @@ use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 /// ```
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ComponentListResponse {
-    pub success: bool,
+    pub page: usize,
+    pub per_page: usize,
     pub entities: Vec<EntityResponse>,
 }
 
@@ -147,12 +148,19 @@ pub struct EntityResponse {
 ///     ]
 /// }
 /// ```
-#[get("/list")]
+#[get("/list?<per_page>&<page>")]
 pub async fn list_entities(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,
+    per_page: Option<u32>,
+    page: Option<u32>,
 ) -> Result<Json<ComponentListResponse>> {
-    let entities = EntityRecord::list_all(state).await?;
+    let pagination = Pagination {
+        page: (page.unwrap_or(1) as usize).max(1), // ensure page is at least 1
+        per_page: (per_page.unwrap_or(25) as usize).min(100), // cap per_page at 100 to prevent abuse
+    };
+    let entities = EntityRecord::list(state, &pagination).await?;
+
     let component_tables = ComponentRecord::list_all(state).await?;
     let mut response_entities = Vec::with_capacity(entities.len());
 
@@ -185,7 +193,8 @@ pub async fn list_entities(
     }
 
     Ok(Json(ComponentListResponse {
-        success: true,
+        page: pagination.page,
+        per_page: pagination.per_page,
         entities: response_entities,
     }))
 }

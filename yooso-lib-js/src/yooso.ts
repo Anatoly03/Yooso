@@ -77,8 +77,16 @@ export default class Yooso {
      * @param path The path to the resource, starting with a slash.
      * @param options The options to pass to {@link fetch}.
      */
-    private async fetch(path: `/${string}`, options?: RequestInit): Promise<Response> {
-        const response = await fetch(this.host + path, options);
+    private async fetch(path: `/${string}`, options?: RequestInit & { query?: { [key: string]: string } }): Promise<Response> {
+        let constructedPath = this.host + path;
+
+        // append query parameters if provided
+        if (options?.query) {
+            const queryParams = new URLSearchParams(options.query);
+            constructedPath += `?${queryParams.toString()}`;
+        }
+
+        const response = await fetch(constructedPath, options);
 
         if (!response.ok) {
             console.error(`GET yooso/${path} -> ${response.status}: ${response.statusText}`);
@@ -102,8 +110,8 @@ export default class Yooso {
      * @param path The path to the resource, starting with a slash.
      * @returns A promise resolving to the response.
      */
-    public get(path: `/${string}`): Promise<Response> {
-        return this.fetch(path, { method: 'GET' });
+    public get(path: `/${string}`, options?: { query?: { [key: string]: any } }): Promise<Response> {
+        return this.fetch(path, { method: 'GET', ...options });
     }
 
     /**

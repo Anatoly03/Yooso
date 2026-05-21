@@ -1,6 +1,7 @@
 //! Defines the entity creation endpoint.
 
-use rocket::{State, http::Status, post};
+use rocket::{State, http::Status, post, serde::json::Json};
+use yooso_core::Result;
 use yooso_storage::{EntityRecord, MetaDBState};
 
 /// The endpoint for creating a new entity. This will generate a new entity with
@@ -16,15 +17,16 @@ use yooso_storage::{EntityRecord, MetaDBState};
 ///
 /// ```http
 /// 201 Created
-/// Content-Length: 36
-/// Content-Type: text/plain; charset=utf-8
 ///
-/// 019dd39a-5605-7743-b916-4067af05d0ef
+/// {
+///   "id": "019e2bb7-1fc2-7e73-9df5-5a74537e0bcd",
+///   "created_at": 1778849882050
+/// }
 /// ```
 #[post("/")]
-pub async fn create_entity(state: &State<MetaDBState>) -> yooso_core::Result<(Status, String)> {
+pub async fn create_entity(state: &State<MetaDBState>) -> Result<(Status, Json<EntityRecord>)> {
     // This always returns 201 as nothing can go wrong here.
     let entity = EntityRecord::create_new();
     entity.save(state).await?;
-    Ok((Status::Created, entity.id.to_string()))
+    Ok((Status::Created, Json(entity)))
 }

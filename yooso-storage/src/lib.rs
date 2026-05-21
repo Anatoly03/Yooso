@@ -10,11 +10,13 @@ mod components;
 mod entities;
 mod fields;
 mod logs;
+mod pagination;
 
 pub use components::ComponentRecord;
 pub use entities::EntityRecord;
 pub use fields::ComponentFieldRecord;
 pub use logs::LogRecord;
+pub use pagination::Pagination;
 
 /// Meta database for Yooso, which contains the component definitions and other
 /// system tables.

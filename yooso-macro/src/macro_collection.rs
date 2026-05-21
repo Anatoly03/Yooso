@@ -213,6 +213,20 @@ pub fn collection(
         )
     };
 
+    // Generate 'SELECT * FROM LIMIT OFFSET' syntax for the list generator.
+    let sql_select_paginated = {
+        let field_names = field_metas
+            .iter()
+            .map(|field_meta| field_meta.name.clone())
+            .collect::<Vec<_>>();
+
+        format!(
+            "SELECT {} FROM {} LIMIT ? OFFSET ?",
+            field_names.join(", "),
+            table_name.value()
+        )
+    };
+
     // Generate 'INSERT INTO' syntax for the insert generator.
     let sql_insert_into = {
         let field_names = fields
@@ -476,6 +490,7 @@ pub fn collection(
             ///
             /// This method returns a vector of all rows in the collection's table, deserialized
             /// into instances of the struct. If the table is empty, this yields an empty vector.
+            #[deprecated(note = "This method is not optimized for large tables and should only be used for development and debugging purposes. Use `list` with pagination instead.")]
             pub async fn list_all(db: &#db_state_struct_name) -> Result<::std::vec::Vec<Self>, ::yooso_core::Error> {
                 let conn = db.0.lock()
                     .map_err(|e| ::yooso_core::Error::from(e))?;
@@ -494,6 +509,55 @@ pub fn collection(
                         #(#field_ids: #select_values),*
                     })
                 })
+                .map_err(|e| ::yooso_core::Error::from(e))?;
+
+                let vec = rows.collect::<std::result::Result<Vec<_>, ::rusqlite::Error>>()
+                    .map_err(|e| ::yooso_core::Error::from(e))?;
+
+                Ok(vec)
+            }
+
+            /// Lists all rows in the collection's table, returning them as a vector.
+            ///
+            /// **This method is not optimized for large tables and should only be used for
+            /// small collections. This method is primarily intended for development and
+            /// debugging purposes.**
+            ///
+            /// # Query
+            ///
+            /// This method will execute the following SQL query.
+            ///
+            /// ```sql
+            #[doc = #sql_select_paginated]
+            /// ```
+            ///
+            /// # Returns
+            ///
+            /// This method returns a vector of all rows in the collection's table, deserialized
+            /// into instances of the struct. If the table is empty, this yields an empty vector.
+            pub async fn list(db: &#db_state_struct_name, pagination: &super::Pagination) -> Result<::std::vec::Vec<Self>, ::yooso_core::Error> {
+                let conn = db.0.lock()
+                    .map_err(|e| ::yooso_core::Error::from(e))?;
+
+                if cfg!(debug_assertions) {
+                    eprintln!("\x1b[90m{}\x1b[0m", #sql_select_paginated);
+                }
+
+                // Execute the SELECT SQL statement to retrieve all rows from the collection table.
+                let mut stmt = conn
+                    .prepare(#sql_select_paginated)
+                    .map_err(|e| ::yooso_core::Error::from(e))?;
+
+                let rows = stmt.query_map(
+                    ::rusqlite::params![
+                        pagination.per_page,
+                        (pagination.page - 1) * pagination.per_page
+                    ],
+                    |row| {
+                        Ok(#struct_name {
+                            #(#field_ids: #select_values),*
+                        })
+                    })
                 .map_err(|e| ::yooso_core::Error::from(e))?;
 
                 let vec = rows.collect::<std::result::Result<Vec<_>, ::rusqlite::Error>>()

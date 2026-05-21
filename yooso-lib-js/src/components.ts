@@ -133,11 +133,14 @@ export default class YoosoComponentManager {
     /**
      * Lists the available components on the Yooso server. If an error occurs,
      * returns the empty array.
+     * @param options Optional parameters for pagination. `per_page` is the number of components to display
+     *   per page, and `page` is the page number to return (starting from 1). If provided, these parameters
+     *   will be mutated to reflect response values.
      */
-    public async list(): Promise<Component[]> {
+    public async list(options?: { per_page?: number; page?: number }): Promise<Component[]> {
         try {
             this.setLoading(true);
-            const response = await this.yooso.get('/api/components/list');
+            const response = await this.yooso.get('/api/components/list', { query: options });
             const result = await response.json();
             this.setLoading(false);
 

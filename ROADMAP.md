@@ -45,9 +45,10 @@
 - [x] Github CI (Tests)
 - [ ] HTTP-code based API handling.
   - [ ] Remove `success` field from all responses.
-- [ ] Error Handling & Validation
+- [ ] Error Handling & Validation (Rust)
   - [ ] Entities
     - [ ] List (Entities)
+      - [x] Pagination
     - [ ] View (Components per Entity)
     - [x] Create (Entity)
     - [x] Remove (Entity)
@@ -58,6 +59,7 @@
       - [ ] Remove (Components of Entity)
   - [ ] Components
     - [ ] List (Components)
+      - [x] Pagination
     - [x] View (Component Fields and Meta)
     - [ ] Create Component
     - [ ] Patch Name and Color
@@ -75,6 +77,7 @@
     - [ ] (Generated) Component Tables
   - [ ] `cargo fmt`
   - [ ] `cargo clippy`
+- [ ] Refactor client to use error messages.
 - [ ] Refactor
   - [ ] Centralize Field Validation (allowed field types, supported field names, duplicate/ empty checks)
   - [ ] Move SQL construction behind tighter storage-facing helper (API handlers should not assembly them)

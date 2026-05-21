@@ -2,6 +2,7 @@
  * @file api.ts
  */
 
+import { Pagination } from './pagination';
 import Yooso from './yooso';
 
 /**
@@ -62,7 +63,39 @@ export default class YoosoEntityManager {
         }
     }
 
-    // TODO list entities
+    /**
+     * Lists the available entities on the Yooso server. If an error occurs,
+     * returns the empty array.
+     * @param options Optional parameters for pagination. `per_page` is the number of components to display
+     *   per page, and `page` is the page number to return (starting from 1). If provided, these parameters
+     *   will be mutated to reflect response values.
+     */
+    public async list(options?: Pagination): Promise<any[]> {
+        try {
+            this.setLoading(true);
+            const response = await this.yooso.get('/api/entities/list', { query: options });
+
+            if (!response.ok) {
+                const text = await response.text();
+                this.setError(text || response.statusText);
+            }
+
+            const result = await response.json();
+            this.setLoading(false);
+
+            if (!result.success) {
+                this.setError(result.message || 'Failed to fetch entities');
+                return [];
+            }
+
+            this.setError(null);
+            return result.entities;
+        } catch (e) {
+            this.setLoading(false);
+            this.setError((e as Error).message || 'An unknown error occurred while fetching entities');
+            return [];
+        }
+    }
 
     /**
      * Creates a new entity on the Yooso server.
@@ -90,16 +123,16 @@ export default class YoosoEntityManager {
     // TODO PATCH entity components
 
     /**
-     * Deletes a component by its UUID. If an error occurs, returns false.
+     * Deletes an entity by its UUID. If an error occurs, returns false.
      */
     public async delete(uuid: string): Promise<boolean> {
         try {
             this.setLoading(true);
-            const response = await this.yooso.delete(`/api/components/${uuid}`);
+            const response = await this.yooso.delete(`/api/entities/${uuid}`);
             this.setLoading(false);
 
             if (!response.ok) {
-                this.setError('Failed to delete component');
+                this.setError('Failed to delete entity');
                 return false;
             }
 
@@ -107,7 +140,7 @@ export default class YoosoEntityManager {
             return true;
         } catch (e) {
             this.setLoading(false);
-            this.setError((e as Error).message || 'An unknown error occurred while deleting a component');
+            this.setError((e as Error).message || 'An unknown error occurred while deleting an entity');
             return false;
         }
     }

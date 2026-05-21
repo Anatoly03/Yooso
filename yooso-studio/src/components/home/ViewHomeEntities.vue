@@ -137,8 +137,6 @@ async function refreshEntityList() {
         const response = await fetch(import.meta.env.VITE_API_SERVER + '/api/entities/list');
         const result = await response.json();
 
-        if (!result.success) throw new Error(result.message || 'Failed to fetch entities');
-
         data.value = result.entities.map((entity: any) => ({
             ...entity,
             components: entity.components ?? [],
