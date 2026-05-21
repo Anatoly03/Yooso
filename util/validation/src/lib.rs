@@ -53,6 +53,8 @@
 //! speaks with words like "value" instead of specific field names. The context should be
 //! added by the caller.
 
+use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 use std::result::Result;
 use std::{fmt::Display, ops::Deref};
 
@@ -97,6 +99,49 @@ impl<T> Deref for Validated<T> {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl<T> Debug for Validated<T>
+where
+    T: Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.0)
+    }
+}
+
+impl<T> Clone for Validated<T>
+where
+    T: Clone,
+{
+    fn clone(&self) -> Self {
+        Validated(self.0.clone())
+    }
+}
+
+impl<T> Serialize for Validated<T>
+where
+    T: Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.0.serialize(serializer)
+    }
+}
+
+impl<'de, T> Deserialize<'de> for Validated<T>
+where
+    T: Deserialize<'de>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = T::deserialize(deserializer)?;
+        Ok(Validated(value))
     }
 }
 

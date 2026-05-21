@@ -12,7 +12,7 @@ use yooso_storage::{ComponentRecord, GeneralDBState, MetaDBState};
 /// # Example Request
 ///
 /// ```http
-/// DELETE /api/components/<uuid>
+/// DELETE /api/components/019de463-92cc-7fb0-8cfa-a1efd95f93ee
 /// ```
 ///
 /// # Example Response
