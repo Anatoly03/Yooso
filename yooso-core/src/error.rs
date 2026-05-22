@@ -28,15 +28,12 @@ pub enum Error {
     /// component name or field metadata.
     ValidationError(::util_validation::ValidationError),
 
-    /// A generic error type unwrapping into a [rocket] [Status] code.
-    Code(Status),
-}
-
-impl Error {
     /// A constant for the 404 Not Found error code, which is commonly used across
     /// API handlers.
-    #[allow(non_upper_case_globals)]
-    pub const NotFound: Self = Self::Code(Status::NotFound);
+    NotFound,
+
+    /// A generic error type unwrapping into a [rocket] [Status] code.
+    Code(Status),
 }
 
 /// A typedef of the result returned by many methods.
@@ -73,6 +70,7 @@ impl std::fmt::Display for Error {
             Error::MutexPoisoned(s) => write!(f, "mutex poisoned: {}", s),
             Error::UuidError(e) => write!(f, "uuid error: {}", e),
             Error::ValidationError(s) => write!(f, "validation error: {}", s),
+            Error::NotFound => write!(f, "not found"),
             Error::Code(status) => write!(f, "http: {status}"),
         }
     }
@@ -85,6 +83,7 @@ impl std::error::Error for Error {
             Error::UuidError(e) => Some(e),
             Error::MutexPoisoned(_) => None,
             Error::ValidationError(_) => None,
+            Error::NotFound => None,
             Error::Code(_) => None,
         }
     }
@@ -104,6 +103,8 @@ impl<'r> Responder<'r, 'static> for Error {
             Error::UuidError(_) => {
                 Custom(Status::BadRequest, "Invalid UUID format".to_string()).respond_to(req)
             }
+            // For NotFound errors, we return a 404 Not Found with no body.
+            Error::NotFound => Custom(Status::NotFound, "Not found".to_string()).respond_to(req),
             // For http-coded errors, we return the specified status code with no body. The error message
             // is the http status message.
             Error::Code(code) => match code.reason() {

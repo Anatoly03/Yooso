@@ -6,7 +6,6 @@ use rocket::{State, patch};
 use serde::{Deserialize, Serialize};
 use util_validation::validate;
 use uuid::Uuid;
-use yooso_core::Component;
 use yooso_core::error::{Error, Result};
 use yooso_storage::{ComponentFieldRecord, ComponentRecord, GeneralDBState, MetaDBState};
 
@@ -46,7 +45,7 @@ pub async fn update_component(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,
     body: Json<PatchComponentRequest>,
-) -> Result<Json<Component>> {
+) -> Result<Json<ComponentRecord>> {
     let mut component = match ComponentRecord::view(state, &body.id).await {
         Ok(component) => component,
         Err(_) => return Err(Error::NotFound),
@@ -122,13 +121,7 @@ pub async fn update_component(
     //         .expect("failed to alter component table in general database");
     // }
 
-    Ok(Json(Component {
-        id: new_component.id,
-        name: new_component.component_name.clone(),
-        is_system: new_component.is_system,
-        color: new_component.color,
-        created_at: new_component.created_at,
-    }))
+    Ok(Json(new_component.drop_validation()))
 }
 
 // /// Helper function to generate the SQL query for altering a component

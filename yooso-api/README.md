@@ -1,45 +1,33 @@
 # Yōso API
 
-Yōso API builts onto the [Rocket](https://rocket.rs/) framework to provide an HTTP layer to interact with the entity component operations.
+Yōso API builts onto the [Rocket](https://rocket.rs/) framework to provide an HTTP layer to interact with the entity component operations. 
 
-## API Reference
+<!-- #### Convention Summary
+
+- `200 OK`: Successful GET, PATCH requests and DELETEs.
+- `201 Created`: Successful POSTs.
+- `204 No Content`: DELETE operation called on already removed object.
+- `400 Bad Request`: Invalid user input
+- `401 Unauthorized`: TODO
+- `403 Forbidden`: TODO
+- `404 Not Found`: Either endpoints does not exist, or the relevant objects.
+- `500 Internal Server Error`:  -->
+
+## API Specification
 
 <!-- Section Component -->
 
 #### `GET /api/components`
-- TODO
-<!-- - `200 OK`: TODO -->
-<!-- - `201 Created`: TODO -->
-<!-- - `400 Bad Request`: TODO -->
+
+- `200 OK`: Lists all visible components.
 <!-- - `401 Unauthorized`: TODO -->
 <!-- - `403 Forbidden`: TODO -->
-<!-- - `404 Not Found`: TODO -->
 
 #### `GET /api/components/<uuid>`
-
-<!-- ```ts
-{
-    metadata: {
-        id: UUID;
-        name: string;
-        is_system: boolean;
-        color: number; // in format RGB0
-        created_at: number; // unix time stamp
-    },
-    fields: {
-        id: UUID;
-        name: string;
-        field_type: "text" | "number" | "boolean";
-        is_system: boolean;
-        created_at: number;
-    }[]
-}
-``` -->
 
 - `200 OK`: Returns a JSON object of the component, metadata and field metadata.
 - `400 Bad Request`: The provided UUID could not be parsed.
 <!-- - `401 Unauthorized`: TODO -->
-<!-- - `403 Forbidden`: TODO -->
 <!-- - `404 Not Found`: TODO -->
 
 #### `POST /api/components`
@@ -55,6 +43,7 @@ Initializes a new component in the Yooso application. Requires a JSON input body
 #### `DELETE /api/components/<uuid>`
 
 - `200 OK`: The component with the specified UUID was deleted.
+- `204 No Content`: The component with the specified UUID was not found.
 - `400 Bad Request`: The provided UUID could not be parsed.
 <!-- - `401 Unauthorized`: TODO -->
 <!-- - `403 Forbidden`: TODO -->
@@ -91,13 +80,6 @@ Initializes a new component in the Yooso application. Requires a JSON input body
 
 #### `POST /api/entities`
 
-<!-- ```ts
-{
-    id: UUID;
-    created_at: number; // unix time stamp
-}
-``` -->
-
 - `201 Created`:  The entity was created. Returns a JSON representation of the entity metadata.
 <!-- - `401 Unauthorized`: TODO -->
 <!-- - `402 Payment Required`: TODO -->
@@ -105,7 +87,8 @@ Initializes a new component in the Yooso application. Requires a JSON input body
 
 #### `DELETE /api/entities/<uuid>`
 
-- `200 OK`: The entity with the specified UUID was deleted and removed from all components.
+- `200 OK`: The entity with the specified UUID was deleted and removed from all component tables.
+- `204 No Content`: The component with the specified UUID was not found.
 - `400 Bad Request`: The provided UUID could not be parsed.
 <!-- - `401 Unauthorized`: TODO -->
 <!-- - `403 Forbidden`: TODO -->
@@ -115,6 +98,7 @@ Initializes a new component in the Yooso application. Requires a JSON input body
 - TODO
 <!-- - `200 OK`: TODO -->
 <!-- - `201 Created`: TODO -->
+<!-- - `204 No Content`: The component was not attached to the entity in the first place.  -->
 <!-- - `400 Bad Request`: TODO -->
 <!-- - `401 Unauthorized`: TODO -->
 <!-- - `403 Forbidden`: TODO -->
@@ -122,7 +106,7 @@ Initializes a new component in the Yooso application. Requires a JSON input body
 
 #### `DELETE /api/entities/<uuid>/components/<uuid>`
 - `200 OK`: The component has been successfully detached from the entity.
-- `204 No Content`: The component was not attached to the entity in the first place. 
+- `204 No Content`: The component was not attached to the entity in the first place.
 - `400 Bad Request`: The provided UUID could not be parsed.
 <!-- - `401 Unauthorized`: TODO -->
 <!-- - `403 Forbidden`: TODO -->

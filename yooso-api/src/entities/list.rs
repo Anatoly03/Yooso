@@ -5,7 +5,6 @@ use rocket::serde::json::Json;
 use rocket::{State, get};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use yooso_core::Component;
 use yooso_core::error::Result;
 use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState, Pagination};
 
@@ -88,7 +87,7 @@ pub struct ComponentListResponse {
 pub struct EntityResponse {
     pub id: Uuid,
     pub created_at: i64,
-    pub components: Vec<Component>,
+    pub components: Vec<ComponentRecord>,
 }
 
 /// The endpoint for listing entities. This will retrieve all entities from
@@ -174,9 +173,9 @@ pub async fn list_entities(
             .iter()
             .zip(component_tables.iter())
             .filter_map(|(exists, ct)| match exists {
-                Ok(true) => Some(Component {
+                Ok(true) => Some(ComponentRecord {
                     id: ct.id,
-                    name: ct.component_name.clone(),
+                    component_name: ct.component_name.clone(),
                     is_system: ct.is_system,
                     color: ct.color,
                     created_at: ct.created_at,

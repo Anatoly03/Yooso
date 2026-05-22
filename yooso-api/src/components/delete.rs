@@ -1,6 +1,6 @@
 //! Defines the component deletion endpoint.
 
-use rocket::{State, delete};
+use rocket::{State, delete, http::Status};
 use uuid::Uuid;
 use yooso_core::{Error, error::Result};
 use yooso_storage::{ComponentRecord, GeneralDBState, MetaDBState};
@@ -25,12 +25,14 @@ pub async fn delete_component(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,
     uuid: &str,
-) -> Result<()> {
+) -> Result<Status> {
     let id = Uuid::parse_str(uuid)?;
-    let component = ComponentRecord::view(state, &id)
-        .await
-        .map_err(|_| Error::NotFound)?;
+    let component = match ComponentRecord::view(state, &id).await {
+        Ok(component) => component,
+        Err(Error::NotFound) => return Ok(Status::NoContent),
+        Err(e) => return Err(e.into()),
+    };
     component.delete_recursive(state, general_state).await?;
 
-    Ok(())
+    Ok(Status::Ok)
 }

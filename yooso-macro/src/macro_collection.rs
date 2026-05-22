@@ -440,7 +440,7 @@ pub fn collection(
             /// ```sql
             #[doc = #sql_select_where]
             /// ```
-            pub async fn view(db: &#db_state_struct_name, #(#primary_key_idents: &#primary_key_types),*) -> Result<Self, ::yooso_core::Error> {
+            pub async fn view(db: &#db_state_struct_name, #(#primary_key_idents: &#primary_key_types),*) -> ::yooso_core::Result<Self> {
                 let conn = db.0.lock()
                     .map_err(|e| ::yooso_core::Error::from(e))?;
 
