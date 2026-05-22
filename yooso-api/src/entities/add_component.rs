@@ -18,15 +18,17 @@ pub async fn add_component(
     component_id: &str,
     body: Json<Value>,
 ) -> Result<()> {
+    // parse UUIDs from strings, return 400 if invalid
     let entity_uuid = Uuid::parse_str(id)?;
     let component_uuid = Uuid::parse_str(component_id)?;
 
-    // Check that the entity exists.
-    EntityRecord::view(state, &entity_uuid).await?;
-
-    // Check that the component exists.
-    let component = ComponentRecord::view(state, &component_uuid).await?;
-    // let component_name = component.component_name;
+    // check that the entity and the component exist, return 404 if it doesn't
+    EntityRecord::view(state, &entity_uuid)
+        .await
+        .map_err(|_| Error::NotFound)?;
+    let component = ComponentRecord::view(state, &component_uuid)
+        .await
+        .map_err(|_| Error::NotFound)?;
 
     // Check component schema.
     let schema = component.schema(state).await?;

@@ -120,11 +120,10 @@ Initializes a new component in the Yooso application. Requires a JSON input body
 <!-- - `403 Forbidden`: TODO -->
 <!-- - `404 Not Found`: TODO -->
 
-#### `PATCH /api/entities/<uuid>/components/<uuid>`
-- TODO
-<!-- - `200 OK`: TODO -->
-<!-- - `201 Created`: TODO -->
-<!-- - `400 Bad Request`: TODO -->
+#### `DELETE /api/entities/<uuid>/components/<uuid>`
+- `200 OK`: The component has been successfully detached from the entity.
+- `204 No Content`: The component was not attached to the entity in the first place. 
+- `400 Bad Request`: The provided UUID could not be parsed.
 <!-- - `401 Unauthorized`: TODO -->
 <!-- - `403 Forbidden`: TODO -->
-<!-- - `404 Not Found`: TODO -->
+- `404 Not Found`: The provided component does not exist.

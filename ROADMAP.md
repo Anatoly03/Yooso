@@ -57,7 +57,7 @@
       - [ ] Add (Components to Entity)
       - [ ] View (Component Field Data of Entity)
       - [ ] Edit (Components of Entity)
-      - [ ] Remove (Components of Entity)
+      - [x] Remove (Components of Entity)
   - [ ] Components
     - [ ] List (Components)
       - [x] Pagination

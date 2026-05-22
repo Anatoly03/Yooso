@@ -92,6 +92,24 @@ impl ComponentRecord {
         .map_err(|e| ::yooso_core::Error::from(e))
     }
 
+    /// Removes the component for the specified entity. Returns the number of rows
+    /// affected by the SQL delete operation.
+    pub async fn remove_for_entity(
+        &self,
+        general_state: &crate::GeneralDBState,
+        id: &Uuid,
+    ) -> Result<usize> {
+        let table_name = &self.component_name;
+        let query = format!("DELETE FROM {table_name} WHERE entity_id = '{id}'");
+        let conn = general_state.0.lock()?;
+
+        if cfg!(debug_assertions) {
+            eprintln!("\x1b[90m{query}\x1b[0m");
+        }
+
+        Ok(conn.execute(&query, [])?)
+    }
+
     /// Wether an entity implements the current component.
     pub async fn defined_for(
         &self,
