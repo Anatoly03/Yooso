@@ -2,7 +2,7 @@
 //! TODO: document
 
 use rocket::serde::json::{Json, Value};
-use rocket::{State, delete, post};
+use rocket::{State, post};
 use util_validation::ValidationError;
 use uuid::Uuid;
 use yooso_core::Error;
@@ -91,37 +91,6 @@ pub async fn add_component(
         component.component_name,
         field_names.join(", "),
         field_values.join(", ")
-    );
-
-    // Execute query
-    let conn = general_state.0.lock()?;
-    conn.execute(&query, [])?;
-
-    Ok(())
-}
-
-/// TODO: document
-#[delete("/<id>/component/<component_id>")]
-pub async fn remove_component(
-    state: &State<MetaDBState>,
-    general_state: &State<GeneralDBState>,
-    id: &str,
-    component_id: &str,
-) -> Result<()> {
-    let entity_uuid = Uuid::parse_str(id)?;
-    let component_uuid = Uuid::parse_str(component_id)?;
-
-    // Check that the component exists.
-    let component = ComponentRecord::view(state, &component_uuid)
-        .await
-        .map_err(|_| Error::NotFound)?;
-    // let component_name = component.component_name;
-
-    // Create SQL query (insert row into component table with entity as key)
-    // TODO refactor sql queries into storage layer
-    let query = format!(
-        "DELETE FROM {} WHERE entity_id = '{}'",
-        component.component_name, entity_uuid
     );
 
     // Execute query

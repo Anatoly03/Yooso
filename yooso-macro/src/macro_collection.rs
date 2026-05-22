@@ -393,6 +393,12 @@ pub fn collection(
             /// ```
             pub const TABLE_NAME: &'static str = #table_name;
 
+            // error[E0658]: inherent associated types are unstable
+            // /// The type of the database that this collection belongs to. This is used
+            // /// for type safety and to ensure that collections are only used with the
+            // /// correct database.
+            // pub type DB = #db_struct_name;
+
             /// Invoke table generator query for this collection.
             ///
             /// # Query

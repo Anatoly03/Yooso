@@ -138,6 +138,16 @@ pub fn collection(args: TokenStream, input: TokenStream) -> TokenStream {
     macro_collection::collection(meta, item, unique_attributes).into()
 }
 
+/// The [query] macro allows you to write SQL queries in Rust code.
+/// 
+/// > This is not implemented yet, but the macro should be visible in
+/// the documentation. 
+#[proc_macro]
+#[deprecated(note = "the query!() macro is not implemented yet")]
+pub fn query(_: TokenStream) -> TokenStream {
+    todo!("the query!() macro is not implemented yet")
+}
+
 /// Helper method to consume attribute by name and return a vector of all
 /// attributes. For example, this consumes all `#[unique]` attributes and
 /// returns a vector of their arguments.
