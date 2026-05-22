@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["collection","database","launch"]};
+window.SIDEBAR_ITEMS = {"attr":["collection","database","launch"],"macro":["query"]};

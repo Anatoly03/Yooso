@@ -138,22 +138,32 @@
 <a href=#138 id=138 data-nosnippet>138</a>    macro_collection::collection(meta, item, unique_attributes).into()
 <a href=#139 id=139 data-nosnippet>139</a>}
 <a href=#140 id=140 data-nosnippet>140</a>
-<a href=#141 id=141 data-nosnippet>141</a><span class="doccomment">/// Helper method to consume attribute by name and return a vector of all
-<a href=#142 id=142 data-nosnippet>142</a>/// attributes. For example, this consumes all `#[unique]` attributes and
-<a href=#143 id=143 data-nosnippet>143</a>/// returns a vector of their arguments.
-<a href=#144 id=144 data-nosnippet>144</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>consume_attributes_by_name(
-<a href=#145 id=145 data-nosnippet>145</a>    attributes: <span class="kw-2">&amp;mut </span>Vec&lt;syn::Attribute&gt;,
-<a href=#146 id=146 data-nosnippet>146</a>    name: <span class="kw-2">&amp;</span>str,
-<a href=#147 id=147 data-nosnippet>147</a>) -&gt; Vec&lt;syn::Attribute&gt; {
-<a href=#148 id=148 data-nosnippet>148</a>    <span class="kw">let </span><span class="kw-2">mut </span>result = Vec::new();
-<a href=#149 id=149 data-nosnippet>149</a>    <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-<a href=#150 id=150 data-nosnippet>150</a>    <span class="kw">while </span>i &lt; attributes.len() {
-<a href=#151 id=151 data-nosnippet>151</a>        <span class="kw">if </span>attributes[i].path().is_ident(name) {
-<a href=#152 id=152 data-nosnippet>152</a>            result.push(attributes.remove(i));
-<a href=#153 id=153 data-nosnippet>153</a>        } <span class="kw">else </span>{
-<a href=#154 id=154 data-nosnippet>154</a>            i += <span class="number">1</span>;
-<a href=#155 id=155 data-nosnippet>155</a>        }
-<a href=#156 id=156 data-nosnippet>156</a>    }
-<a href=#157 id=157 data-nosnippet>157</a>    result
-<a href=#158 id=158 data-nosnippet>158</a>}
+<a href=#141 id=141 data-nosnippet>141</a><span class="doccomment">/// The [query] macro allows you to write SQL queries in Rust code.
+<a href=#142 id=142 data-nosnippet>142</a>/// 
+<a href=#143 id=143 data-nosnippet>143</a>/// &gt; This is not implemented yet, but the macro should be visible in
+<a href=#144 id=144 data-nosnippet>144</a>/// the documentation. 
+<a href=#145 id=145 data-nosnippet>145</a></span><span class="attr">#[proc_macro]
+<a href=#146 id=146 data-nosnippet>146</a>#[deprecated(note = <span class="string">"the query!() macro is not implemented yet"</span>)]
+<a href=#147 id=147 data-nosnippet>147</a></span><span class="kw">pub fn </span>query(<span class="kw">_</span>: TokenStream) -&gt; TokenStream {
+<a href=#148 id=148 data-nosnippet>148</a>    <span class="macro">todo!</span>(<span class="string">"the query!() macro is not implemented yet"</span>)
+<a href=#149 id=149 data-nosnippet>149</a>}
+<a href=#150 id=150 data-nosnippet>150</a>
+<a href=#151 id=151 data-nosnippet>151</a><span class="doccomment">/// Helper method to consume attribute by name and return a vector of all
+<a href=#152 id=152 data-nosnippet>152</a>/// attributes. For example, this consumes all `#[unique]` attributes and
+<a href=#153 id=153 data-nosnippet>153</a>/// returns a vector of their arguments.
+<a href=#154 id=154 data-nosnippet>154</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>consume_attributes_by_name(
+<a href=#155 id=155 data-nosnippet>155</a>    attributes: <span class="kw-2">&amp;mut </span>Vec&lt;syn::Attribute&gt;,
+<a href=#156 id=156 data-nosnippet>156</a>    name: <span class="kw-2">&amp;</span>str,
+<a href=#157 id=157 data-nosnippet>157</a>) -&gt; Vec&lt;syn::Attribute&gt; {
+<a href=#158 id=158 data-nosnippet>158</a>    <span class="kw">let </span><span class="kw-2">mut </span>result = Vec::new();
+<a href=#159 id=159 data-nosnippet>159</a>    <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
+<a href=#160 id=160 data-nosnippet>160</a>    <span class="kw">while </span>i &lt; attributes.len() {
+<a href=#161 id=161 data-nosnippet>161</a>        <span class="kw">if </span>attributes[i].path().is_ident(name) {
+<a href=#162 id=162 data-nosnippet>162</a>            result.push(attributes.remove(i));
+<a href=#163 id=163 data-nosnippet>163</a>        } <span class="kw">else </span>{
+<a href=#164 id=164 data-nosnippet>164</a>            i += <span class="number">1</span>;
+<a href=#165 id=165 data-nosnippet>165</a>        }
+<a href=#166 id=166 data-nosnippet>166</a>    }
+<a href=#167 id=167 data-nosnippet>167</a>    result
+<a href=#168 id=168 data-nosnippet>168</a>}
 </code></pre></div></section></main></body></html>
