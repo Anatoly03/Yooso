@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Generate Documentation
         # run: rustdoc moldyn-core/src/main.rs
         # dependencies not linked, so use `cargo doc` instead
