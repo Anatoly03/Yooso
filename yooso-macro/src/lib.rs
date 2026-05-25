@@ -6,6 +6,7 @@ mod inner_macro_meta;
 mod macro_collection;
 mod macro_database;
 mod macro_launch;
+mod macro_query;
 
 use proc_macro::TokenStream;
 use syn::parse_macro_input;
@@ -187,8 +188,8 @@ pub fn collection(args: TokenStream, input: TokenStream) -> TokenStream {
 /// Reading: Delete the entity record with the specified UUID and return the number
 /// of affected rows.
 #[proc_macro]
-pub fn query(_input: TokenStream) -> TokenStream {
-    todo!("query!() macro is not implemented yet.");
+pub fn query(input: TokenStream) -> TokenStream {
+    macro_query::query(input.into()).into()
 }
 
 /// Helper method to consume attribute by name and return a vector of all
