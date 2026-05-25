@@ -3,7 +3,7 @@
 use rocket::serde::json::Json;
 use rocket::{State, get};
 use serde::Serialize;
-use yooso_core::error::Result;
+use yooso_core::Result;
 use yooso_storage::{ComponentRecord, MetaDBState, Pagination};
 
 /// The response body for the component listing endpoint.
@@ -12,6 +12,8 @@ use yooso_storage::{ComponentRecord, MetaDBState, Pagination};
 ///
 /// ```json
 /// {
+///     "page": 1,
+///     "per_page": 25,
 ///     "components": [
 ///         {
 ///             "id": "019dab99-a5c4-7b50-a748-3152cacaa0b5",
@@ -53,6 +55,8 @@ use yooso_storage::{ComponentRecord, MetaDBState, Pagination};
 /// ```
 #[derive(Debug, Serialize)]
 pub struct ComponentListResponse {
+    pub page: usize,
+    pub per_page: usize,
     pub components: Vec<ComponentRecord>,
 }
 
@@ -69,6 +73,8 @@ pub struct ComponentListResponse {
 ///
 /// ```json
 /// {
+///     "page": 1,
+///     "per_page": 25,
 ///     "components": [
 ///         {
 ///             "id": "019dab99-a5c4-7b50-a748-3152cacaa0b5",
@@ -114,13 +120,19 @@ pub async fn list_components(
     per_page: Option<u32>,
     page: Option<u32>,
 ) -> Result<Json<ComponentListResponse>> {
+    // Validate pagination parameters or prefer defaults.
     let pagination = Pagination {
         page: (page.unwrap_or(1) as usize).max(1), // ensure page is at least 1
         per_page: (per_page.unwrap_or(25) as usize).min(100), // cap per_page at 100 to prevent abuse
     };
+
+    // Fetch components in the pagination range.
     let components = ComponentRecord::list(state, pagination.per_page, pagination.page).await?;
 
+    // Return the response with used pagination parameters.
     Ok(Json(ComponentListResponse {
+        page: pagination.page,
+        per_page: pagination.per_page,
         components,
     }))
 }

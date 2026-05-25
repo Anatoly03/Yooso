@@ -6,7 +6,7 @@ use rocket::{State, patch};
 use serde::{Deserialize, Serialize};
 use util_validation::validate;
 use uuid::Uuid;
-use yooso_core::error::{Error, Result};
+use yooso_core::{Error, Result};
 use yooso_storage::{ComponentFieldRecord, ComponentRecord, GeneralDBState, MetaDBState};
 
 /// TODO: document

@@ -6,7 +6,7 @@ use rocket::{State, post};
 use util_validation::ValidationError;
 use uuid::Uuid;
 use yooso_core::Error;
-use yooso_core::error::Result;
+use yooso_core::Result;
 use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 
 /// TODO: document

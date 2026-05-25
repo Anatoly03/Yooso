@@ -4,7 +4,7 @@ use rocket::serde::json::{Json, Value, json};
 use rocket::{State, get};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use yooso_core::error::Result;
+use yooso_core::Result;
 use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 
 /// The response for viewing an new entity. This will yield entity metadata and all

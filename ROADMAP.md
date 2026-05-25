@@ -59,7 +59,7 @@
       - [ ] Edit (Components of Entity)
       - [x] Remove (Components of Entity)
   - [ ] Components
-    - [ ] List (Components)
+    - [x] List (Components)
       - [x] Pagination
     - [x] View (Component Fields and Meta)
     - [x] Create Component
@@ -91,12 +91,12 @@
   - [ ] Unit Testing
 - [ ] Library Documentation
   - [x] Github CI
-  - [ ] `yooso`
+  - [x] `yooso`
   - [ ] `yooso-api`
-  - [ ] `yooso-core`
+  - [x] `yooso-core`
   - [x] `yooso-example`
   - [x] `yooso-macro`
-  - [x] `yooso-storage`
+  - [ ] `yooso-storage`
 - [ ] Client Documentation
   - [ ] Github CI
   - [ ] `yooso-studio`

@@ -6,7 +6,7 @@ use rocket::{State, get};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use yooso_core::Error;
-use yooso_core::error::Result;
+use yooso_core::Result;
 use yooso_storage::{ComponentFieldRecord, ComponentRecord, MetaDBState};
 
 /// Response structure for viewing a component. Contains the component object
@@ -60,7 +60,7 @@ pub async fn view_component(
     // Fetch component metadata.
     let metadata = ComponentRecord::view(state, &id)
         .await
-        .map_err(|_| Error::Code(Status::NotFound))?;
+        .map_err(|_| Error::NotFound)?;
 
     // Fetch all field tables associated with the component.
     let fields = ComponentFieldRecord::list_by_component_id(state, &metadata.id).await?;

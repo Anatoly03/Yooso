@@ -5,7 +5,7 @@ use rocket::serde::json::Json;
 use rocket::{State, get};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use yooso_core::error::Result;
+use yooso_core::Result;
 use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState, Pagination};
 
 /// The response body for the entity listing endpoint.

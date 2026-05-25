@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use util_validation::{ValidateFrom, Validated, ValidationError};
 use uuid::Uuid;
-use yooso_core::error::Result;
+use yooso_core::Result;
 
 use crate::ComponentRecord;
 

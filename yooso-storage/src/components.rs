@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use util_validation::{ValidateFrom, Validated, ValidationError};
 use uuid::Uuid;
-use yooso_core::error::Result;
+use yooso_core::Result;
 
 /// Corresponds to a component in the application.
 #[collection(db = crate::MetaDB, table = "components")]

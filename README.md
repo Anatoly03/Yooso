@@ -9,6 +9,14 @@ Yōso is a backend platform inspired by ECS data design. The data is structured 
   <img src="https://anatoly03.github.io/Yooso/preview/yooso-studio.png" />
 </p>
 
-# Running
+### Running
 
 To start the development backend, execute `cargo run`. In a separate console, run `npm run dev` to start the front end server. Afterwards you can access the admin UI at `http://localhost:8080/`.
+
+### Documentation
+
+To build the documentation locally, run the following command.
+
+```sh
+cargo doc --no-deps --workspace
+```
