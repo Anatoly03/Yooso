@@ -57,25 +57,27 @@ pub struct CreateComponentResponse {
 /// # Example Response
 ///
 /// ```http
-/// 201 Created
-///
-/// {
-///     "id": "019de463-92cc-7fb0-8cfa-a1efd95f93ee",
-///     "name": "MessageContent",
-///     "is_system": false,
-///     "color": 0xFF5733,
-///     "created_at": 1777653224140,
-///     "fields": [
-///          {
-///              "id": "019dda35-8edd-7e93-8221-c031d8588af6",
-///              "name": "content",
-///              "is_system": false,
-///              "field_type": "text",
-///              "position": 0,
-///              "created_at": 1777482436317,
-///          }
-///     ]
-/// }
+///   201 Created
+/// 
+/// ```
+/// ```diff
+///   {
+/// +     "id": "019de463-92cc-7fb0-8cfa-a1efd95f93ee",
+///       "name": "MessageContent",
+///       "is_system": false,
+///       "color": 0xFF5733,
+/// +     "created_at": 1777653224140,
+///       "fields": [
+///            {
+/// +              "id": "019dda35-8edd-7e93-8221-c031d8588af6",
+///                "name": "content",
+///                "is_system": false,
+///                "field_type": "text",
+/// +              "position": 0,
+/// +              "created_at": 1777482436317,
+///            }
+///       ]
+///   }
 /// ```
 #[post("/", data = "<body>")]
 pub async fn create_component(

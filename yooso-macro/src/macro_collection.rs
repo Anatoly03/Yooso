@@ -496,7 +496,7 @@ pub fn collection(
             ///
             /// This method returns a vector of all rows in the collection's table, deserialized
             /// into instances of the struct. If the table is empty, this yields an empty vector.
-            #[deprecated(note = "This method is not optimized for large tables and should only be used for development and debugging purposes. Use `list` with pagination instead.")]
+            // #[deprecated(note = "This method is not optimized for large tables and should only be used for development and debugging purposes. Use `list` with pagination instead.")]
             pub async fn list_all(db: &#db_state_struct_name) -> Result<::std::vec::Vec<Self>, ::yooso_core::Error> {
                 let conn = db.0.lock()
                     .map_err(|e| ::yooso_core::Error::from(e))?;
@@ -541,7 +541,7 @@ pub fn collection(
             ///
             /// This method returns a vector of all rows in the collection's table, deserialized
             /// into instances of the struct. If the table is empty, this yields an empty vector.
-            pub async fn list(db: &#db_state_struct_name, per_page: usize, page: usize) -> Result<::std::vec::Vec<Self>, ::yooso_core::Error> {
+            pub async fn list(db: &#db_state_struct_name, per_page: usize, page: usize) -> ::yooso_core::Result<::std::vec::Vec<Self>> {
                 let conn = db.0.lock()
                     .map_err(|e| ::yooso_core::Error::from(e))?;
 
@@ -589,7 +589,7 @@ pub fn collection(
             /// This method returns the number of rows affected by the SQLite query.
             /// This row will be inserted for the first time, so this should always yield `1`.
             /// If a row with the same primary key already exists, this will return an error.
-            pub async fn create(&self, db: &#db_state_struct_name) -> Result<usize, ::yooso_core::Error> {
+            pub async fn create(&self, db: &#db_state_struct_name) -> ::yooso_core::Result<usize> {
                 // Execute the INSERT SQL statement to insert a new row into the
                 // collection table. Returns the number of rows affected (should
                 // be 1 for INSERT and 0 for REPLACE).
@@ -627,7 +627,7 @@ pub fn collection(
             /// If the row was inserted for the first time, this yields `1`. If a row
             /// with the same primary key already exists, this yields `0`, overriding
             /// the existing row.
-            pub async fn save(&self, db: &#db_state_struct_name) -> Result<usize, ::yooso_core::Error> {
+            pub async fn save(&self, db: &#db_state_struct_name) -> ::yooso_core::Result<usize> {
                 // Execute the INSERT OR REPLACE SQL statement to insert a new row into the
                 // collection table. Returns the number of rows affected (should
                 // be 1 for INSERT and 0 for REPLACE).
@@ -662,7 +662,7 @@ pub fn collection(
             /// This method returns the number of rows affected by the SQLite query.
             /// If a row was deleted, this yields `1`. If no matching row was found
             /// to delete, this yields `0`.
-            pub async fn delete(db: &#db_state_struct_name, #(#delete_args),*) -> Result<usize, ::yooso_core::Error> {
+            pub async fn delete(db: &#db_state_struct_name, #(#delete_args),*) -> ::yooso_core::Result<usize> {
                 // Execute the DELETE SQL statement to delete the row corresponding
                 // to the current struct instance from the collection table. Returns
                 // the number of rows affected (should be 1 if a row was deleted, or

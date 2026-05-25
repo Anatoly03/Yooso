@@ -140,18 +140,6 @@ pub fn collection(args: TokenStream, input: TokenStream) -> TokenStream {
 
 /// The [query] macro allows you to write SQL queries in Rust code.
 /// 
-/// **Note, that the terms `SELECT` and `FROM` have a slightly different meaning
-/// in the scope of this query.** All rows are selected by default, so `SELECT`
-/// is used to specify the collection and `FROM` is used to specify the database.
-/// 
-/// # Syntax
-/// 
-/// - `SELECT <collection>`: Selects all rows and columns from the specified
-/// collection. Equivalent to `SELECT * FROM <collection>`.
-/// - `DELETE <collection>`: Deletes all rows from the specified
-/// collection. Equivalent to `DELETE FROM <collection>`.
-/// - `FROM <database>`: Specifies the database to query from.
-/// 
 /// # Examples
 /// 
 /// ```no_run
@@ -199,8 +187,8 @@ pub fn collection(args: TokenStream, input: TokenStream) -> TokenStream {
 /// Reading: Delete the entity record with the specified UUID and return the number
 /// of affected rows.
 #[proc_macro]
-pub fn query(input: TokenStream) -> TokenStream {
-    todo!("query!() macro is not implemented yet");
+pub fn query(_input: TokenStream) -> TokenStream {
+    todo!("query!() macro is not implemented yet.");
 }
 
 /// Helper method to consume attribute by name and return a vector of all

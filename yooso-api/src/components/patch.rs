@@ -75,10 +75,11 @@ pub async fn update_component(
     // Process Updates
     for field_name in body.fields.iter().filter_map(|f| match f {
         PatchFieldRequest::UpdateField {
-            id,
+            // id,
             name,
-            is_system,
-            field_type,
+            // is_system,
+            // field_type,
+            ..
         } => Some(name),
         _ => None,
     }) {

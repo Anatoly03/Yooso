@@ -26,12 +26,20 @@ pub async fn delete_component(
     general_state: &State<GeneralDBState>,
     uuid: &str,
 ) -> Result<Status> {
+    // If uuid is not valid, return 400 Bad Request.
     let id = Uuid::parse_str(uuid)?;
+
+    // Fetch the component metadata.
+    // For deletions, return 200 OK if the data was actively deleted and return
+    // 204 No Content if the data was either not found or "already deleted".
     let component = match ComponentRecord::view(state, &id).await {
         Ok(component) => component,
         Err(Error::NotFound) => return Ok(Status::NoContent),
         Err(e) => return Err(e.into()),
     };
+
+    // Recursively delete component (deletes the metadata record and the dynamic
+    // SQL table)
     component.delete_recursive(state, general_state).await?;
 
     Ok(Status::Ok)

@@ -28,15 +28,17 @@ pub async fn delete_entity(
     let id = Uuid::parse_str(uuid)?;
     let rows = EntityRecord::delete(state, &id).await?;
 
-    // If no entity was affected, return 404 Not Found.
-    if rows == 0 {
-        return Ok(Status::NotFound);
+    // Delete entity recursively (delete from all components) if the entity exists.
+    if rows > 0 {
+        for component in ComponentRecord::list_all(state).await? {
+            let _ = component.remove_entity(general_state, &id).await;
+        }
     }
 
-    // Delete entity recursively (delete from all components).
-    for component in ComponentRecord::list_all(state).await? {
-        let _ = component.remove_entity(general_state, &id).await;
+    // For deletions, return 200 OK if the data was actively deleted and return
+    // 204 No Content if the data was either not found or "already deleted".
+    match rows {
+        0 => Ok(Status::NoContent), // entity was not removed, but we can consider it a success
+        _ => Ok(Status::Ok),
     }
-
-    Ok(Status::Ok)
 }

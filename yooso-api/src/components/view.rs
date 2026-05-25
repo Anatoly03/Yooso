@@ -54,10 +54,15 @@ pub async fn view_component(
     state: &State<MetaDBState>,
     uuid: &str,
 ) -> Result<Json<ViewComponentResponse>> {
+    // If uuid is not valid, return 400 Bad Request.
     let id = Uuid::parse_str(uuid)?;
+
+    // Fetch component metadata.
     let metadata = ComponentRecord::view(state, &id)
         .await
         .map_err(|_| Error::Code(Status::NotFound))?;
+
+    // Fetch all field tables associated with the component.
     let fields = ComponentFieldRecord::list_by_component_id(state, &metadata.id).await?;
 
     Ok(Json(ViewComponentResponse { metadata, fields }))

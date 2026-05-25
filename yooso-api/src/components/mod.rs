@@ -6,6 +6,17 @@ mod list;
 mod patch;
 mod view;
 
+/// Defines component-related API endpoints.
+/// 
+/// # Routes
+/// 
+/// ```http
+/// POST /
+/// DELETE /<uuid>
+/// GET /list
+/// PATCH /
+/// GET /view/<uuid>
+/// ```
 pub fn routes() -> Vec<rocket::Route> {
     rocket::routes![
         create::create_component,

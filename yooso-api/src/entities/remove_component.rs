@@ -15,11 +15,11 @@ pub async fn remove_component(
     id: &str,
     component_id: &str,
 ) -> Result<Status> {
-    // parse UUIDs from strings, return 400 if invalid
+    // If uuid is not valid, return 400 Bad Request.
     let entity_uuid = Uuid::parse_str(id)?;
     let component_uuid = Uuid::parse_str(component_id)?;
 
-    // check that the component exists, return 404 if it doesn't
+    // Fetch component metadata.
     let component = ComponentRecord::view(state, &component_uuid)
         .await
         .map_err(|_| Error::NotFound)?;
@@ -33,8 +33,10 @@ pub async fn remove_component(
         .remove_for_entity(general_state, &entity_uuid)
         .await?;
 
+    // For deletions, return 200 OK if the data was actively deleted and return
+    // 204 No Content if the data was either not found or "already deleted".
     match rows {
         0 => Ok(Status::NoContent), // component was not attached to the entity, but we can consider it a success
-        _ => Ok(Status::NoContent),
+        _ => Ok(Status::Ok),
     }
 }

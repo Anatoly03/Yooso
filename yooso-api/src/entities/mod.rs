@@ -7,6 +7,18 @@ mod list;
 mod remove_component;
 mod view;
 
+/// Defines entity-related API endpoints.
+/// 
+/// # Routes
+/// 
+/// ```http
+/// POST /<id>/component/<component_id>
+/// DELETE /<id>/component/<component_id>
+/// POST /
+/// DELETE /<uuid>
+/// GET /list
+/// GET /view/<uuid>
+/// ```
 pub fn routes() -> Vec<rocket::Route> {
     rocket::routes![
         add_component::add_component,

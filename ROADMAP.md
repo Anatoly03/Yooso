@@ -63,7 +63,7 @@
       - [x] Pagination
     - [x] View (Component Fields and Meta)
     - [x] Create Component
-    - [ ] Patch Name and Color
+    - [x] Patch Name and Color
       - [ ] Add Field
       - [ ] Update Field
       - [x] Remove Field

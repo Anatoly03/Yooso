@@ -48,10 +48,11 @@ pub async fn view_entity(
     general_state: &State<GeneralDBState>,
     id: &str,
 ) -> Result<Json<ViewEntityResponse>> {
+    // If uuid is not valid, return 400 Bad Request.
     let uuid = Uuid::parse_str(id)?;
     let entity = EntityRecord::view(state, &uuid).await?;
 
-    // Scan every possible component and retrieve the fields for this entity.
+    // Scan every possible component and generate the fields matrix for this entity
     let component_tables = ComponentRecord::list_all(state).await?;
     let mut matrix = json!({});
 

@@ -18,7 +18,7 @@ pub async fn add_component(
     component_id: &str,
     body: Json<Value>,
 ) -> Result<()> {
-    // parse UUIDs from strings, return 400 if invalid
+    // If uuid is not valid, return 400 Bad Request.
     let entity_uuid = Uuid::parse_str(id)?;
     let component_uuid = Uuid::parse_str(component_id)?;
 
