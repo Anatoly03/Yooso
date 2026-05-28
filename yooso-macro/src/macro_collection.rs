@@ -63,6 +63,13 @@ pub fn collection(
         .map(|field| FieldMeta::from(field.clone()))
         .collect::<Vec<_>>();
 
+    // Generate a list of "string literals" for the field names, used in SQL query generation.
+    let field_names = field_metas
+        .iter()
+        .map(|field_meta| field_meta.name.clone())
+        .collect::<Vec<_>>();
+    let field_names_punctuated = field_names.join(", ");
+
     // List of all primary key field identifiers.
     let primary_key_idents = field_metas
         .iter()
@@ -392,6 +399,17 @@ pub fn collection(
             #[doc = concat!("SELECT * FROM ", #table_name, ";")]
             /// ```
             pub const TABLE_NAME: &'static str = #table_name;
+
+            /// The names of the fields in the collection's table. This is used for
+            /// generating the field list in the SQL SELECT queries.
+            /// 
+            /// # Table Fields
+            ///
+            /// ```sql
+            #[doc = concat!("CREATE TABLE ", #table_name, " (", #field_names_punctuated, ");")]
+            #[doc = concat!("SELECT ", #field_names_punctuated, " FROM ", #table_name, ";")]
+            /// ```
+            pub const TABLE_FIELDS: &'static [&'static str] = &[#(#field_names),*];
 
             // error[E0658]: inherent associated types are unstable
             // /// The type of the database that this collection belongs to. This is used

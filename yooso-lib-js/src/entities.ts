@@ -77,17 +77,13 @@ export default class YoosoEntityManager {
 
             if (!response.ok) {
                 const text = await response.text();
+                this.setLoading(false);
                 this.setError(text || response.statusText);
+                return [];
             }
 
             const result = await response.json();
             this.setLoading(false);
-
-            if (!result.success) {
-                this.setError(result.message || 'Failed to fetch entities');
-                return [];
-            }
-
             this.setError(null);
             return result.entities;
         } catch (e) {
@@ -104,13 +100,15 @@ export default class YoosoEntityManager {
         try {
             this.setLoading(true);
             const response = await this.yooso.post('/api/entities');
-            this.setLoading(false);
-
+            
             if (!response.ok) {
-                this.setError('Failed to create entity');
+                const text = await response.text();
+                this.setLoading(false);
+                this.setError(text || response.statusText);
                 return;
             }
 
+            this.setLoading(false);
             this.setError(null);
         } catch (e) {
             this.setLoading(false);
@@ -129,13 +127,15 @@ export default class YoosoEntityManager {
         try {
             this.setLoading(true);
             const response = await this.yooso.delete(`/api/entities/${uuid}`);
-            this.setLoading(false);
 
             if (!response.ok) {
-                this.setError('Failed to delete entity');
+                const text = await response.text();
+                this.setLoading(false);
+                this.setError(text || response.statusText);
                 return false;
             }
 
+            this.setLoading(false);
             this.setError(null);
             return true;
         } catch (e) {

@@ -142,13 +142,15 @@ export default class YoosoComponentManager {
             this.setLoading(true);
             const response = await this.yooso.get('/api/components/list', { query: options });
             const result = await response.json();
-            this.setLoading(false);
 
-            if (!result.success) {
-                this.setError(result.message || 'Failed to fetch components');
+            if (!response.ok) {
+                const text = await response.text();
+                this.setLoading(false);
+                this.setError(text || response.statusText);
                 return [];
             }
 
+            this.setLoading(false);
             this.setError(null);
             return result.components;
         } catch (e) {
@@ -161,23 +163,27 @@ export default class YoosoComponentManager {
     /**
      * Creates a new component on the Yooso server.
      */
-    public async create(component: CreateComponentRequest): Promise<void> {
+    public async create(component: CreateComponentRequest): Promise<any | null> {
         try {
             this.setLoading(true);
             const response = await this.yooso.post('/api/components', component);
             const result = await response.json();
-            this.setLoading(false);
 
-            if (!result.success) {
-                this.setError(result.message || 'Failed to create component');
-                return;
+            if (!response.ok) {
+                const text = await response.text();
+                this.setLoading(false);
+                this.setError(text || response.statusText);
+                return null;
             }
 
+            this.setLoading(false);
             this.setError(null);
+            return result;
         } catch (e) {
             this.setLoading(false);
             this.setError((e as Error).message || 'An unknown error occurred while creating a component');
         }
+        return null;
     }
 
     /**
@@ -188,20 +194,22 @@ export default class YoosoComponentManager {
             this.setLoading(true);
             const response = await this.yooso.get(`/api/components/${uuid}`);
             const result = await response.json();
-            this.setLoading(false);
 
-            if (!result.success) {
-                this.setError(result.message || 'Failed to view component');
+            if (!response.ok) {
+                const text = await response.text();
+                this.setLoading(false);
+                this.setError(text || response.statusText);
                 return null;
             }
 
+            this.setLoading(false);
             this.setError(null);
             return result.components;
         } catch (e) {
             this.setLoading(false);
             this.setError((e as Error).message || 'An unknown error occurred while viewing a component');
-            return null;
         }
+        return null;
     }
 
     // TODO PATCH /api/components/:uuid
@@ -213,14 +221,16 @@ export default class YoosoComponentManager {
         try {
             this.setLoading(true);
             const response = await this.yooso.delete(`/api/components/${uuid}`);
-            const result = await response.json();
-            this.setLoading(false);
+            // const result = await response.json();
 
-            if (!result.success) {
-                this.setError(result.message || 'Failed to delete component');
+            if (!response.ok) {
+                const text = await response.text();
+                this.setLoading(false);
+                this.setError(text || response.statusText);
                 return false;
             }
 
+            this.setLoading(false);
             this.setError(null);
             return true;
         } catch (e) {
