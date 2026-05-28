@@ -404,6 +404,10 @@ pub fn collection(
             /// generating the field list in the SQL SELECT queries.
             /// 
             /// # Table Fields
+            /// 
+            #[doc = concat!(#(" - `", #field_names, "`\n"),*)]
+            /// 
+            /// # Example
             ///
             /// ```sql
             #[doc = concat!("CREATE TABLE ", #table_name, " (", #field_names_punctuated, ");")]
@@ -542,10 +546,6 @@ pub fn collection(
             }
 
             /// Lists all rows in the collection's table, returning them as a vector.
-            ///
-            /// **This method is not optimized for large tables and should only be used for
-            /// small collections. This method is primarily intended for development and
-            /// debugging purposes.**
             ///
             /// # Query
             ///
