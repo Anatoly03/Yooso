@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["delete","get","head","launch","options","patch","post","put"],"macro":["routes"],"struct":["Component","Entity","Route","Yooso"]};
+window.SIDEBAR_ITEMS = {"attr":["delete","get","head","launch","options","patch","post","put"],"macro":["routes"],"struct":["Route","Yooso"]};

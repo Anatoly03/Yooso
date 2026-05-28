@@ -6,7 +6,7 @@
 <a href=#6 id=6 data-nosnippet>6</a><span class="kw">use </span>serde::{Deserialize, Serialize};
 <a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span>util_validation::{Validated, ValidationError, validate};
 <a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span>uuid::Uuid;
-<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span>yooso_core::error::Result;
+<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span>yooso_core::Result;
 <a href=#10 id=10 data-nosnippet>10</a><span class="kw">use </span>yooso_storage::{ComponentFieldRecord, ComponentRecord, GeneralDBState, MetaDBState};
 <a href=#11 id=11 data-nosnippet>11</a>
 <a href=#12 id=12 data-nosnippet>12</a><span class="doccomment">/// TODO: document
@@ -57,75 +57,77 @@
 <a href=#57 id=57 data-nosnippet>57</a>/// # Example Response
 <a href=#58 id=58 data-nosnippet>58</a>///
 <a href=#59 id=59 data-nosnippet>59</a>/// ```http
-<a href=#60 id=60 data-nosnippet>60</a>/// 201 Created
-<a href=#61 id=61 data-nosnippet>61</a>///
-<a href=#62 id=62 data-nosnippet>62</a>/// {
-<a href=#63 id=63 data-nosnippet>63</a>///     "id": "019de463-92cc-7fb0-8cfa-a1efd95f93ee",
-<a href=#64 id=64 data-nosnippet>64</a>///     "name": "MessageContent",
-<a href=#65 id=65 data-nosnippet>65</a>///     "is_system": false,
-<a href=#66 id=66 data-nosnippet>66</a>///     "color": 0xFF5733,
-<a href=#67 id=67 data-nosnippet>67</a>///     "created_at": 1777653224140,
-<a href=#68 id=68 data-nosnippet>68</a>///     "fields": [
-<a href=#69 id=69 data-nosnippet>69</a>///          {
-<a href=#70 id=70 data-nosnippet>70</a>///              "id": "019dda35-8edd-7e93-8221-c031d8588af6",
-<a href=#71 id=71 data-nosnippet>71</a>///              "name": "content",
-<a href=#72 id=72 data-nosnippet>72</a>///              "is_system": false,
-<a href=#73 id=73 data-nosnippet>73</a>///              "field_type": "text",
-<a href=#74 id=74 data-nosnippet>74</a>///              "position": 0,
-<a href=#75 id=75 data-nosnippet>75</a>///              "created_at": 1777482436317,
-<a href=#76 id=76 data-nosnippet>76</a>///          }
-<a href=#77 id=77 data-nosnippet>77</a>///     ]
-<a href=#78 id=78 data-nosnippet>78</a>/// }
-<a href=#79 id=79 data-nosnippet>79</a>/// ```
-<a href=#80 id=80 data-nosnippet>80</a></span><span class="attr">#[post(<span class="string">"/"</span>, data = <span class="string">"&lt;body&gt;"</span>)]
-<a href=#81 id=81 data-nosnippet>81</a></span><span class="kw">pub async fn </span>create_component(
-<a href=#82 id=82 data-nosnippet>82</a>    state: <span class="kw-2">&amp;</span>State&lt;MetaDBState&gt;,
-<a href=#83 id=83 data-nosnippet>83</a>    general_state: <span class="kw-2">&amp;</span>State&lt;GeneralDBState&gt;,
-<a href=#84 id=84 data-nosnippet>84</a>    body: Json&lt;CreateComponentRequest&gt;,
-<a href=#85 id=85 data-nosnippet>85</a>) -&gt; <span class="prelude-ty">Result</span>&lt;(Status, Json&lt;CreateComponentResponse&gt;)&gt; {
-<a href=#86 id=86 data-nosnippet>86</a>    <span class="kw">let </span>id = Uuid::now_v7();
-<a href=#87 id=87 data-nosnippet>87</a>    <span class="kw">let </span>created_at = chrono::Utc::now().timestamp_millis();
-<a href=#88 id=88 data-nosnippet>88</a>
-<a href=#89 id=89 data-nosnippet>89</a>    <span class="comment">// Validate the component from the request body.
-<a href=#90 id=90 data-nosnippet>90</a>    </span><span class="kw">let </span>metadata = validate::&lt;ComponentRecord, <span class="kw">_</span>&gt;(ComponentRecord {
-<a href=#91 id=91 data-nosnippet>91</a>        id,
-<a href=#92 id=92 data-nosnippet>92</a>        component_name: body.name.clone(),
-<a href=#93 id=93 data-nosnippet>93</a>        is_system: body.is_system,
-<a href=#94 id=94 data-nosnippet>94</a>        color: body.color,
-<a href=#95 id=95 data-nosnippet>95</a>        created_at,
-<a href=#96 id=96 data-nosnippet>96</a>    })<span class="question-mark">?</span>;
-<a href=#97 id=97 data-nosnippet>97</a>
-<a href=#98 id=98 data-nosnippet>98</a>    <span class="comment">// Validate the component fields from the request body.
-<a href=#99 id=99 data-nosnippet>99</a>    </span><span class="kw">let </span>fields = body
-<a href=#100 id=100 data-nosnippet>100</a>        .fields
-<a href=#101 id=101 data-nosnippet>101</a>        .iter()
-<a href=#102 id=102 data-nosnippet>102</a>        .enumerate()
-<a href=#103 id=103 data-nosnippet>103</a>        .map(|(position, field)| {
-<a href=#104 id=104 data-nosnippet>104</a>            validate::&lt;ComponentFieldRecord, <span class="kw">_</span>&gt;(ComponentFieldRecord {
-<a href=#105 id=105 data-nosnippet>105</a>                id: Uuid::now_v7(),
-<a href=#106 id=106 data-nosnippet>106</a>                component_id: id,
-<a href=#107 id=107 data-nosnippet>107</a>                field_name: field.name.clone(),
-<a href=#108 id=108 data-nosnippet>108</a>                field_type: field.field_type.clone(),
-<a href=#109 id=109 data-nosnippet>109</a>                is_system: field.is_system,
-<a href=#110 id=110 data-nosnippet>110</a>                position: position <span class="kw">as </span>i32,
-<a href=#111 id=111 data-nosnippet>111</a>                created_at,
-<a href=#112 id=112 data-nosnippet>112</a>            })
-<a href=#113 id=113 data-nosnippet>113</a>        })
-<a href=#114 id=114 data-nosnippet>114</a>        .collect::&lt;std::result::Result&lt;Vec&lt;<span class="kw">_</span>&gt;, ValidationError&gt;&gt;()<span class="question-mark">?</span>;
-<a href=#115 id=115 data-nosnippet>115</a>
-<a href=#116 id=116 data-nosnippet>116</a>    <span class="comment">// Assume everything has been validated here. Save component and fields
-<a href=#117 id=117 data-nosnippet>117</a>    // to the metadata database.
-<a href=#118 id=118 data-nosnippet>118</a>    </span>metadata.save(state).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#119 id=119 data-nosnippet>119</a>    <span class="kw">for </span>field <span class="kw">in </span><span class="kw-2">&amp;</span>fields {
-<a href=#120 id=120 data-nosnippet>120</a>        field.save(state).<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#121 id=121 data-nosnippet>121</a>    }
-<a href=#122 id=122 data-nosnippet>122</a>
-<a href=#123 id=123 data-nosnippet>123</a>    <span class="comment">// Create the component table in the general database. Entities will implement
-<a href=#124 id=124 data-nosnippet>124</a>    // the component by inserting rows into this table.
-<a href=#125 id=125 data-nosnippet>125</a>    </span>metadata
-<a href=#126 id=126 data-nosnippet>126</a>        .create_dynamic_table(general_state, <span class="kw-2">&amp;</span>fields)
-<a href=#127 id=127 data-nosnippet>127</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
-<a href=#128 id=128 data-nosnippet>128</a>
-<a href=#129 id=129 data-nosnippet>129</a>    <span class="prelude-val">Ok</span>((Status::Created, Json(CreateComponentResponse { metadata, fields })))
-<a href=#130 id=130 data-nosnippet>130</a>}
+<a href=#60 id=60 data-nosnippet>60</a>///   201 Created
+<a href=#61 id=61 data-nosnippet>61</a>/// 
+<a href=#62 id=62 data-nosnippet>62</a>/// ```
+<a href=#63 id=63 data-nosnippet>63</a>/// ```diff
+<a href=#64 id=64 data-nosnippet>64</a>///   {
+<a href=#65 id=65 data-nosnippet>65</a>/// +     "id": "019de463-92cc-7fb0-8cfa-a1efd95f93ee",
+<a href=#66 id=66 data-nosnippet>66</a>///       "name": "MessageContent",
+<a href=#67 id=67 data-nosnippet>67</a>///       "is_system": false,
+<a href=#68 id=68 data-nosnippet>68</a>///       "color": 0xFF5733,
+<a href=#69 id=69 data-nosnippet>69</a>/// +     "created_at": 1777653224140,
+<a href=#70 id=70 data-nosnippet>70</a>///       "fields": [
+<a href=#71 id=71 data-nosnippet>71</a>///            {
+<a href=#72 id=72 data-nosnippet>72</a>/// +              "id": "019dda35-8edd-7e93-8221-c031d8588af6",
+<a href=#73 id=73 data-nosnippet>73</a>///                "name": "content",
+<a href=#74 id=74 data-nosnippet>74</a>///                "is_system": false,
+<a href=#75 id=75 data-nosnippet>75</a>///                "field_type": "text",
+<a href=#76 id=76 data-nosnippet>76</a>/// +              "position": 0,
+<a href=#77 id=77 data-nosnippet>77</a>/// +              "created_at": 1777482436317,
+<a href=#78 id=78 data-nosnippet>78</a>///            }
+<a href=#79 id=79 data-nosnippet>79</a>///       ]
+<a href=#80 id=80 data-nosnippet>80</a>///   }
+<a href=#81 id=81 data-nosnippet>81</a>/// ```
+<a href=#82 id=82 data-nosnippet>82</a></span><span class="attr">#[post(<span class="string">"/"</span>, data = <span class="string">"&lt;body&gt;"</span>)]
+<a href=#83 id=83 data-nosnippet>83</a></span><span class="kw">pub async fn </span>create_component(
+<a href=#84 id=84 data-nosnippet>84</a>    state: <span class="kw-2">&amp;</span>State&lt;MetaDBState&gt;,
+<a href=#85 id=85 data-nosnippet>85</a>    general_state: <span class="kw-2">&amp;</span>State&lt;GeneralDBState&gt;,
+<a href=#86 id=86 data-nosnippet>86</a>    body: Json&lt;CreateComponentRequest&gt;,
+<a href=#87 id=87 data-nosnippet>87</a>) -&gt; <span class="prelude-ty">Result</span>&lt;(Status, Json&lt;CreateComponentResponse&gt;)&gt; {
+<a href=#88 id=88 data-nosnippet>88</a>    <span class="kw">let </span>id = Uuid::now_v7();
+<a href=#89 id=89 data-nosnippet>89</a>    <span class="kw">let </span>created_at = chrono::Utc::now().timestamp_millis();
+<a href=#90 id=90 data-nosnippet>90</a>
+<a href=#91 id=91 data-nosnippet>91</a>    <span class="comment">// Validate the component from the request body.
+<a href=#92 id=92 data-nosnippet>92</a>    </span><span class="kw">let </span>metadata = validate::&lt;ComponentRecord, <span class="kw">_</span>&gt;(ComponentRecord {
+<a href=#93 id=93 data-nosnippet>93</a>        id,
+<a href=#94 id=94 data-nosnippet>94</a>        component_name: body.name.clone(),
+<a href=#95 id=95 data-nosnippet>95</a>        is_system: body.is_system,
+<a href=#96 id=96 data-nosnippet>96</a>        color: body.color,
+<a href=#97 id=97 data-nosnippet>97</a>        created_at,
+<a href=#98 id=98 data-nosnippet>98</a>    })<span class="question-mark">?</span>;
+<a href=#99 id=99 data-nosnippet>99</a>
+<a href=#100 id=100 data-nosnippet>100</a>    <span class="comment">// Validate the component fields from the request body.
+<a href=#101 id=101 data-nosnippet>101</a>    </span><span class="kw">let </span>fields = body
+<a href=#102 id=102 data-nosnippet>102</a>        .fields
+<a href=#103 id=103 data-nosnippet>103</a>        .iter()
+<a href=#104 id=104 data-nosnippet>104</a>        .enumerate()
+<a href=#105 id=105 data-nosnippet>105</a>        .map(|(position, field)| {
+<a href=#106 id=106 data-nosnippet>106</a>            validate::&lt;ComponentFieldRecord, <span class="kw">_</span>&gt;(ComponentFieldRecord {
+<a href=#107 id=107 data-nosnippet>107</a>                id: Uuid::now_v7(),
+<a href=#108 id=108 data-nosnippet>108</a>                component_id: id,
+<a href=#109 id=109 data-nosnippet>109</a>                field_name: field.name.clone(),
+<a href=#110 id=110 data-nosnippet>110</a>                field_type: field.field_type.clone(),
+<a href=#111 id=111 data-nosnippet>111</a>                is_system: field.is_system,
+<a href=#112 id=112 data-nosnippet>112</a>                position: position <span class="kw">as </span>i32,
+<a href=#113 id=113 data-nosnippet>113</a>                created_at,
+<a href=#114 id=114 data-nosnippet>114</a>            })
+<a href=#115 id=115 data-nosnippet>115</a>        })
+<a href=#116 id=116 data-nosnippet>116</a>        .collect::&lt;std::result::Result&lt;Vec&lt;<span class="kw">_</span>&gt;, ValidationError&gt;&gt;()<span class="question-mark">?</span>;
+<a href=#117 id=117 data-nosnippet>117</a>
+<a href=#118 id=118 data-nosnippet>118</a>    <span class="comment">// Assume everything has been validated here. Save component and fields
+<a href=#119 id=119 data-nosnippet>119</a>    // to the metadata database.
+<a href=#120 id=120 data-nosnippet>120</a>    </span>metadata.save(state).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#121 id=121 data-nosnippet>121</a>    <span class="kw">for </span>field <span class="kw">in </span><span class="kw-2">&amp;</span>fields {
+<a href=#122 id=122 data-nosnippet>122</a>        field.save(state).<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#123 id=123 data-nosnippet>123</a>    }
+<a href=#124 id=124 data-nosnippet>124</a>
+<a href=#125 id=125 data-nosnippet>125</a>    <span class="comment">// Create the component table in the general database. Entities will implement
+<a href=#126 id=126 data-nosnippet>126</a>    // the component by inserting rows into this table.
+<a href=#127 id=127 data-nosnippet>127</a>    </span>metadata
+<a href=#128 id=128 data-nosnippet>128</a>        .create_dynamic_table(general_state, <span class="kw-2">&amp;</span>fields)
+<a href=#129 id=129 data-nosnippet>129</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
+<a href=#130 id=130 data-nosnippet>130</a>
+<a href=#131 id=131 data-nosnippet>131</a>    <span class="prelude-val">Ok</span>((Status::Created, Json(CreateComponentResponse { metadata, fields })))
+<a href=#132 id=132 data-nosnippet>132</a>}
 </code></pre></div></section></main></body></html>

@@ -6,13 +6,24 @@
 <a href=#6 id=6 data-nosnippet>6</a><span class="kw">mod </span>patch;
 <a href=#7 id=7 data-nosnippet>7</a><span class="kw">mod </span>view;
 <a href=#8 id=8 data-nosnippet>8</a>
-<a href=#9 id=9 data-nosnippet>9</a><span class="kw">pub fn </span>routes() -&gt; Vec&lt;rocket::Route&gt; {
-<a href=#10 id=10 data-nosnippet>10</a>    <span class="macro">rocket::routes!</span>[
-<a href=#11 id=11 data-nosnippet>11</a>        create::create_component,
-<a href=#12 id=12 data-nosnippet>12</a>        delete::delete_component,
-<a href=#13 id=13 data-nosnippet>13</a>        list::list_components,
-<a href=#14 id=14 data-nosnippet>14</a>        patch::update_component,
-<a href=#15 id=15 data-nosnippet>15</a>        view::view_component,
-<a href=#16 id=16 data-nosnippet>16</a>    ]
-<a href=#17 id=17 data-nosnippet>17</a>}
+<a href=#9 id=9 data-nosnippet>9</a><span class="doccomment">/// Defines component-related API endpoints.
+<a href=#10 id=10 data-nosnippet>10</a>/// 
+<a href=#11 id=11 data-nosnippet>11</a>/// # Routes
+<a href=#12 id=12 data-nosnippet>12</a>/// 
+<a href=#13 id=13 data-nosnippet>13</a>/// ```http
+<a href=#14 id=14 data-nosnippet>14</a>/// POST /
+<a href=#15 id=15 data-nosnippet>15</a>/// DELETE /&lt;uuid&gt;
+<a href=#16 id=16 data-nosnippet>16</a>/// GET /list
+<a href=#17 id=17 data-nosnippet>17</a>/// PATCH /
+<a href=#18 id=18 data-nosnippet>18</a>/// GET /view/&lt;uuid&gt;
+<a href=#19 id=19 data-nosnippet>19</a>/// ```
+<a href=#20 id=20 data-nosnippet>20</a></span><span class="kw">pub fn </span>routes() -&gt; Vec&lt;rocket::Route&gt; {
+<a href=#21 id=21 data-nosnippet>21</a>    <span class="macro">rocket::routes!</span>[
+<a href=#22 id=22 data-nosnippet>22</a>        create::create_component,
+<a href=#23 id=23 data-nosnippet>23</a>        delete::delete_component,
+<a href=#24 id=24 data-nosnippet>24</a>        list::list_components,
+<a href=#25 id=25 data-nosnippet>25</a>        patch::update_component,
+<a href=#26 id=26 data-nosnippet>26</a>        view::view_component,
+<a href=#27 id=27 data-nosnippet>27</a>    ]
+<a href=#28 id=28 data-nosnippet>28</a>}
 </code></pre></div></section></main></body></html>

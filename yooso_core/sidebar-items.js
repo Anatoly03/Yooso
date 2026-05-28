@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["error"],"struct":["Component","ComponentField","Entity"]};
+window.SIDEBAR_ITEMS = {"mod":["error"]};
