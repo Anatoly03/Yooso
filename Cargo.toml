@@ -9,5 +9,5 @@ members = [
     "yooso-core",
     "yooso-example",
     "yooso-macro",
-    "yooso-storage"
+    "yooso-storage",
 ]

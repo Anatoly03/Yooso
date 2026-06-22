@@ -3,6 +3,9 @@ name = "yooso"
 version = "0.0.0"
 edition = "2024"
 
+[features]
+nightly = []
+
 [dependencies]
 yooso-api = { path = "../yooso-api" }
 yooso-core = { path = "../yooso-core" }
