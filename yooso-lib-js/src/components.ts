@@ -192,7 +192,7 @@ export default class YoosoComponentManager {
     public async view(uuid: string): Promise<ViewComponent | null> {
         try {
             this.setLoading(true);
-            const response = await this.yooso.get(`/api/components/${uuid}`);
+            const response = await this.yooso.get(`/api/components/view/${uuid}`);
             const result = await response.json();
 
             if (!response.ok) {

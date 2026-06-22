@@ -2,7 +2,6 @@
 resolver = "2"
 version = "0.0.0"
 members = [
-    "util/obfuscated",
     "util/validation",
     "yooso",
     "yooso-api",
