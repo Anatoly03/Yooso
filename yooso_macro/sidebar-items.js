@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["collection","database","launch"],"macro":["query"]};
+window.SIDEBAR_ITEMS = {"attr":["collection","database","docapi","launch"],"macro":["query"]};

@@ -1,0 +1,1 @@
+rd_("outil_validationeyoosoiyooso_apijyooso_coremyooso_examplekyooso_macromyooso_storage")
