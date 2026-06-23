@@ -8,9 +8,10 @@ mod macro_database;
 mod macro_docapi;
 mod macro_launch;
 mod macro_query;
+mod util;
 
 use proc_macro::TokenStream;
-use syn::parse_macro_input;
+use syn::{Item, parse_macro_input};
 
 use crate::macro_collection::CollectionMeta;
 
@@ -132,7 +133,7 @@ pub fn database(args: TokenStream, input: TokenStream) -> TokenStream {
 pub fn collection(args: TokenStream, input: TokenStream) -> TokenStream {
     let meta = parse_macro_input!(args as CollectionMeta);
     let mut item = parse_macro_input!(input as syn::ItemStruct);
-    let unique_attributes = consume_attributes_by_name(&mut item.attrs, "unique")
+    let unique_attributes = util::consume_attributes_by_name(&mut item.attrs, "unique")
         .iter()
         .map(|f| f.meta.clone())
         .collect::<Vec<_>>();
@@ -194,19 +195,19 @@ pub fn query(input: TokenStream) -> TokenStream {
 }
 
 /// The [docapi] attribute marks the function as an endpoint and generates
-/// documentation for the API. 
+/// documentation for the API.
 ///
 /// # Example
 ///
 /// ```no_run
 /// use rocket::get;
 /// use yooso_macro::docapi;
-/// 
+///
 /// #[docapi()]
 /// pub struct Entity {
 ///     /// The UUID of the component to view.
 ///     uuid: Uuid,
-/// 
+///
 ///     // The timestamp of the component creation.
 ///     created_at: i32,
 /// }
@@ -219,30 +220,11 @@ pub fn query(input: TokenStream) -> TokenStream {
 /// ```
 #[proc_macro_attribute]
 pub fn docapi(_args: TokenStream, input: TokenStream) -> TokenStream {
-    let item = parse_macro_input!(input as syn::Item);
+    let item = parse_macro_input!(input as Item);
 
     match item {
-        syn::Item::Fn(func) => macro_docapi::docapi_fn(func).into(),
-        syn::Item::Struct(strucc) => macro_docapi::docapi_struct(strucc).into(),
+        Item::Fn(func) => macro_docapi::docapi_fn(func).into(),
+        Item::Struct(strucc) => macro_docapi::docapi_struct(strucc).into(),
         _ => panic!("The #[docapi] attribute can only be applied to functions."),
     }
-}
-
-/// Helper method to consume attribute by name and return a vector of all
-/// attributes. For example, this consumes all `#[unique]` attributes and
-/// returns a vector of their arguments.
-pub(crate) fn consume_attributes_by_name(
-    attributes: &mut Vec<syn::Attribute>,
-    name: &str,
-) -> Vec<syn::Attribute> {
-    let mut result = Vec::new();
-    let mut i = 0;
-    while i < attributes.len() {
-        if attributes[i].path().is_ident(name) {
-            result.push(attributes.remove(i));
-        } else {
-            i += 1;
-        }
-    }
-    result
 }

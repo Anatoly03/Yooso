@@ -1,13 +1,15 @@
 //! The module defining the [docapi][super::docapi] macro.
 
-use fd_lock::RwLock;
+use fd_lock::{RwLock, RwLockWriteGuard};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use serde_json::Value;
+use serde::de::DeserializeOwned;
+use serde_json::json;
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::PathBuf;
-use syn::{Attribute, ItemFn, ItemStruct};
+use syn::{Attribute, Field, GenericArgument, ItemFn, ItemStruct, PathArguments, Type, TypePath};
 use termcolor::{Color, ColorChoice, StandardStream};
 use termcolor_output::colored;
 
@@ -24,41 +26,16 @@ use termcolor_output::colored;
 /// }
 /// ```
 pub fn docapi_fn(func: ItemFn) -> TokenStream {
+    // The "root" of the rust crate, which is a member of the workspace. The openapi
+    // documentation will be generated into this path + "openapi".
+    let openapi_dir = caller_openapi_dir();
+
+    // The build hash.
+    let build_hash = get_build_hash();
+
     let url_attr =
         get_rocket_attr(&func).expect("Expected a Rocket HTTP method attribute on the function.");
     let http_method = url_attr.path().get_ident().unwrap().to_string();
-
-    // The "root" of the rust crate, which is a member of the workspace. The openapi
-    // documentation will be generated into this path + "openapi".
-    let caller_openapi_dir = {
-        let s = format!(
-            "{}{}",
-            std::env::var("CARGO_MANIFEST_DIR").unwrap(),
-            "/openapi"
-        );
-        PathBuf::from(s)
-    };
-
-    // Read the current timestamp of the build, which generates the unique build hash. If not
-    // set, set it.
-    let timestamp = match std::env::var("YOOSO_BUILD_TIMESTAMP") {
-        Ok(ts) => ts,
-        Err(_) => {
-            let ts = format!("{}", chrono::Utc::now().timestamp_millis());
-
-            unsafe {
-                std::env::set_var("YOOSO_BUILD_TIMESTAMP", &ts);
-            }
-
-            ts
-        }
-    };
-
-    // The build hash.
-    let build_hash = format!("{}-{}", std::process::id(), timestamp);
-
-    // Shortcut for generating a file path for the openapi documentation.
-    let fp = |filename: &str| caller_openapi_dir.join(filename);
 
     // Rocket URL attributes are of the form `#[get("/path")]` or `#[post("/path", body = "<body>")]`.
     // Te path is the first argument to the attribute, which is a string literal.
@@ -75,71 +52,42 @@ pub fn docapi_fn(func: ItemFn) -> TokenStream {
         _ => panic!("Expected a Rocket URL attribute to be a list."),
     };
 
-    // Create the openapi directory if it doesn't exist. This will build the following layout:
-    //
-    // api/
-    // ├── openapi/
-    // │   └── .gitignore
-    // ├── src/
-    // │  └── ...
-    // └ Cargo.toml
-    std::fs::create_dir_all(&caller_openapi_dir).expect("Failed to create openapi directory.");
-    std::fs::write(fp(".gitignore"), "*").expect("Failed to write .gitignore file.");
-
     // Open the file and create it if not exists. We also lock it in a cross-process
     // lock to prevent side effects.
     //
-    // api/
-    // ├── openapi/
+    // ...
+    // ├── openapi
     // │   ├── ...
     // │   └── openapi.json
     // └ ...
-    let openapi_file = File::options()
-        .read(true)
-        .write(true)
-        .create(true)
-        .open(fp("openapi.json"))
-        .expect("Failed to open openapi.json file.");
-    let mut lock = RwLock::new(openapi_file);
+    let mut lock = lock_file(openapi_dir.join("openapi.json"));
     let mut guard = lock.write().unwrap();
 
     // Parse or create the JSON structure
-    let mut openapi_value = {
-        // Buffer the contents of te file into a string.
-        let mut content = String::new();
-        guard
-            .read_to_string(&mut content)
-            .expect("Failed to read openapi.json file.");
-
-        // Parse as JSON; if it is invalid JSON or an empty file - start fresh
-        match serde_json::from_str::<Value>(&content) {
-            Ok(value) => value,
-            Err(_) => {
-                serde_json::json!({
-                    "build_hash": build_hash,
-                    "paths": {},
-                    "components": {},
-                })
-            }
-        }
-    };
+    let mut openapi_value = read_json_file(&mut guard).unwrap_or_else(|_| {
+        json!({
+            "build_hash": build_hash,
+            "paths": {},
+            "components": {},
+        })
+    });
 
     // Check for build hash match (to ensure file is cleaned once before a new build)
     match openapi_value.get("build_hash").and_then(|v| v.as_str()) {
         Some(existing_hash) if existing_hash != build_hash => {
             // This is a new build - we keep the endpoints but update the hash
-            openapi_value["build_hash"] = serde_json::json!(build_hash);
+            openapi_value["build_hash"] = json!(build_hash);
         }
         None => {
             // No hash found - add it
-            openapi_value["build_hash"] = serde_json::json!(build_hash);
+            openapi_value["build_hash"] = json!(build_hash);
         }
         _ => { /* hash matches */ }
     }
 
     // Set OpenAPI file metadata.
-    openapi_value["openapi"] = serde_json::json!("3.1.0");
-    openapi_value["info"] = serde_json::json!({
+    openapi_value["openapi"] = json!("3.1.0");
+    openapi_value["info"] = json!({
         "title": std::env::var("CARGO_PKG_NAME").unwrap(),
         "version": std::env::var("CARGO_PKG_VERSION").unwrap(),
         "authors": std::env::var("CARGO_PKG_AUTHORS").unwrap().split(':').collect::<Vec<_>>(),
@@ -148,10 +96,10 @@ pub fn docapi_fn(func: ItemFn) -> TokenStream {
     // Ensure paths and components exist. This is a safety check in case the file
     // was manually edited and these keys were removed.
     if !openapi_value.get("paths").is_some() {
-        openapi_value["paths"] = serde_json::json!({});
+        openapi_value["paths"] = json!({});
     }
     if !openapi_value.get("components").is_some() {
-        openapi_value["components"] = serde_json::json!({});
+        openapi_value["components"] = json!({});
     }
 
     // Add the endpoint to the paths
@@ -198,12 +146,12 @@ pub fn docapi_fn(func: ItemFn) -> TokenStream {
 
     // Ensure the path exists.
     if !openapi_value["paths"].get(&path_key).is_some() {
-        openapi_value["paths"][&path_key] = serde_json::json!({});
+        openapi_value["paths"][&path_key] = json!({});
     }
 
     // Add the HTTP method with its operation
     let method_lower = http_method.to_lowercase();
-    openapi_value["paths"][&path_key][&method_lower] = serde_json::json!({
+    openapi_value["paths"][&path_key][&method_lower] = json!({
         "operationId": operation_id,
         "summary": "Todo: Implement #[docapi(summary = \"...\")]",
     });
@@ -238,12 +186,200 @@ pub fn docapi_fn(func: ItemFn) -> TokenStream {
 ///     created_at: i32,
 /// }
 /// ```
-pub fn docapi_struct(func: ItemStruct) -> TokenStream {
-    todo!("add support for #[docapi] on structs to generate component documentation");
+pub fn docapi_struct(strucc: ItemStruct) -> TokenStream {
+    // The "root" of the rust crate, which is a member of the workspace. The openapi
+    // documentation will be generated into this path + "openapi".
+    let openapi_dir = caller_openapi_dir();
+
+    // The build hash.
+    let build_hash = get_build_hash();
+
+    // Open the file and create it if not exists. We also lock it in a cross-process
+    // lock to prevent side effects.
+    //
+    // ...
+    // ├── openapi
+    // │   ├── ...
+    // │   └── openapi.json
+    // └ ...
+    let mut lock = lock_file(openapi_dir.join("openapi.json"));
+    let mut guard = lock.write().unwrap();
+
+    // Parse or create the JSON structure
+    let mut openapi_value = read_json_file(&mut guard).unwrap_or_else(|_| {
+        json!({
+            "build_hash": build_hash,
+            "paths": {},
+            "components": {},
+        })
+    });
+
+    // Check for build hash match (to ensure file is cleaned once before a new build)
+    match openapi_value.get("build_hash").and_then(|v| v.as_str()) {
+        Some(existing_hash) if existing_hash != build_hash => {
+            // This is a new build - we keep the endpoints but update the hash
+            openapi_value["build_hash"] = json!(build_hash);
+        }
+        None => {
+            // No hash found - add it
+            openapi_value["build_hash"] = json!(build_hash);
+        }
+        _ => { /* hash matches */ }
+    }
+
+    // Set OpenAPI file metadata.
+    openapi_value["openapi"] = json!("3.1.0");
+    openapi_value["info"] = json!({
+        "title": std::env::var("CARGO_PKG_NAME").unwrap(),
+        "version": std::env::var("CARGO_PKG_VERSION").unwrap(),
+        "authors": std::env::var("CARGO_PKG_AUTHORS").unwrap().split(':').collect::<Vec<_>>(),
+    });
+
+    // Ensure paths and components exist. This is a safety check in case the file
+    // was manually edited and these keys were removed.
+    if !openapi_value.get("paths").is_some() {
+        openapi_value["paths"] = json!({});
+    }
+    if !openapi_value.get("components").is_some() {
+        openapi_value["components"] = json!({});
+    }
+
+    // Add the schema to the components.
+    let struct_name = strucc.ident.to_string();
+
+    // Determine the required fields of the struct. A field is required if it is not an Option<T>.
+    let required_struct_fields = strucc
+        .fields
+        .iter()
+        .filter_map(|s| match &s.ty {
+            Type::Path(TypePath { path, .. })
+                if path.segments.iter().any(|f| f.ident == "Option") =>
+            {
+                None
+            }
+            _ => s.ident.as_ref().map(|f| f.to_string()),
+        })
+        .collect::<Vec<_>>();
+
+    // Get the properties of every struct field.
+    let struct_properties = strucc
+        .fields
+        .iter()
+        .map(|field| {
+            let ty = get_openapi_type(&field.ty);
+            let format = get_openapi_format(&field);
+
+            (
+                field
+                    .ident
+                    .as_ref()
+                    .expect("Only named identifiers allowed")
+                    .to_string(),
+                json!({
+                    "type": ty,
+                    "format": format
+                }),
+            )
+        })
+        .collect::<HashMap<_, _>>();
+
+    openapi_value["components"]["schemas"][&struct_name] = json!({
+        "type": "object",
+        "required": required_struct_fields,
+        "properties": struct_properties,
+    });
+
+    // IMPORTANT: Write the file - ONLY truncate when creating a new file
+    // For existing files, we should NOT truncate
+    guard
+        .seek(SeekFrom::Start(0))
+        .expect("Failed to seek to start");
+    guard.set_len(0).expect("Failed to truncate");
+    guard
+        .write_all(openapi_value.to_string().as_bytes())
+        .expect("Failed to write");
+
+    strucc.to_token_stream()
+}
+
+/// The openapi documentation will be generated into the root of the project + "openapi".
+/// This function will create the directory if it doesn't exist and return the path to it.
+/// It will also fill the directory with a `.gitignore` file to prevent it from being
+/// staged into version control.
+///
+/// ```txt
+/// api/
+/// ├── openapi/
+/// |   ├── ...
+/// │   └── .gitignore
+/// ├── src/
+/// │  └── ...
+/// └ Cargo.toml
+/// ```
+fn caller_openapi_dir() -> PathBuf {
+    let path = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap()).join("openapi");
+
+    // Create the openapi directory if it doesn't exist. This will build the following layout:
+    //
+    // api/
+    // ├── openapi/
+    // │   └── .gitignore
+    // ├── src/
+    // │  └── ...
+    // └ Cargo.toml
+    std::fs::create_dir_all(&path).expect("Failed to create openapi directory.");
+    std::fs::write(&path.join(".gitignore"), "*").expect("Failed to write .gitignore file.");
+
+    path
+}
+
+/// Concatenation of process ID and current timestamp which is unique per build and
+/// equal for all macro invocations in the same build.
+fn get_build_hash() -> String {
+    // Read the current timestamp of the build. If not set, set it.
+    let timestamp = match std::env::var("YOOSO_BUILD_TIMESTAMP") {
+        Ok(ts) => ts,
+        Err(_) => {
+            let ts = format!("{}", chrono::Utc::now().timestamp_millis());
+
+            unsafe {
+                std::env::set_var("YOOSO_BUILD_TIMESTAMP", &ts);
+            }
+
+            ts
+        }
+    };
+
+    // Concatenate process ID and timestamp.
+    format!("{}-{}", std::process::id(), timestamp)
+}
+
+/// Open the file and create it if not exists. It will be locked in a cross-process
+/// lock to prevent side effects.
+fn lock_file(path: PathBuf) -> RwLock<File> {
+    let openapi_file = File::options()
+        .read(true)
+        .write(true)
+        .create(true)
+        .open(path)
+        .expect("Failed to open openapi.json file.");
+
+    RwLock::new(openapi_file)
+}
+
+/// Reads the contents of the file from the given lock guard and parses it as JSON. If the
+/// file is empty or invalid JSON, it will return an error.
+fn read_json_file<V: DeserializeOwned>(guard: &mut RwLockWriteGuard<File>) -> std::io::Result<V> {
+    // Buffer the contents of te file into a string.
+    let mut content = String::new();
+    guard.read_to_string(&mut content)?;
+
+    // Parse as JSON; if it is invalid JSON or an empty file - start fresh
+    serde_json::from_str::<V>(&content).map_err(|_| std::io::ErrorKind::InvalidData.into())
 }
 
 /// Retrieves the HTTP method from the rocket api function.
-pub fn get_rocket_attr<'a>(func: &'a ItemFn) -> Option<&'a Attribute> {
+fn get_rocket_attr<'a>(func: &'a ItemFn) -> Option<&'a Attribute> {
     const HTTP_METHODS: &[&str] = &["get", "post", "put", "delete", "patch"];
 
     // &func.attrs.iter().filter(|attr| attr.path().get_ident().is_some()).find(|attr| HTTP_METHODS.contains(&attr.path().get_ident().unwrap().to_string().as_str()));
@@ -259,6 +395,117 @@ pub fn get_rocket_attr<'a>(func: &'a ItemFn) -> Option<&'a Attribute> {
     }
 
     None
+}
+
+/// Returns the OpenAPI type for a given Rust type. This is used to generate the
+/// `type` field in the OpenAPI schema for struct fields.
+fn get_openapi_type(ty: &Type) -> &str {
+    match &ty {
+        Type::Array(_) => "array",
+        // Type::BareFn(type_bare_fn) => todo!(),
+        Type::Group(type_group) => get_openapi_type(&type_group.elem),
+        // Type::ImplTrait(type_impl_trait) => todo!(),
+        // Type::Infer(type_infer) => todo!(),
+        // Type::Macro(type_macro) => todo!(),
+        // Type::Never(type_never) => todo!(),
+        Type::Paren(type_paren) => get_openapi_type(&type_paren.elem),
+        Type::Path(TypePath { path, .. }) => {
+            let last_segment = path
+                .segments
+                .last()
+                .expect("Expected a type path to have at least one segment.");
+            let ident_str = last_segment.ident.to_string();
+            let arguments = &last_segment.arguments;
+
+            match ident_str.as_str() {
+                "String" | "str" => "string",
+                "i8" | "i16" | "i32" | "i64" | "i128" | "isize" => "integer",
+                "u8" | "u16" | "u32" | "u64" | "u128" | "usize" => "integer",
+                "f32" | "f64" => "number",
+                "bool" => "boolean",
+                "Vec" => "array",
+                "Option" => {
+                    let generics = match arguments {
+                        PathArguments::AngleBracketed(angle_bracketed) => &angle_bracketed.args,
+                        _ => return "object",
+                    };
+
+                    if let Some(GenericArgument::Type(inner_ty)) = generics.first() {
+                        return get_openapi_type(inner_ty);
+                    }
+
+                    "object"
+                }
+                _ => "object", // Default to object for unknown types
+            }
+        }
+        Type::Ptr(type_ptr) => get_openapi_type(&type_ptr.elem),
+        Type::Reference(type_reference) => get_openapi_type(&type_reference.elem),
+        Type::Slice(_) => "array",
+        // Type::TraitObject(type_trait_object) => todo!(),
+        Type::Tuple(type_tuple) => {
+            if type_tuple.elems.is_empty() {
+                "null" // Empty tuple represents the unit type `()`, which is often treated as null
+            } else {
+                "array" // Non-empty tuples can be represented as arrays in OpenAPI
+            }
+        }
+        // Type::Verbatim(token_stream) => todo!(),
+        _ => panic!("Unsupported type for OpenAPI generation: {:?}", ty),
+    }
+}
+
+/// Returns the OpenAPI format for a given Rust type. This is used to generate the
+/// `format` field in the OpenAPI schema for struct fields. Currently the only functionality
+/// this method provides is to return the correct format for integer types.
+///
+/// ```no_run
+/// #[docapi()]
+/// pub struct Auth {
+///     #[docapi(format = "email")]
+///     pub email: String,
+/// }
+/// ```
+///
+/// See: https://docs.bump.sh/openapi/v3.2/data-models/schema-and-data-types/#data-formats
+fn get_openapi_format(field: &Field) -> Option<&str> {
+    match &field.ty {
+        Type::Path(TypePath { path, .. }) => {
+            let last_segment = path
+                .segments
+                .last()
+                .expect("Expected a type path to have at least one segment.");
+            let ident_str = last_segment.ident.to_string();
+
+            match ident_str.as_str() {
+                // isize
+                #[cfg(target_pointer_width = "32")]
+                "isize" => Some("int32"),
+                #[cfg(target_pointer_width = "64")]
+                "isize" => Some("int64"),
+
+                // usize
+                #[cfg(target_pointer_width = "32")]
+                "usize" => Some("int32"),
+                #[cfg(target_pointer_width = "64")]
+                "usize" => Some("int64"),
+
+                // signed integers
+                "i8" | "i16" | "i32" => Some("int32"),
+                "i64" | "i128" => Some("int64"),
+
+                // unsigned integers
+                "u8" | "u16" | "u32" => Some("int32"),
+                "u64" | "u128" => Some("int64"),
+
+                // uuid
+                "Uuid" => Some("uuid"),
+
+                _ => None,
+            }
+        }
+        _ => None,
+    }
 }
 
 /// Print the documentation for the given API endpoint function to the build logs.

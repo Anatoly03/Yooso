@@ -2135,6 +2135,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "rusqlite",
+ "serde",
  "serde_json",
  "syn",
  "termcolor",
