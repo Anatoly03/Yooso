@@ -6,6 +6,7 @@
     "main": "dist/index.js",
     "scripts": {
         "build": "tsc",
+        "openapi-ts": "openapi-ts",
         "docs": "npx typedoc src"
     },
     "keywords": [],
@@ -13,5 +14,8 @@
     "license": "ISC",
     "files": [
         "dist"
-    ]
+    ],
+    "devDependencies": {
+        "@hey-api/openapi-ts": "0.99.0"
+    }
 }
