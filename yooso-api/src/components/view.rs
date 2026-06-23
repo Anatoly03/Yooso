@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use yooso_core::Error;
 use yooso_core::Result;
+use yooso_macro::docapi;
 use yooso_storage::{ComponentFieldRecord, ComponentRecord, MetaDBState};
 
 /// Response structure for viewing a component. Contains the component object
@@ -49,7 +50,8 @@ pub struct ViewComponentResponse {
 ///   ]
 /// }
 /// ```
-#[get("/view/<uuid>")]
+#[docapi()]
+#[get("/api/components/view/<uuid>")]
 pub async fn view_component(
     state: &State<MetaDBState>,
     uuid: &str,

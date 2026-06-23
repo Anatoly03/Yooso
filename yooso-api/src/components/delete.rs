@@ -3,6 +3,7 @@
 use rocket::{State, delete, http::Status};
 use uuid::Uuid;
 use yooso_core::{Error, error::Result};
+use yooso_macro::docapi;
 use yooso_storage::{ComponentRecord, GeneralDBState, MetaDBState};
 
 /// The endpoint for deleting a component. Finds the component record corresponding to
@@ -20,7 +21,8 @@ use yooso_storage::{ComponentRecord, GeneralDBState, MetaDBState};
 /// ```http
 /// 200 OK
 /// ```
-#[delete("/<uuid>")]
+#[docapi()]
+#[delete("/api/components/<uuid>")]
 pub async fn delete_component(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,

@@ -5,10 +5,12 @@ use rocket::{State, delete, http::Status};
 use uuid::Uuid;
 use yooso_core::Error;
 use yooso_core::Result;
+use yooso_macro::docapi;
 use yooso_storage::{ComponentRecord, GeneralDBState, MetaDBState};
 
 /// TODO: document
-#[delete("/<id>/component/<component_id>")]
+#[docapi()]
+#[delete("/api/entities/<id>/component/<component_id>")]
 pub async fn remove_component(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,

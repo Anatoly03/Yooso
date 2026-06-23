@@ -43,9 +43,9 @@ impl Yooso {
                 .manage(general_db_state)
                 .manage(meta_db_state)
                 .manage(log_db_state)
-                .mount("/api/components", crate::components::routes())
-                .mount("/api/entities", crate::entities::routes())
-                .mount("/api/logs", crate::logs::routes())
+                .mount("/", crate::components::routes())
+                .mount("/", crate::entities::routes())
+                .mount("/", crate::logs::routes())
                 .attach(Self::cors_config())
                 .attach(logs::LogFairing),
         }

@@ -4,6 +4,7 @@ use rocket::serde::json::Json;
 use rocket::{State, get};
 use serde::Serialize;
 use yooso_core::Result;
+use yooso_macro::docapi;
 use yooso_storage::{ComponentRecord, MetaDBState, Pagination};
 
 /// The response body for the component listing endpoint.
@@ -114,7 +115,8 @@ pub struct ComponentListResponse {
 ///     ]
 /// }
 /// ```
-#[get("/list?<per_page>&<page>")]
+#[docapi()]
+#[get("/api/components/list?<per_page>&<page>")]
 pub async fn list_components(
     state: &State<MetaDBState>,
     per_page: Option<u32>,

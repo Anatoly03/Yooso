@@ -6,6 +6,7 @@ use rocket::{State, post};
 use serde::{Deserialize, Serialize};
 use util_validation::{Validated, ValidationError, validate};
 use uuid::Uuid;
+use yooso_macro::docapi;
 use yooso_core::Result;
 use yooso_storage::{ComponentFieldRecord, ComponentRecord, GeneralDBState, MetaDBState};
 
@@ -79,7 +80,8 @@ pub struct CreateComponentResponse {
 ///       ]
 ///   }
 /// ```
-#[post("/", data = "<body>")]
+#[docapi()]
+#[post("/api/components", data = "<body>")]
 pub async fn create_component(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,

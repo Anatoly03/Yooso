@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use util_validation::validate;
 use uuid::Uuid;
 use yooso_core::{Error, Result};
+use yooso_macro::docapi;
 use yooso_storage::{ComponentFieldRecord, ComponentRecord, GeneralDBState, MetaDBState};
 
 /// TODO: document
@@ -40,7 +41,8 @@ pub enum PatchFieldRequest {
 }
 
 /// TODO: document
-#[patch("/", data = "<body>")]
+#[docapi()]
+#[patch("/api/components", data = "<body>")]
 pub async fn update_component(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,

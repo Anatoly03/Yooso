@@ -5,6 +5,7 @@ mod collection_fields;
 mod inner_macro_meta;
 mod macro_collection;
 mod macro_database;
+mod macro_docapi;
 mod macro_launch;
 mod macro_query;
 
@@ -140,56 +141,77 @@ pub fn collection(args: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 /// The [query] macro allows you to write SQL queries in Rust code.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```no_run
 /// use yooso_macro::query;
-/// 
+///
 /// query!(SELECT EntityRecord FROM MetaDB);
 /// query!(SELECT #component FROM GeneralDB WHERE entity_id = #id LIMIT 1);
 /// ```
-/// 
+///
 /// # Discussion
-/// 
+///
 /// The `query!()` macro is designed to be a simple and knowledgable about how
 /// to interpret the statement in correctly typed Rust code.
-/// 
+///
 /// Per default, `SELECT` statements return a vector of rows, while `INSERT` and
 /// `REPLACE` statements return void and `DELETE` statements return the number of
 /// affected rows. If `LIMIT 1` (with the constant `1`) is specified, the vector
 /// return type is changed to an Option record.
-/// 
+///
 /// Since the project does not need the full power of being able to `SELECT` a
 /// specific set of rows and the fact that this project uses multiple databases,
 /// the SQL syntax `SELECT <columns> FROM <table>` has been changed to `SELECT
 /// <collection> FROM <database>` (or `DELETE <collection>` etc.)
-/// 
+///
 /// Take a look at the following few examples and the expected generated closure
 /// signature.
-/// 
+///
 /// For example the code `query!(SELECT EntityRecord FROM MetaDB WHERE entity_id
 /// = #id LIMIT 1)` will be transformed into a closure with the following signature:
-/// 
+///
 /// ```no_run
 /// let id: Uuid = ...;
 /// query!(SELECT ComponentRecord FROM MetaDB);
 /// // |state: &MetaDBBState| -> Result<Vec<EntityRecord>>
 /// ```
-/// 
+///
 /// Reading: Find me every component record and return it as a vector.
-/// 
+///
 /// ```no_run
 /// let id: Uuid = ...;
 /// query!(DELETE EntityRecord FROM MetaDB WHERE entity_id = #id);
 /// // |state: &MetaDBBState| -> Result<usize>
 /// ```
-/// 
+///
 /// Reading: Delete the entity record with the specified UUID and return the number
 /// of affected rows.
 #[proc_macro]
 pub fn query(input: TokenStream) -> TokenStream {
     macro_query::query(input.into()).into()
+}
+
+/// The [docapi] attribute marks the function as an endpoint and generates
+/// documentation for the API. 
+///
+/// # Example
+///
+/// ```no_run
+/// use rocket::get;
+/// use yooso_macro::docapi;
+///
+/// #[docapi()]
+/// #[get("/view/<uuid>")]
+/// pub async fn view_component(..., uuid: &str) -> ... {
+///     ...
+/// }
+/// ```
+#[proc_macro_attribute]
+pub fn docapi(_args: TokenStream, input: TokenStream) -> TokenStream {
+    let function = parse_macro_input!(input as syn::ItemFn);
+    macro_docapi::docapi(function).into()
 }
 
 /// Helper method to consume attribute by name and return a vector of all

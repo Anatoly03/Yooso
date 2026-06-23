@@ -3,6 +3,7 @@
 use rocket::{State, delete, http::Status};
 use uuid::Uuid;
 use yooso_core::Result;
+use yooso_macro::docapi;
 use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 
 /// The endpoint for deleting an entity.
@@ -18,7 +19,8 @@ use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 /// ```http
 /// 200 OK
 /// ```
-#[delete("/<uuid>")]
+#[docapi()]
+#[delete("/api/entities/<uuid>")]
 pub async fn delete_entity(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,

@@ -5,6 +5,7 @@ use rocket::{State, get};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use yooso_core::Result;
+use yooso_macro::docapi;
 use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 
 /// The response for viewing an new entity. This will yield entity metadata and all
@@ -42,7 +43,8 @@ pub struct ViewEntityResponse {
 ///   }
 /// }
 /// ```
-#[get("/view/<id>")]
+#[docapi()]
+#[get("/api/entities/view/<id>")]
 pub async fn view_entity(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,

@@ -1,5 +1,6 @@
 use rocket::{State, get, serde::json::Json};
 use uuid::Uuid;
+use yooso_macro::docapi;
 use yooso_storage::{LogDBState, LogRecord};
 
 mod fairing;
@@ -7,7 +8,8 @@ mod fairing;
 /// The fairing that logs all incoming requests, panics and other events.
 pub struct LogFairing;
 
-#[get("/?<limit>")]
+#[docapi()]
+#[get("/api/logs?<limit>")]
 pub fn list_logs(db: &State<LogDBState>, limit: Option<u32>) -> Json<Vec<LogRecord>> {
     let limit = limit.unwrap_or(200).min(500) as i64;
     let conn = db.0.lock().expect("lock sqlite db");

@@ -6,6 +6,7 @@ use rocket::{State, get};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use yooso_core::Result;
+use yooso_macro::docapi;
 use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState, Pagination};
 
 /// The response body for the entity listing endpoint.
@@ -147,7 +148,8 @@ pub struct EntityResponse {
 ///     ]
 /// }
 /// ```
-#[get("/list?<per_page>&<page>")]
+#[docapi()]
+#[get("/api/entities/list?<per_page>&<page>")]
 pub async fn list_entities(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,

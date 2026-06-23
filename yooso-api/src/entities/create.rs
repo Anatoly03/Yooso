@@ -2,6 +2,7 @@
 
 use rocket::{State, http::Status, post, serde::json::Json};
 use yooso_core::Result;
+use yooso_macro::docapi;
 use yooso_storage::{EntityRecord, MetaDBState};
 
 /// The endpoint for creating a new entity. This will generate a new entity with
@@ -23,7 +24,8 @@ use yooso_storage::{EntityRecord, MetaDBState};
 ///   "created_at": 1778849882050
 /// }
 /// ```
-#[post("/")]
+#[docapi()]
+#[post("/api/entities")]
 pub async fn create_entity(state: &State<MetaDBState>) -> Result<(Status, Json<EntityRecord>)> {
     // This always returns 201 as nothing can go wrong here.
     let entity = EntityRecord::create_new();

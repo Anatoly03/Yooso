@@ -7,10 +7,12 @@ use util_validation::ValidationError;
 use uuid::Uuid;
 use yooso_core::Error;
 use yooso_core::Result;
+use yooso_macro::docapi;
 use yooso_storage::{ComponentRecord, EntityRecord, GeneralDBState, MetaDBState};
 
 /// TODO: document
-#[post("/<id>/component/<component_id>", data = "<body>")]
+#[docapi()]
+#[post("/api/entities/<id>/component/<component_id>", data = "<body>")]
 pub async fn add_component(
     state: &State<MetaDBState>,
     general_state: &State<GeneralDBState>,

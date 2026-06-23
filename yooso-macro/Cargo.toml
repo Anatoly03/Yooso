@@ -16,3 +16,5 @@ yooso-core = { path = "../yooso-core" }
 proc-macro2 = "1.0"
 quote = "1.0"
 syn = { version = "2.0", features = ["full"] }
+termcolor = "1.0.5"
+termcolor_output = "1.0.0"
