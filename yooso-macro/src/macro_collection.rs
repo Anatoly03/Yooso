@@ -24,19 +24,26 @@ pub fn collection(
     unique_attributes: Vec<Meta>,
 ) -> TokenStream {
     let struct_name = &strucc.ident;
-    let table_name = &table_metadata.table;
-    // let db_struct_name = &table_metadata.db;
+    let table_name = match &table_metadata.table {
+        Some(lit_str) => lit_str,
+        _ => panic!(
+            "#[collection(...)] macro missed key `table`: fix: #[collection(table = \"...\")]"
+        ),
+    };
+    let db_path = match &table_metadata.db {
+        Some(lit_str) => lit_str,
+        _ => panic!("#[collection(...)] macro missed key `db`: fix: #[collection(db = ...)]"),
+    };
 
     let strucc_attr = strucc.attrs;
     strucc.attrs = Vec::new();
 
     // The name of the database struct, e.g. `MetaDB`.
-    let db_struct_name = &table_metadata.db.segments.last().unwrap().ident;
+    let db_struct_name = &db_path.segments.last().unwrap().ident;
 
     // Render the database state path without token-stream spacing, so docs
     // show `crate::MetaDBState` instead of `crate :: MetaDBState`.
-    let db_struct_name_display = table_metadata
-        .db
+    let db_struct_name_display = db_path
         .segments
         .iter()
         .map(|segment| segment.ident.to_string())
@@ -48,7 +55,7 @@ pub fn collection(
     let db_state_struct_name = {
         let db_state_ident = format_ident!("{}State", db_struct_name);
 
-        let mut db_state_path = table_metadata.db.clone();
+        let mut db_state_path = db_path.clone();
         db_state_path.segments.pop();
         db_state_path.segments.push(db_state_ident.into());
 
@@ -402,11 +409,11 @@ pub fn collection(
 
             /// The names of the fields in the collection's table. This is used for
             /// generating the field list in the SQL SELECT queries.
-            /// 
+            ///
             /// # Table Fields
-            /// 
+            ///
             #[doc = concat!(#(" - `", #field_names, "`\n"),*)]
-            /// 
+            ///
             /// # Example
             ///
             /// ```sql

@@ -13,7 +13,7 @@ mod util;
 use proc_macro::TokenStream;
 use syn::{Item, parse_macro_input};
 
-use crate::macro_collection::CollectionMeta;
+use crate::{macro_collection::CollectionMeta, macro_docapi::DocApiMeta};
 
 /// The [launch] attribute marks the async function that builds a `Yooso`
 /// application and turns it into the program entry point.
@@ -219,12 +219,13 @@ pub fn query(input: TokenStream) -> TokenStream {
 /// }
 /// ```
 #[proc_macro_attribute]
-pub fn docapi(_args: TokenStream, input: TokenStream) -> TokenStream {
+pub fn docapi(args: TokenStream, input: TokenStream) -> TokenStream {
+    let meta = parse_macro_input!(args as DocApiMeta);
     let item = parse_macro_input!(input as Item);
 
     match item {
-        Item::Fn(func) => macro_docapi::docapi_fn(func).into(),
-        Item::Struct(strucc) => macro_docapi::docapi_struct(strucc).into(),
+        Item::Fn(func) => macro_docapi::docapi_fn(meta, func).into(),
+        Item::Struct(strucc) => macro_docapi::docapi_struct(meta, strucc).into(),
         _ => panic!("The #[docapi] attribute can only be applied to functions."),
     }
 }

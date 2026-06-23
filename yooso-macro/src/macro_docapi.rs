@@ -9,9 +9,22 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::PathBuf;
-use syn::{Attribute, Field, GenericArgument, ItemFn, ItemStruct, PathArguments, Type, TypePath};
+use syn::{
+    Attribute, Field, GenericArgument, ItemFn, ItemStruct, Meta, PathArguments, Type, TypePath,
+};
 use termcolor::{Color, ColorChoice, StandardStream};
 use termcolor_output::colored;
+
+meta_parser!(
+    /// Metadata for the [docapi] attribute macro.
+    DocApiMeta {
+        /// The description of the API endpoint or component. This will be used in the OpenAPI documentation.
+        description: syn::LitStr,
+
+        /// The format of the API endpoint or component. This will be used in the OpenAPI documentation.
+        format: syn::LitStr,
+    }
+);
 
 /// The [docapi][super::docapi] attribute marks the function as an endpoint and generates
 /// documentation for the API.
@@ -25,7 +38,7 @@ use termcolor_output::colored;
 ///     ...
 /// }
 /// ```
-pub fn docapi_fn(func: ItemFn) -> TokenStream {
+pub fn docapi_fn(_meta: DocApiMeta, func: ItemFn) -> TokenStream {
     // The "root" of the rust crate, which is a member of the workspace. The openapi
     // documentation will be generated into this path + "openapi".
     let openapi_dir = caller_openapi_dir();
@@ -40,7 +53,7 @@ pub fn docapi_fn(func: ItemFn) -> TokenStream {
     // Rocket URL attributes are of the form `#[get("/path")]` or `#[post("/path", body = "<body>")]`.
     // Te path is the first argument to the attribute, which is a string literal.
     let url = match &url_attr.meta {
-        syn::Meta::List(meta_list) => meta_list
+        Meta::List(meta_list) => meta_list
             .tokens
             .clone()
             .into_iter()
@@ -186,7 +199,7 @@ pub fn docapi_fn(func: ItemFn) -> TokenStream {
 ///     created_at: i32,
 /// }
 /// ```
-pub fn docapi_struct(strucc: ItemStruct) -> TokenStream {
+pub fn docapi_struct(_meta: DocApiMeta, strucc: ItemStruct) -> TokenStream {
     // The "root" of the rust crate, which is a member of the workspace. The openapi
     // documentation will be generated into this path + "openapi".
     let openapi_dir = caller_openapi_dir();
@@ -268,6 +281,22 @@ pub fn docapi_struct(strucc: ItemStruct) -> TokenStream {
         .map(|field| {
             let ty = get_openapi_type(&field.ty);
             let format = get_openapi_format(&field);
+            let description = field
+                .attrs
+                .iter()
+                .filter(|attr| attr.path().is_ident("doc"))
+                .filter_map(|attr| match &attr.meta {
+                    Meta::NameValue(meta) => meta
+                        .value
+                        .to_token_stream()
+                        .to_string()
+                        .trim_matches('"')
+                        .trim()
+                        .to_string()
+                        .into(),
+                    _ => None,
+                })
+                .collect::<Vec<_>>();
 
             (
                 field
@@ -277,16 +306,35 @@ pub fn docapi_struct(strucc: ItemStruct) -> TokenStream {
                     .to_string(),
                 json!({
                     "type": ty,
-                    "format": format
+                    "format": format,
+                    "description": description.join(" "),
                 }),
             )
         })
         .collect::<HashMap<_, _>>();
 
+    let description = strucc
+        .attrs
+        .iter()
+        .filter(|attr| attr.path().is_ident("doc"))
+        .filter_map(|attr| match &attr.meta {
+            Meta::NameValue(meta) => meta
+                .value
+                .to_token_stream()
+                .to_string()
+                .trim_matches('"')
+                .trim()
+                .to_string()
+                .into(),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+
     openapi_value["components"]["schemas"][&struct_name] = json!({
         "type": "object",
         "required": required_struct_fields,
         "properties": struct_properties,
+        "description": description.join(" "),
     });
 
     // IMPORTANT: Write the file - ONLY truncate when creating a new file
@@ -436,6 +484,7 @@ fn get_openapi_type(ty: &Type) -> &str {
 
                     "object"
                 }
+                "Uuid" => "string",
                 _ => "object", // Default to object for unknown types
             }
         }

@@ -14,10 +14,19 @@
 //!         table: syn::LitStr,
 //!     }
 //! );
+//! 
+//! meta_parser!(
+//!     /// Metadata for the [docapi] attribute macro.
+//!     DocApiMeta {
+//!         description: syn::LitStr,
+//!         format: syn::LitStr,
+//!     }
+//! );
 //! ```
 //!
 //! ```rust,no_run
 //! #[collection(db = MetaDB, table = "entities")]
+//! #[docapi(description = "A password field", format = "password")]
 //! ```
 
 /// Internal macro for generating separated metadata struct parsers.
@@ -36,7 +45,7 @@ macro_rules! meta_parser {
         pub(crate) struct $name {
             $(
                 $(#[$attr2])*
-                $field: $ty
+                $field: Option<$ty>
             ),*
         }
 
@@ -79,14 +88,14 @@ macro_rules! meta_parser {
                     attr.parse::<::syn::Token![,]>()?;
                 }
 
-                $(
-                    let $field = $field.ok_or_else(|| {
-                        ::syn::Error::new(
-                            ::proc_macro2::Span::call_site(),
-                            format!("missing `{}` in #[collection(...)]", stringify!($field)),
-                        )
-                    })?;
-                )*
+                // $(
+                //     let $field = $field.ok_or_else(|| {
+                //         ::syn::Error::new(
+                //             ::proc_macro2::Span::call_site(),
+                //             format!("missing `{}` in #[collection(...)]", stringify!($field)),
+                //         )
+                //     })?;
+                // )*
 
                 Ok(Self { $( $field ),* })
             }
