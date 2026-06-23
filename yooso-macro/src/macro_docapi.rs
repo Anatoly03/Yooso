@@ -7,12 +7,23 @@ use serde_json::Value;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::PathBuf;
-use syn::{Attribute, ItemFn};
+use syn::{Attribute, ItemFn, ItemStruct};
 use termcolor::{Color, ColorChoice, StandardStream};
 use termcolor_output::colored;
 
-/// TODO
-pub fn docapi(func: ItemFn) -> TokenStream {
+/// The [docapi][super::docapi] attribute marks the function as an endpoint and generates
+/// documentation for the API.
+///
+/// # Example
+///
+/// ```no_run
+/// #[docapi()]
+/// #[get("/view/<uuid>")]
+/// pub async fn view_component(..., uuid: &str) -> ... {
+///     ...
+/// }
+/// ```
+pub fn docapi_fn(func: ItemFn) -> TokenStream {
     let url_attr =
         get_rocket_attr(&func).expect("Expected a Rocket HTTP method attribute on the function.");
     let http_method = url_attr.path().get_ident().unwrap().to_string();
@@ -126,6 +137,14 @@ pub fn docapi(func: ItemFn) -> TokenStream {
         _ => { /* hash matches */ }
     }
 
+    // Set OpenAPI file metadata.
+    openapi_value["openapi"] = serde_json::json!("3.1.0");
+    openapi_value["info"] = serde_json::json!({
+        "title": std::env::var("CARGO_PKG_NAME").unwrap(),
+        "version": std::env::var("CARGO_PKG_VERSION").unwrap(),
+        "authors": std::env::var("CARGO_PKG_AUTHORS").unwrap().split(':').collect::<Vec<_>>(),
+    });
+
     // Ensure paths and components exist. This is a safety check in case the file
     // was manually edited and these keys were removed.
     if !openapi_value.get("paths").is_some() {
@@ -137,23 +156,54 @@ pub fn docapi(func: ItemFn) -> TokenStream {
 
     // Add the endpoint to the paths
     // Note: Use the path as key (without query parameters)
-    let path_key = url.split('?').next().unwrap_or(&url);
+    let path_key = {
+        let path_prefix = url.split('?').next().unwrap_or(&url);
+        let mut pk = String::new();
 
-    // The `operationId` field.
-    let operation_id = format!(
-        "{}{}",
-        http_method.to_lowercase(),
-        path_key.replace('/', "_").replace('<', "").replace('>', "")
-    );
+        for segment in path_prefix.split('/') {
+            if !segment.is_empty() {
+                pk.push('/');
+            }
+
+            if segment.starts_with('<') && segment.ends_with('>') {
+                pk.push_str(format!("{{{}}}", &segment[1..segment.len() - 1]).as_str());
+            } else {
+                pk.push_str(segment);
+            }
+        }
+
+        pk
+    };
+    // let path_key = url.split('?').next().unwrap_or(&url);
+
+    // The `operationId` field. It's supposed to remove the leading "api" from the
+    // path as well as remove inputs in angle brackets. For example, `GET /api/view/<uuid>/list`
+    // will produce `get_view_list`
+    let operation_id = {
+        let mut oid = http_method.to_lowercase();
+
+        for segment in path_key.split('/') {
+            if !segment.is_empty()
+                && segment != "api"
+                && !segment.starts_with('{')
+                && !segment.ends_with('}')
+            {
+                oid.push('_');
+                oid.push_str(segment);
+            }
+        }
+
+        oid
+    };
 
     // Ensure the path exists.
-    if !openapi_value["paths"].get(path_key).is_some() {
-        openapi_value["paths"][path_key] = serde_json::json!({});
+    if !openapi_value["paths"].get(&path_key).is_some() {
+        openapi_value["paths"][&path_key] = serde_json::json!({});
     }
 
     // Add the HTTP method with its operation
     let method_lower = http_method.to_lowercase();
-    openapi_value["paths"][path_key][&method_lower] = serde_json::json!({
+    openapi_value["paths"][&path_key][&method_lower] = serde_json::json!({
         "operationId": operation_id,
         "summary": "Todo: Implement #[docapi(summary = \"...\")]",
     });
@@ -173,10 +223,30 @@ pub fn docapi(func: ItemFn) -> TokenStream {
     func.to_token_stream()
 }
 
+/// The [docapi][super::docapi] attribute marks the struct as a component and
+/// generates documentation for the API.
+///
+/// # Example
+///
+/// ```no_run
+/// #[docapi()]
+/// pub struct Entity {
+///     /// The UUID of the component to view.
+///     uuid: Uuid,
+///
+///     // The timestamp of the component creation.
+///     created_at: i32,
+/// }
+/// ```
+pub fn docapi_struct(func: ItemStruct) -> TokenStream {
+    todo!("add support for #[docapi] on structs to generate component documentation");
+}
+
 /// Retrieves the HTTP method from the rocket api function.
 pub fn get_rocket_attr<'a>(func: &'a ItemFn) -> Option<&'a Attribute> {
     const HTTP_METHODS: &[&str] = &["get", "post", "put", "delete", "patch"];
 
+    // &func.attrs.iter().filter(|attr| attr.path().get_ident().is_some()).find(|attr| HTTP_METHODS.contains(&attr.path().get_ident().unwrap().to_string().as_str()));
     for attr in &func.attrs {
         let ident = match attr.path().get_ident() {
             Some(ident) => ident,

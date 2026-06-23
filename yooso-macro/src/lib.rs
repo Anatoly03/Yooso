@@ -201,6 +201,15 @@ pub fn query(input: TokenStream) -> TokenStream {
 /// ```no_run
 /// use rocket::get;
 /// use yooso_macro::docapi;
+/// 
+/// #[docapi()]
+/// pub struct Entity {
+///     /// The UUID of the component to view.
+///     uuid: Uuid,
+/// 
+///     // The timestamp of the component creation.
+///     created_at: i32,
+/// }
 ///
 /// #[docapi()]
 /// #[get("/view/<uuid>")]
@@ -210,8 +219,13 @@ pub fn query(input: TokenStream) -> TokenStream {
 /// ```
 #[proc_macro_attribute]
 pub fn docapi(_args: TokenStream, input: TokenStream) -> TokenStream {
-    let function = parse_macro_input!(input as syn::ItemFn);
-    macro_docapi::docapi(function).into()
+    let item = parse_macro_input!(input as syn::Item);
+
+    match item {
+        syn::Item::Fn(func) => macro_docapi::docapi_fn(func).into(),
+        syn::Item::Struct(strucc) => macro_docapi::docapi_struct(strucc).into(),
+        _ => panic!("The #[docapi] attribute can only be applied to functions."),
+    }
 }
 
 /// Helper method to consume attribute by name and return a vector of all
