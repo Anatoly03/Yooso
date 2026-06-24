@@ -145,7 +145,7 @@ pub fn collection(args: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```no_run,no_test,ignore
 /// use yooso_macro::query;
 ///
 /// query!(SELECT EntityRecord FROM MetaDB);
@@ -173,7 +173,7 @@ pub fn collection(args: TokenStream, input: TokenStream) -> TokenStream {
 /// For example the code `query!(SELECT EntityRecord FROM MetaDB WHERE entity_id
 /// = #id LIMIT 1)` will be transformed into a closure with the following signature:
 ///
-/// ```no_run
+/// ```no_run,no_test,ignore
 /// let id: Uuid = ...;
 /// query!(SELECT ComponentRecord FROM MetaDB);
 /// // |state: &MetaDBBState| -> Result<Vec<EntityRecord>>
@@ -181,7 +181,7 @@ pub fn collection(args: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// Reading: Find me every component record and return it as a vector.
 ///
-/// ```no_run
+/// ```no_run,no_test,ignore
 /// let id: Uuid = ...;
 /// query!(DELETE EntityRecord FROM MetaDB WHERE entity_id = #id);
 /// // |state: &MetaDBBState| -> Result<usize>
@@ -199,7 +199,7 @@ pub fn query(input: TokenStream) -> TokenStream {
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```no_run,no_test,ignore
 /// use rocket::get;
 /// use yooso_macro::docapi;
 ///

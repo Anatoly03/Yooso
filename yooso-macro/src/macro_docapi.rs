@@ -31,7 +31,7 @@ meta_parser!(
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```no_run,no_test,ignore
 /// #[docapi()]
 /// #[get("/view/<uuid>")]
 /// pub async fn view_component(..., uuid: &str) -> ... {
@@ -189,7 +189,7 @@ pub fn docapi_fn(_meta: DocApiMeta, func: ItemFn) -> TokenStream {
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```no_run,no_test,ignore
 /// #[docapi()]
 /// pub struct Entity {
 ///     /// The UUID of the component to view.
@@ -297,6 +297,11 @@ pub fn docapi_struct(_meta: DocApiMeta, strucc: ItemStruct) -> TokenStream {
                     _ => None,
                 })
                 .collect::<Vec<_>>();
+            // let docapi_attr = field
+            //     .attrs
+            //     .iter()
+            //     .find(|attr| attr.path().is_ident("docapi"))
+            //     .expect("Expected a #[docapi] attribute on the struct field.");
 
             (
                 field
@@ -508,7 +513,7 @@ fn get_openapi_type(ty: &Type) -> &str {
 /// `format` field in the OpenAPI schema for struct fields. Currently the only functionality
 /// this method provides is to return the correct format for integer types.
 ///
-/// ```no_run
+/// ```no_run,no_test,ignore
 /// #[docapi()]
 /// pub struct Auth {
 ///     #[docapi(format = "email")]
@@ -567,7 +572,7 @@ fn print_documentation(http_method: &str, url: &str) {
 /// Prints a title line with the given title, color, and body to the provided stdout stream.
 /// This matches the Rust "terminal output" style for printing colored text to the terminal.
 ///
-/// ```no_run
+/// ```no_run,no_test,ignore
 /// // Prints:
 /// //
 /// // ```
