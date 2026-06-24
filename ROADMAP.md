@@ -101,6 +101,10 @@
   - [ ] Github CI
   - [ ] `yooso-studio`
   - [ ] `yooso-js`
+- [ ] OpenAPI documentation
+  - [x] Add `#[docapi]` macro.
+  - [x] Add openapi generator script.
+  - [ ] Add Github CI
 - [ ] Refactor
   - [x] Enforce `snake_case` everywhere.
   - [ ] Error Handling in Api.

@@ -1,11 +1,18 @@
 {
+    "type": "module",
     "workspaces": [
         "yooso-js",
-        "yooso-studio"
+        "yooso-studio",
+        ".github/scripts"
     ],
     "scripts": {
         "dev": "npm run dev --workspace=yooso-studio",
         "build": "npm run build --workspace=yooso-studio",
-        "build-library": "npm run build --workspace=yooso-js"
+        "build-library": "npm run build --workspace=yooso-js",
+        "openapi-merge": "ts-node .github/scripts/openapi-merge.ts"
+    },
+    "devDependencies": {
+        "@types/node": "^26.0.0",
+        "ts-node": "^10.9.2"
     }
 }

@@ -24,3 +24,13 @@ To build the documentation locally, run the following command.
 ```sh
 cargo doc --no-deps --workspace
 ```
+
+### Generating the OpenAPI file
+
+When compiling Rust, the openapi files are automatically fragmentedly generated in the respective directories.
+To compile a single OpenAPI file, we provide a script to merge openapi data. An example can be seen below.
+The `npm run openapi-merge` command takes a list of openapi scripts and merges them intelligently.
+
+```sh
+npm run openapi-merge yooso-api/openapi/openapi.json yooso-storage/openapi/openapi.json
+```

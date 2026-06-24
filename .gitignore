@@ -12,3 +12,6 @@ local
 
 # Documentation
 docs
+
+# open api
+openapi.json
