@@ -22,7 +22,7 @@ interface OpenAPiFile {
     info?: {
         name?: string;
         version?: string;
-        authors?: string[];
+        // authors?: string[];
     };
     paths?: any;
     components?: {
@@ -80,13 +80,13 @@ for (const fileContent of fileContents) {
         merged["components"]!["schemas"][componentType] ??= componentData;
     }
 
-    // merge authors
-    for (const author of (fileContent.info?.authors ?? [])) {
-        if (!author) continue;
-        if (merged.info!.authors!.includes(author)) continue;
+    // // merge authors
+    // for (const author of (fileContent.info?.authors ?? [])) {
+    //     if (!author) continue;
+    //     if (merged.info!.authors!.includes(author)) continue;
         
-        merged.info!.authors!.push(author);
-    }
+    //     merged.info!.authors!.push(author);
+    // }
 }
 
 const outputString = JSON.stringify(merged, null, 2);

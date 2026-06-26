@@ -7,6 +7,7 @@ use uuid::Uuid;
 use yooso_core::Result;
 
 /// Corresponds to a component in the application.
+#[docapi()]
 #[collection(db = crate::MetaDB, table = "components")]
 #[unique(component_name)]
 #[derive(Debug, Serialize, Deserialize)]

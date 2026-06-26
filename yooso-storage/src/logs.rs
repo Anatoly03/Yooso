@@ -3,6 +3,7 @@ use uuid::Uuid;
 
 /// Tracks all request and response logs. Each record corresponds to a
 /// single HTTP request and its associated response.
+#[docapi()]
 #[collection(db = crate::LogDB, table = "logs")]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LogRecord {

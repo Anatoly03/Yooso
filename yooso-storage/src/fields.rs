@@ -1,11 +1,11 @@
+use crate::ComponentRecord;
 use serde::{Deserialize, Serialize};
 use util_validation::{ValidateFrom, Validated, ValidationError};
 use uuid::Uuid;
 use yooso_core::Result;
 
-use crate::ComponentRecord;
-
 /// Corresponds to a field of a component in the application.
+#[docapi()]
 #[collection(db = crate::MetaDB, table = "fields")]
 #[unique(component_id, field_name)]
 #[unique(component_id, position)]

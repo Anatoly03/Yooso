@@ -1,10 +1,9 @@
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use yooso_macro::docapi;
 
-#[docapi()]
 /// Corresponds to an entity in the application.
+#[docapi()]
 #[collection(db = crate::MetaDB, table = "entities")]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct EntityRecord {

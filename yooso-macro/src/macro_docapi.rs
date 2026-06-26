@@ -103,7 +103,7 @@ pub fn docapi_fn(_meta: DocApiMeta, func: ItemFn) -> TokenStream {
     openapi_value["info"] = json!({
         "title": std::env::var("CARGO_PKG_NAME").unwrap(),
         "version": std::env::var("CARGO_PKG_VERSION").unwrap(),
-        "authors": std::env::var("CARGO_PKG_AUTHORS").unwrap().split(':').collect::<Vec<_>>(),
+        // "authors": std::env::var("CARGO_PKG_AUTHORS").unwrap().split(':').collect::<Vec<_>>(),
     });
 
     // Ensure paths and components exist. This is a safety check in case the file
@@ -162,11 +162,36 @@ pub fn docapi_fn(_meta: DocApiMeta, func: ItemFn) -> TokenStream {
         openapi_value["paths"][&path_key] = json!({});
     }
 
+    // Process path parameter names.
+    let path_params = path_key
+        .split('/')
+        .filter(|s| !s.is_empty())
+        .filter(|segment| segment.starts_with('{') && segment.ends_with('}'))
+        .map(|segment| &segment[1..segment.len() - 1])
+        .collect::<Vec<_>>();
+
+    // Path parameter documentation.
+    let path_param_docs = path_params
+        .iter()
+        .map(|param| {
+            json!({
+                "name": param,
+                "in": "path",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                },
+                "description": format!("To-do: document `{}` path parameter", param),
+            })
+        })
+        .collect::<Vec<_>>();
+
     // Add the HTTP method with its operation
     let method_lower = http_method.to_lowercase();
     openapi_value["paths"][&path_key][&method_lower] = json!({
         "operationId": operation_id,
-        "summary": "Todo: Implement #[docapi(summary = \"...\")]",
+        "summary": format!("To-do: document `{}` endpoint", &url),
+        "parameters": path_param_docs
     });
 
     // IMPORTANT: Write the file - ONLY truncate when creating a new file
@@ -245,7 +270,7 @@ pub fn docapi_struct(_meta: DocApiMeta, strucc: ItemStruct) -> TokenStream {
     openapi_value["info"] = json!({
         "title": std::env::var("CARGO_PKG_NAME").unwrap(),
         "version": std::env::var("CARGO_PKG_VERSION").unwrap(),
-        "authors": std::env::var("CARGO_PKG_AUTHORS").unwrap().split(':').collect::<Vec<_>>(),
+        // "authors": std::env::var("CARGO_PKG_AUTHORS").unwrap().split(':').collect::<Vec<_>>(),
     });
 
     // Ensure paths and components exist. This is a safety check in case the file
@@ -291,7 +316,6 @@ pub fn docapi_struct(_meta: DocApiMeta, strucc: ItemStruct) -> TokenStream {
                         .to_token_stream()
                         .to_string()
                         .trim_matches('"')
-                        .trim()
                         .to_string()
                         .into(),
                     _ => None,
@@ -302,19 +326,21 @@ pub fn docapi_struct(_meta: DocApiMeta, strucc: ItemStruct) -> TokenStream {
             //     .iter()
             //     .find(|attr| attr.path().is_ident("docapi"))
             //     .expect("Expected a #[docapi] attribute on the struct field.");
+            let key = field
+                .ident
+                .as_ref()
+                .expect("Only named identifiers allowed")
+                .to_string();
+            let mut value = json!({
+                "type": ty,
+                "description": description.join(" "),
+            });
 
-            (
-                field
-                    .ident
-                    .as_ref()
-                    .expect("Only named identifiers allowed")
-                    .to_string(),
-                json!({
-                    "type": ty,
-                    "format": format,
-                    "description": description.join(" "),
-                }),
-            )
+            if let Some(format) = format {
+                value["format"] = json!(format);
+            }
+
+            (key, value)
         })
         .collect::<HashMap<_, _>>();
 
