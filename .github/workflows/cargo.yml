@@ -16,7 +16,7 @@ jobs:
     name: Build Rust Project
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # Cache Rust dependencies to speed up the build process.
       - name: Cache Rust Dependencies
