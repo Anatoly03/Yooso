@@ -2,8 +2,7 @@
 //! interface to [sqlx].
 
 use sqlx::{
-    Pool, Sqlite, SqlitePool,
-    sqlite::{SqliteConnectOptions, SqliteJournalMode},
+    Pool, Sqlite, SqlitePool, migrate::MigrateError, sqlite::{SqliteConnectOptions, SqliteJournalMode},
 };
 use std::str::FromStr;
 
@@ -38,5 +37,17 @@ impl Database {
 
         let pool = SqlitePool::connect_with(options).await?;
         Ok(Self { pool })
+    }
+
+    /// Run migrations on the main database.
+    pub async fn migrate(&self) -> Result<(), MigrateError> {
+        sqlx::migrate!("../migrations").run(&self.pool).await?;
+
+        // TODO only print migrations which have been "currently" migrated by writing a custom migrator
+        for migration in sqlx::migrate!("../migrations").iter() {
+            println!("Migrate {} `{}`", migration.version, migration.description);
+        }
+
+        Ok(())
     }
 }

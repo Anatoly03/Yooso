@@ -25,9 +25,12 @@ impl App {
 
         // Prepare states.
         let db_state = Database::init().await?;
+        db_state.migrate().await?;
 
-        // Prepare router and general data.
+        // Prepare general.
         let port = dotenvy::var("YOOSO_PORT").unwrap_or("8090".into());
+
+        // Prepare router.
         let router = Router::new().with_state(db_state);
 
         Ok(Self { router, port })

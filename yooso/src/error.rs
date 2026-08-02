@@ -16,6 +16,9 @@ pub enum InternalError {
 
     /// Represents all the ways a method can fail within SQLx.
     Sqlx(sqlx::error::Error),
+
+    /// Represents an error while resolving or executing SQL migrations.
+    SqlxMigrate(sqlx::migrate::MigrateError),
 }
 
 /// Represents all the ways a method can fail from a request.
@@ -52,5 +55,11 @@ impl From<sqlx::Error> for InternalError {
 impl From<sqlx::Error> for InputError {
     fn from(value: sqlx::Error) -> Self {
         Self::InternalError(InternalError::Sqlx(value))
+    }
+}
+
+impl From<sqlx::migrate::MigrateError> for InternalError {
+    fn from(value: sqlx::migrate::MigrateError) -> Self {
+        Self::SqlxMigrate(value)
     }
 }
