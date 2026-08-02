@@ -1,7 +1,7 @@
 //! The Yooso application state.
 
 use axum::Router;
-use std::io;
+use std::{format, io, println};
 use tokio::net::TcpListener;
 
 #[derive(Default)]
@@ -26,10 +26,16 @@ impl App {
         }
     }
 
-    /// Creates a new [TcpListener], which will be bound to `0.0.0.0:3000`. The
-    /// listener is ready for accepting connections.
+    /// Creates a new [TcpListener], which is ready for accepting connections.
+    ///
+    /// The listener will be bound to the the port provided by the environment
+    /// variable `YOOSO_PORT`. Binding with a port number of 0 will request that
+    /// the OS assigns a port to this listener.
     pub async fn listen(mut self) -> Result<Self, io::Error> {
-        self.listener = Some(TcpListener::bind("0.0.0.0:3000").await?);
+        let port = dotenvy::var("YOOSO_PORT").unwrap_or("8090".into());
+        let address = format!("0.0.0.0:{port}");
+        self.listener = Some(TcpListener::bind(&address).await?);
+        println!("Listening on {address}");
         Ok(self)
     }
 

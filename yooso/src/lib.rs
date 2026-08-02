@@ -2,7 +2,7 @@
 //!
 //! # Re-Exports
 //!
-//! TBA
+//! - [tokio]
 //!
 //! # Features
 //!
@@ -11,3 +11,4 @@
 mod app;
 
 pub use app::App;
+pub use tokio;

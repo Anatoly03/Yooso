@@ -7,8 +7,10 @@ node_modules
 *.tsbuildinfo
 
 # Local
-local
+.env
+*.local
 .yooso
+local
 
 # Documentation
 docs
