@@ -6,4 +6,7 @@ edition = "2024"
 [dependencies]
 axum = "0.8.9"
 dotenvy = "0.15.7"
+serde = { version = "1.0.229", features = ["derive"] }
+sqlx = { version = "0.8.6", features = ["macros", "migrate", "runtime-tokio", "sqlite"] }
 tokio = { version = "1.53.1", features = ["macros", "rt-multi-thread"] }
+uuid = { version = "1.24.0", features = ["serde", "v7"] }
