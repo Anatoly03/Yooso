@@ -19,6 +19,7 @@
 //! every component.
 
 use chrono::{DateTime, Utc};
+use sqlx::Error::RowNotFound;
 use uuid::Uuid;
 
 use crate::{InternalError, db::Database};
@@ -55,7 +56,7 @@ impl Entity {
     }
 
     /// Save the entity to the database.
-    pub async fn save(&self, database: &Database) -> Result<(), InternalError> {
+    pub async fn push(&self, database: &Database) -> Result<(), InternalError> {
         let _: Option<()> =
             sqlx::query_as("INSERT OR REPLACE INTO entities(id, created_at) VALUES (?, ?)")
                 .bind(self.id)
@@ -65,13 +66,20 @@ impl Entity {
         Ok(())
     }
 
+    /// Loads the stored database contents into [self].
+    pub async fn pull(&mut self, database: &Database) -> Result<(), InternalError> {
+        *self = Self::view(&database, self.id)
+            .await?
+            .ok_or(InternalError::Sqlx(RowNotFound))?;
+        Ok(())
+    }
+
     /// Delete the entity from the database.
     pub async fn delete(&self, database: &Database) -> Result<(), InternalError> {
-        let _: Option<()> =
-            sqlx::query_as("DELETE FROM entities WHERE id = ?")
-                .bind(self.id)
-                .fetch_optional(&database.pool)
-                .await?;
+        let _: Option<()> = sqlx::query_as("DELETE FROM entities WHERE id = ?")
+            .bind(self.id)
+            .fetch_optional(&database.pool)
+            .await?;
         Ok(())
     }
 
@@ -87,10 +95,28 @@ impl Entity {
             });
         Ok(result)
     }
+
+    /// Fetches all entities.
+    pub async fn fetch_all(database: &Database) -> Result<Vec<Self>, InternalError> {
+        let result: Vec<(Uuid, DateTime<Utc>)> =
+            sqlx::query_as("SELECT id, created_at FROM entities")
+                .fetch_all(&database.pool)
+                .await?;
+        let entities = result
+            .into_iter()
+            .map(|result: (Uuid, DateTime<Utc>)| Self {
+                id: result.0,
+                created_at: result.1,
+            })
+            .collect();
+        Ok(entities)
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::assert_eq;
+
     use crate::db::{Database, entities::Entity};
 
     /// This test verifies that [Entity::new] should not save to the database.
@@ -121,12 +147,47 @@ mod tests {
         );
 
         let entity = Entity::new();
-        entity.save(&database).await.unwrap();
+        entity.push(&database).await.unwrap();
 
         assert!(
             Entity::view(&database, entity.id).await.unwrap().is_some(),
             "entity does not exist in the database"
         );
+    }
+
+    /// This test verifies that general entity-fetching works.
+    #[tokio::test]
+    pub async fn entity_fetch() {
+        let database = Database::init().await.unwrap();
+        assert!(
+            database.migrate().await.is_ok(),
+            "database migration failed"
+        );
+
+        assert_eq!(
+            Entity::fetch_all(&database).await.unwrap().len(),
+            0,
+            "there should be exactly 0 entities in the table"
+        );
+
+        let entity1 = Entity::new();
+        entity1.push(&database).await.unwrap();
+        
+        assert_eq!(
+            Entity::fetch_all(&database).await.unwrap().len(),
+            1,
+            "there should be exactly 1 entity in the table"
+        );
+
+        let entity2 = Entity::new();
+        entity2.push(&database).await.unwrap();
+
+        assert_eq!(
+            Entity::fetch_all(&database).await.unwrap().len(),
+            2,
+            "there should be exactly 2 entities in the table"
+        );
+
     }
 
     /// This test verifies that an entity removed with [Entity::delete] is
@@ -140,7 +201,7 @@ mod tests {
         );
 
         let entity = Entity::new();
-        entity.save(&database).await.unwrap();
+        entity.push(&database).await.unwrap();
         entity.delete(&database).await.unwrap();
 
         assert!(
