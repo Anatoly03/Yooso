@@ -1,9 +1,8 @@
 //! The database module of the Yooso infrastructure. This module provides the
 //! interface to [sqlx].
 
-use sqlx::{
-    Pool, Sqlite, SqlitePool, migrate::MigrateError, sqlite::{SqliteConnectOptions, SqliteJournalMode},
-};
+use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode};
+use sqlx::{Pool, Sqlite, SqlitePool, migrate::MigrateError};
 use std::str::FromStr;
 
 /// The general database state.
@@ -49,5 +48,45 @@ impl Database {
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Database;
+
+    /// This is a pair of two tests, the other is called [migrations]. This test verifies
+    /// that a newly initialized database does not have any migrations.
+    #[tokio::test]
+    pub async fn no_migrations() {
+        let database = Database::init().await.unwrap();
+
+        let result: Result<(i64,), sqlx::Error> =
+            sqlx::query_as("SELECT COUNT(*) FROM _sqlx_migrations")
+                .fetch_one(&database.pool)
+                .await;
+
+        // verify "_sqlx_migrations" does not exist
+        assert!(result.is_err(), "`_sqlx_migrations` table should not exist");
+    }
+
+    /// This is a pair of two tests, the other is called [no_migrations]. This test verifies
+    /// that after running migrations, there is no error and the total migration count is
+    /// greater 1. (`create_tickets` migration exists)
+    #[tokio::test]
+    pub async fn migrations() {
+        let database = Database::init().await.unwrap();
+        database.migrate().await.unwrap();
+
+        let result: Result<(i64,), sqlx::Error> =
+            sqlx::query_as("SELECT COUNT(*) FROM _sqlx_migrations")
+                .fetch_one(&database.pool)
+                .await;
+
+        let total_migrations = sqlx::migrate!("../migrations").iter().len() as i64;
+
+        // verify "_sqlx_migrations" exists
+        assert!(result.is_ok(), "`_sqlx_migrations` table should be created");
+        assert!(result.unwrap().0 == total_migrations, "there should be exactly {total_migrations} migration(s)");
     }
 }
