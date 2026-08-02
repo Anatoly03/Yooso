@@ -7,9 +7,9 @@ use yooso::{App, InternalError};
 
 /// The entry point for the "Yooso Light" binary. This function is invoked if
 /// [yooso] is used as a standalone executable. It will construct a "default"
-/// config for a Yooso App and start the web server.
+/// config for a Yooso App and then start the web server.
 #[tokio::main]
 async fn main() -> Result<(), InternalError> {
     dotenvy::dotenv().ok();
-    App::new().deploy().await
+    App::init().await?.deploy().await
 }
