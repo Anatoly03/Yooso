@@ -28,7 +28,11 @@
     },
     "devDependencies": {
         "@types/node": "^26.1.2",
+        "@vicons/fluent": "^0.13.0",
+        "@vicons/ionicons5": "^0.13.0",
         "@vitejs/plugin-vue": "^6.0.8",
+        "naive-ui": "^2.44.1",
+        "sass-embedded": "^1.100.0",
         "vite": "^8.2.0",
         "vite-plugin-vue-devtools": "^8.2.1"
     }
