@@ -1,7 +1,8 @@
 //! The Yooso application state.
 
 use crate::{db::Database, error::InternalError};
-use axum::{Router, routing::get};
+use axum::{Router, http::Method, routing::get};
+use tower_http::cors::{self, CorsLayer};
 use std::{format, println};
 use tokio::net::TcpListener;
 
@@ -23,6 +24,11 @@ impl App {
         // Create .yooso data directory.
         std::fs::create_dir_all(".yooso").unwrap();
 
+        // Cors allow from any origin.
+        let cors = CorsLayer::new()
+            .allow_methods([Method::GET, Method::POST, Method::DELETE, Method::PATCH])
+            .allow_origin(cors::Any);
+
         // Prepare states.
         let db_state = Database::init().await?;
         db_state.migrate().await?;
@@ -38,7 +44,8 @@ impl App {
                     .post(crate::db::entities::api::create_entity)
                     .delete(crate::db::entities::api::delete_entity),
             )
-            .with_state(db_state);
+            .with_state(db_state)
+            .layer(cors);
 
         Ok(Self { router, port })
     }
