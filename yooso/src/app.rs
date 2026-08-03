@@ -1,7 +1,7 @@
 //! The Yooso application state.
 
 use crate::{db::Database, error::InternalError};
-use axum::Router;
+use axum::{Router, routing::get};
 use std::{format, println};
 use tokio::net::TcpListener;
 
@@ -31,7 +31,14 @@ impl App {
         let port = dotenvy::var("YOOSO_PORT").unwrap_or("8090".into());
 
         // Prepare router.
-        let router = Router::new().with_state(db_state);
+        let router = Router::new()
+            .route(
+                "/api/entities",
+                get(crate::db::entities::api::list_entities)
+                    .post(crate::db::entities::api::create_entity)
+                    .delete(crate::db::entities::api::delete_entity),
+            )
+            .with_state(db_state);
 
         Ok(Self { router, port })
     }

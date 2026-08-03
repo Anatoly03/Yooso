@@ -1,7 +1,7 @@
 //! The database module of the Yooso infrastructure. This module provides the
 //! interface to [sqlx].
 
-mod entities;
+pub mod entities;
 
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode};
 use sqlx::{Pool, Sqlite, SqlitePool, migrate::MigrateError};

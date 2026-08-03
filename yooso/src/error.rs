@@ -1,5 +1,7 @@
 use std::fmt::Debug;
 
+use axum::{http::StatusCode, response::{IntoResponse, Response}};
+
 /// Represents all the ways a method can fail in a Yooso application.
 ///
 /// This is state-internal and response-wise represents status code 500. For
@@ -61,5 +63,22 @@ impl From<sqlx::Error> for InputError {
 impl From<sqlx::migrate::MigrateError> for InternalError {
     fn from(value: sqlx::migrate::MigrateError) -> Self {
         Self::SqlxMigrate(value)
+    }
+}
+
+impl Into<InputError> for InternalError {
+    fn into(self) -> InputError {
+        InputError::InternalError(self)
+    }
+}
+
+impl IntoResponse for InternalError {
+    fn into_response(self) -> Response {
+        // match self {
+        //     Self::Io(_) => todo!(),
+        //     Self::Sqlx(_) => todo!(),
+        //     Self::SqlxMigrate(_) => todo!(),
+        // }
+        StatusCode::INTERNAL_SERVER_ERROR.into_response()
     }
 }
