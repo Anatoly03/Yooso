@@ -5,7 +5,7 @@
         </div>
         <n-data-table class="view-entities-table" :columns="columns" :data="entities">
             <template #empty>
-                <n-empty description="Custom your icon">
+                <n-empty description="Entities are atomic data points in the Yooso framework. Start developing by creating a few entities!">
                     <template #icon>
                         <n-icon>
                             <FlowerOutline />
