@@ -1,0 +1,35 @@
+{
+    "name": "yooso-studio",
+    "version": "0.0.0",
+    "description": "Yōso Studio is the administrative panel of the Yōso platform.",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "dev": "vite",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Yooso Project",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Anatoly03/Yooso.git"
+    },
+    "keywords": [
+        "yooso",
+        "backend",
+        "ecs"
+    ],
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Anatoly03/Yooso/issues"
+    },
+    "homepage": "https://github.com/Anatoly03/Yooso#readme",
+    "dependencies": {
+        "vue": "^3.5.40"
+    },
+    "devDependencies": {
+        "@types/node": "^26.1.2",
+        "@vitejs/plugin-vue": "^6.0.8",
+        "vite": "^8.2.0",
+        "vite-plugin-vue-devtools": "^8.2.1"
+    }
+}
