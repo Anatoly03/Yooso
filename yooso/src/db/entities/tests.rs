@@ -1,5 +1,7 @@
 //! Entity-related unit tests.
 
+use chrono::Utc;
+
 use super::{Database, Entity};
 use std::assert_eq;
 
@@ -91,4 +93,15 @@ pub async fn entity_delete() {
         Entity::view(&database, entity.id).await.unwrap().is_none(),
         "entity exists in the database, but should have been deleted"
     );
+}
+
+/// This test verifies that [Entity::new] should not save to the database.
+#[tokio::test]
+pub async fn entity_created_at() {
+    let before_entity_created = Utc::now();
+    let entity = Entity::new();
+    let after_entity_created = Utc::now();
+
+    assert!(before_entity_created <= entity.created_at, "entity `created_at` should be after `before_entity_created`");
+    assert!(entity.created_at <= after_entity_created, "entity `created_at` should be before `after_entity_created`");
 }

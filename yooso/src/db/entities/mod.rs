@@ -55,7 +55,7 @@ impl Entity {
     pub fn new() -> Self {
         Self {
             id: Uuid::now_v7(),
-            created_at: DateTime::<Utc>::default(),
+            created_at: Utc::now(),
         }
     }
 
