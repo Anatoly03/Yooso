@@ -17,7 +17,7 @@ pub async fn entity_new() {
     let entity = Entity::new();
 
     assert!(
-        Entity::view(&database, entity.id).await.unwrap().is_none(),
+        Entity::view(&database, &entity.id).await.unwrap().is_none(),
         "entity exists in the database, but was not saved yet"
     );
 }
@@ -36,7 +36,7 @@ pub async fn entity_save() {
     entity.push(&database).await.unwrap();
 
     assert!(
-        Entity::view(&database, entity.id).await.unwrap().is_some(),
+        Entity::view(&database, &entity.id).await.unwrap().is_some(),
         "entity does not exist in the database"
     );
 }
@@ -90,7 +90,7 @@ pub async fn entity_delete() {
     entity.delete(&database).await.unwrap();
 
     assert!(
-        Entity::view(&database, entity.id).await.unwrap().is_none(),
+        Entity::view(&database, &entity.id).await.unwrap().is_none(),
         "entity exists in the database, but should have been deleted"
     );
 }

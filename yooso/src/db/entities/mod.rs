@@ -72,7 +72,7 @@ impl Entity {
 
     /// Loads the stored database contents into [self].
     pub async fn pull(&mut self, database: &Database) -> Result<(), InternalError> {
-        *self = Self::view(&database, self.id)
+        *self = Self::view(&database, &self.id)
             .await?
             .ok_or(InternalError::Sqlx(RowNotFound))?;
         Ok(())
@@ -88,7 +88,7 @@ impl Entity {
     }
 
     /// View the entity record by given id.
-    pub async fn view(database: &Database, uuid: Uuid) -> Result<Option<Self>, InternalError> {
+    pub async fn view(database: &Database, uuid: &Uuid) -> Result<Option<Self>, InternalError> {
         let result = sqlx::query_as("SELECT id, created_at FROM entities WHERE id = ?")
             .bind(uuid)
             .fetch_optional(&database.pool)

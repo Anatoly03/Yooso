@@ -1,6 +1,7 @@
 //! Entity-related API endpoints.
 
-use axum::{Json, extract::State};
+use axum::{Json, extract::{Path, State}};
+use uuid::Uuid;
 
 use crate::InternalError;
 
@@ -32,7 +33,8 @@ pub async fn create_entity(State(db): State<Database>) -> Result<Json<Entity>, I
     Ok(Json(entity))
 }
 
-/// The endpoint for deleting entities.
+/// The endpoint for deleting entities. Returns the deleted entity metadata or
+/// `null` if the deleted entity did not exist.
 ///
 /// # Endpoint
 ///
@@ -40,8 +42,12 @@ pub async fn create_entity(State(db): State<Database>) -> Result<Json<Entity>, I
 /// DELETE /api/entities/:id
 /// ```
 #[axum::debug_handler]
-pub async fn delete_entity(State(db): State<Database>) -> Result<Json<Entity>, InternalError> {
-    let entity = Entity::new();
-    entity.push(&db).await?;
+pub async fn delete_entity(State(db): State<Database>, Path(uuid): Path<Uuid>) -> Result<Json<Option<Entity>>, InternalError> {
+    let entity = Entity::view(&db, &uuid).await?;
+
+    if let Some(e) = entity {
+        e.delete(&db).await?;
+    }
+
     Ok(Json(entity))
 }

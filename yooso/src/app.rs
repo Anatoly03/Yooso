@@ -1,7 +1,7 @@
 //! The Yooso application state.
 
 use crate::{db::Database, error::InternalError};
-use axum::{Router, http::Method, routing::get};
+use axum::{Router, http::Method, routing::{delete, get}};
 use tower_http::cors::{self, CorsLayer};
 use std::{format, println};
 use tokio::net::TcpListener;
@@ -41,8 +41,11 @@ impl App {
             .route(
                 "/api/entities",
                 get(crate::db::entities::api::list_entities)
-                    .post(crate::db::entities::api::create_entity)
-                    .delete(crate::db::entities::api::delete_entity),
+                    .post(crate::db::entities::api::create_entity),
+            )
+            .route(
+                "/api/entities/{id}",
+                delete(crate::db::entities::api::delete_entity),
             )
             .with_state(db_state)
             .layer(cors);
